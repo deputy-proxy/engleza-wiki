@@ -109,6 +109,9 @@ class DatabaseSeeder extends Seeder {
 
         // Tests
         $this->seedTests($L,$S,$T);
+
+        // Interactive resources (cards, listening, reading, writing)
+        $this->call(InteractiveResourcesSeeder::class);
     }
 
     private function seedTests($L,$S,$T): void {

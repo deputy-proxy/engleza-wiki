@@ -33,5 +33,14 @@ Route::middleware('auth')->group(function(){
     Route::get('/dashboard',[DashboardController::class,'index'])->name('dashboard');
     Route::get('/my-tests',[DashboardController::class,'tests'])->name('dashboard.tests');
     Route::get('/my-resources',[DashboardController::class,'resources'])->name('dashboard.resources');
+    Route::get('/my-writing',[DashboardController::class,'writing'])->name('dashboard.writing');
     Route::post('/resources/{resource:slug}/save',[DashboardController::class,'toggleSave'])->name('resources.toggle-save');
+    Route::post('/resources/{resource:slug}/writing/submit',[\App\Http\Controllers\LearningController::class,'submitWriting'])->name('resources.writing.submit')->middleware('throttle:30,1');
 });
+
+// Learning attempts (listening/reading) — anonymous allowed
+Route::middleware('throttle:60,1')->group(function(){
+    Route::post('/resources/{resource:slug}/attempt/start',[\App\Http\Controllers\LearningController::class,'start'])->name('resources.attempt.start');
+    Route::post('/resources/{resource:slug}/attempt/submit',[\App\Http\Controllers\LearningController::class,'submit'])->name('resources.attempt.submit');
+});
+Route::get('/resources/{resource:slug}/result/{attempt}',[\App\Http\Controllers\LearningController::class,'result'])->name('resources.result');

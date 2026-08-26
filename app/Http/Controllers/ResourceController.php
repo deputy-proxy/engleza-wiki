@@ -14,7 +14,8 @@ class ResourceController extends Controller {
         $resources = $q->latest('published_at')->paginate(12)->withQueryString();
         $levels = Level::orderBy('sort_order')->get();
         $skills = Skill::orderBy('name')->get();
-        return view('pages.resources.index', compact('resources','levels','skills'));
+        $types = ['article'=>'Articles','grammar'=>'Grammar','vocabulary'=>'Vocabulary','worksheet'=>'Worksheets','lesson_plan'=>'Lesson Plans','activity'=>'Activities','guide'=>'Guides','exercise'=>'Exercises','card'=>'Cards','listening'=>'Listening','reading'=>'Reading','writing'=>'Writing'];
+        return view('pages.resources.index', compact('resources','levels','skills','types'));
     }
 
     public function show(Resource $resource) {
@@ -24,6 +25,18 @@ class ResourceController extends Controller {
             ->where('id','!=',$resource->id)
             ->whereHas('topics', fn($q)=>$q->whereIn('topics.id',$resource->topics->pluck('id')))
             ->limit(4)->get();
-        return view('pages.resources.show', compact('resource','related'));
+        $view = match ($resource->type) {
+            'card' => 'pages.resources.types.card',
+            'listening' => 'pages.resources.types.listening',
+            'reading' => 'pages.resources.types.reading',
+            'writing' => 'pages.resources.types.writing',
+            default => 'pages.resources.show',
+        };
+        // Eager-load type-specific children
+        if ($resource->type === 'card') $resource->load('cardResource.cards');
+        if ($resource->type === 'listening') $resource->load('listeningResource.questions.options');
+        if ($resource->type === 'reading') $resource->load('readingResource.questions.options');
+        if ($resource->type === 'writing') $resource->load('writingResource');
+        return view($view, compact('resource','related'));
     }
 }

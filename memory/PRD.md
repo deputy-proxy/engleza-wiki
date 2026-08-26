@@ -49,3 +49,33 @@ Tailwind CSS 4, Livewire 3, Alpine.js, MySQL. No React/Vue/Inertia/Bootstrap.
 - P2: Additional question types wired up in Livewire (multiple_choice/true_false/text)
 - P2: Elasticsearch/Meilisearch adapter behind SearchController
 - P2: Dark mode, print stylesheet, PDF export of results
+
+## Iteration 2 — Interactive Learning Resources (Jan 2026)
+
+Added 4 new interactive resource types, natively integrated with the existing Resource model:
+
+- **Cards** — CardResource + ResourceCard models, Livewire flashcard runner with 3D flip via Alpine, keyboard-accessible
+- **Listening** — ListeningResource with native HTML5 audio/video, Filament upload (mp3/mp4, configurable max size via engleza.max_media_kb)
+- **Reading** — ReadingResource with two-column desktop layout, Livewire exercise runner
+- **Writing** — WritingResource + WritingSubmission with live Alpine word counter, submit + draft modes
+- LearningAttempt / LearningAnswer models power listening & reading scoring (parallel to TestAttempt)
+- Questions table extended with nullable listening_resource_id + reading_resource_id (test_section_id also made nullable) — backwards compatible
+- Resource show route dispatches to per-type Blade views under resources/types/*
+- Resource catalogue: new type filter + coloured badges (CARDS/LISTENING/READING/WRITING)
+- Filament Resource form now shows type-specific sections (card/listening/reading/writing) via reactive visibility; CardsRelationManager for editing individual cards
+- New dashboard section: My Writing
+- Seeder InteractiveResourcesSeeder adds 3 card resources (40 cards), 2 listening, 3 reading (15 Q), 4 writing tasks
+- 8 new automated tests (`InteractiveResourcesTest`) — 22 total passing
+
+## Files affected
+- migrations/2026_01_02_000001_create_interactive_resource_tables.php
+- app/Models/{CardResource, ResourceCard, ListeningResource, ReadingResource, WritingResource, WritingSubmission, LearningAttempt, LearningAnswer}.php
+- app/Livewire/Resources/{InteractiveCards, ExerciseRunner}.php
+- app/Http/Controllers/LearningController.php
+- app/Services/Learning/LearningScoringService.php
+- app/Filament/Resources/Resources/{Schemas/ResourceForm, Pages/*, Support/NestedTypeContent, RelationManagers/CardsRelationManager}.php
+- resources/views/pages/resources/types/{card,listening,reading,writing,result}.blade.php
+- resources/views/livewire/resources/{interactive-cards,exercise-runner}.blade.php
+- resources/views/pages/dashboard/writing.blade.php
+- database/seeders/InteractiveResourcesSeeder.php
+- tests/Feature/InteractiveResourcesTest.php

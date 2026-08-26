@@ -16,6 +16,11 @@ class Resource extends Model {
     public function audiences(){ return $this->belongsToMany(Audience::class); }
     public function topics(){ return $this->belongsToMany(Topic::class); }
     public function media(){ return $this->hasMany(Media::class); }
+    public function cardResource(){ return $this->hasOne(CardResource::class); }
+    public function listeningResource(){ return $this->hasOne(ListeningResource::class); }
+    public function readingResource(){ return $this->hasOne(ReadingResource::class); }
+    public function writingResource(){ return $this->hasOne(WritingResource::class); }
+    public function learningAttempts(){ return $this->hasMany(LearningAttempt::class); }
 
     public function scopePublished($q){ return $q->where('status','published')->where('published_at','<=',now()); }
     public function getRouteKeyName(): string { return 'slug'; }

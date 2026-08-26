@@ -20,6 +20,10 @@ class DashboardController extends Controller {
         $saved = SavedResource::where('user_id',auth()->id())->with('resource.level')->latest()->paginate(20);
         return view('pages.dashboard.resources', compact('saved'));
     }
+    public function writing() {
+        $submissions = \App\Models\WritingSubmission::where('user_id',auth()->id())->with('writingResource.resource')->latest()->paginate(20);
+        return view('pages.dashboard.writing', compact('submissions'));
+    }
     public function toggleSave(Resource $resource) {
         $u = auth()->id();
         $existing = SavedResource::where('user_id',$u)->where('resource_id',$resource->id)->first();
