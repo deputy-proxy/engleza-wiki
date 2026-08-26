@@ -1,12 +1,12 @@
 <x-layout :title="'engleza.wiki – Free English Resources for Learners and Teachers'" :description="'Everything you need to learn and teach English — for free. Grammar, vocabulary, lessons, worksheets and a free CEFR level test.'">
 
-<section class="relative overflow-hidden">
+<section class="relative overflow-hidden group">
   <div class="mx-auto max-w-7xl px-6 pt-16 pb-20 grid lg:grid-cols-12 gap-12 items-center">
     
-    <!-- Left Column: Content with staggered entrance animations -->
+    <!-- Left Column with stagger-reveal animations -->
     <div class="lg:col-span-7">
       
-      <!-- Eyebrow -->
+      <!-- Eyebrow: Pulsing and slightly tracking on hover -->
       <div 
         class="inline-flex items-center gap-3 text-sm font-semibold text-brand-600 uppercase tracking-wider transition-all duration-700 ease-out hover:tracking-widest" 
         data-testid="hero-eyebrow"
@@ -18,7 +18,7 @@
         <span>Grow</span>
       </div>
 
-      <!-- Heading -->
+      <!-- Heading with title-scale on hover -->
       <h1 class="mt-4 text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight text-navy-900" data-testid="hero-title">
         Everything you need<br>to learn and teach<br>
         English — <span class="text-brand-500 inline-block transition-transform duration-300 hover:scale-105">for free.</span>
@@ -31,67 +31,61 @@
         and more enjoyable.
       </p>
 
-      <!-- Search Input with focus glow and button scale effect -->
+      <!-- Search with glowing focus-within ring and search icon -->
       <form 
         action="{{ route('search') }}" 
         method="GET" 
         class="mt-8 max-w-xl flex gap-2 rounded-full bg-white p-2 shadow-[0_4px_30px_-8px_rgba(15,30,92,0.2)] ring-1 ring-navy-100 transition-all duration-300 focus-within:ring-2 focus-within:ring-brand-500 focus-within:shadow-[0_8px_35px_-8px_rgba(15,30,92,0.25)]"
       >
         <label class="flex-1 flex items-center gap-3 px-4 cursor-text">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-navy-400 transition-colors duration-200 group-focus-within:text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z"/>
-          </svg>
-          <input name="q" placeholder="Search lessons, grammar, vocabulary..." class="w-full border-0 bg-transparent py-3 text-sm text-navy-900 focus:outline-none placeholder:text-navy-400" data-testid="hero-search-input">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-navy-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input name="q" placeholder="Search lessons, grammar, vocabulary..." class="w-full border-0 bg-transparent py-3 text-sm text-navy-900 focus:outline-none" data-testid="hero-search-input">
         </label>
-        <button class="btn-primary transform transition-transform duration-200 active:scale-95 hover:scale-105" data-testid="hero-search-btn">Search</button>
+        <button class="btn-primary" data-testid="hero-search-btn">Search</button>
       </form>
 
-      <!-- Action Buttons -->
+      <!-- Action Buttons with translate hover and icon move -->
       <div class="mt-8 flex flex-wrap gap-4">
-        <a href="{{ route('resources.index') }}" class="btn-outline transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md" data-testid="hero-explore-btn">
+        <a href="{{ route('resources.index') }}" class="btn-outline transition-transform duration-300 hover:-translate-y-0.5" data-testid="hero-explore-btn">
           Explore Resources
         </a>
-        <a href="{{ route('tests.index') }}" class="btn-ghost text-brand-600 group inline-flex items-center gap-1 transition-all duration-300 hover:translate-x-1" data-testid="hero-take-test-btn">
+        <a href="{{ route('tests.index') }}" class="btn-ghost text-brand-600 group inline-flex items-center gap-1" data-testid="hero-take-test-btn">
           Take the free English test 
           <span class="transition-transform duration-200 group-hover:translate-x-1">→</span>
         </a>
       </div>
     </div>
 
-    <!-- Right Column: Interactive 3D Card Container -->
-    <div class="lg:col-span-5 [perspective:1000px]">
+    <!-- Right Column: Interactive 3D Card with 3 cards layout -->
+    <div 
+      class="lg:col-span-5 [perspective:1000px]"
+    >
       <div 
         id="interactive-3d-card"
-        class="relative aspect-square rounded-[2rem] bg-gradient-to-br from-brand-50 via-white to-yellow-50 p-8 ring-1 ring-navy-100/60 shadow-[0_20px_60px_-20px_rgba(15,30,92,0.25)] transition-transform duration-200 ease-out [transform-style:preserve-3d] cursor-pointer"
+        class="relative aspect-square rounded-[2rem] bg-gradient-to-br from-brand-50 via-white to-yellow-50 p-8 ring-1 ring-navy-100/60 shadow-[0_20px_60px_-20px_rgba(15,30,92,0.25)] transition-transform duration-200 ease-out [transform-style:preserve-3d]"
       >
-        <!-- Inner Floating Grid with elevated 3D depth -->
-        <div class="absolute inset-6 rounded-3xl bg-white shadow-inner p-6 grid grid-cols-2 gap-4 [transform:translateZ(30px)]">
+        
+        <!-- The Inner Floating Cards Layout (replicates image composition) -->
+        <div class="absolute inset-6 rounded-3xl bg-white shadow-inner p-6 flex flex-col gap-4 [transform:translateZ(30px)]">
           
-          <!-- Inner Card 1 -->
-          <div class="rounded-2xl bg-brand-50 p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:bg-brand-100/60">
+          <!-- Inner Card 1 (Top Left) -->
+          <div class="rounded-2xl bg-brand-50 p-4 w-[60%] [transform:translateZ(10px)]">
             <div class="text-xs font-semibold text-brand-600 uppercase">Grammar</div>
             <div class="mt-3 text-2xl font-bold text-navy-900">Tenses</div>
             <div class="mt-2 text-xs text-navy-600">Master past, present, future</div>
           </div>
 
-          <!-- Inner Card 2 -->
-          <div class="rounded-2xl bg-yellow-50 p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:bg-yellow-100/60">
+          <!-- Inner Card 2 (Middle Right) -->
+          <div class="rounded-2xl bg-yellow-50 p-4 w-[60%] self-end -mt-6 [transform:translateZ(15px)]">
             <div class="text-xs font-semibold text-yellow-700 uppercase">Vocabulary</div>
             <div class="mt-3 text-2xl font-bold text-navy-900">Travel</div>
             <div class="mt-2 text-xs text-navy-600">100+ practical words</div>
           </div>
 
-          <!-- Inner Card 3 -->
-          <div class="rounded-2xl bg-emerald-50 p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:bg-emerald-100/60">
-            <div class="text-xs font-semibold text-emerald-700 uppercase">Test</div>
-            <div class="mt-3 text-2xl font-bold text-navy-900">CEFR</div>
-            <div class="mt-2 text-xs text-navy-600">Find your level for free</div>
-          </div>
-
-          <!-- Inner Card 4 -->
-          <div class="rounded-2xl bg-purple-50 p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:bg-purple-100/60">
-            <div class="text-xs font-semibold text-purple-700 uppercase">Speaking</div>
-            <div class="mt-3 text-2xl font-bold text-navy-900">Practice</div>
+          <!-- Inner Card 3 (Bottom Left) -->
+          <div class="rounded-2xl bg-emerald-50 p-4 w-[60%] -mt-6 [transform:translateZ(20px)]">
+            <div class="text-xs font-semibold text-emerald-700 uppercase">Practice</div>
+            <div class="mt-3 text-2xl font-bold text-navy-900">Speaking</div>
             <div class="mt-2 text-xs text-navy-600">Everyday conversations</div>
           </div>
 
@@ -101,6 +95,41 @@
 
   </div>
 </section>
+
+<!-- Include script once per page for 3D card tilt -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const card = document.getElementById('interactive-3d-card');
+    if (!card) return;
+
+    function handleMove(e) {
+      const rect = card.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+
+      // Max rotation angles (degrees)
+      const rotateX = ((y - centerY) / centerY) * -10;
+      const rotateY = ((x - centerX) / centerX) * 10;
+
+      card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    }
+
+    function handleReset() {
+      card.style.transform = 'rotateX(0deg) rotateY(0deg)';
+    }
+
+    card.addEventListener('mousemove', handleMove);
+    card.addEventListener('mouseleave', handleReset);
+    card.addEventListener('touchmove', handleMove, { passive: true });
+    card.addEventListener('touchend', handleReset);
+  });
+</script>
 
 <!-- Lightweight Script for 3D Tilt Interaction -->
 <script>
