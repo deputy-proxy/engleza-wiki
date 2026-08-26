@@ -36,7 +36,7 @@ class TestAttemptResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            \App\Filament\Resources\TestAttempts\RelationManagers\AnswersRelationManager::class,
         ];
     }
 

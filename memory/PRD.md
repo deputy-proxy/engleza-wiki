@@ -79,3 +79,41 @@ Added 4 new interactive resource types, natively integrated with the existing Re
 - resources/views/pages/dashboard/writing.blade.php
 - database/seeders/InteractiveResourcesSeeder.php
 - tests/Feature/InteractiveResourcesTest.php
+
+## Iteration 3 — Admin UX polish (Jan 2026)
+
+Completed comprehensive Filament admin pass:
+
+**New resources added:**
+- WritingSubmissionResource (view/edit user submissions)
+- LearningAttemptResource (view listening/reading attempts + answers via relation manager)
+- MediaResource (file library)
+
+**Existing resources — forms rewritten for UX:**
+- UserForm: role select, hashed password (nullable on edit), unique email
+- CategoryForm/TopicForm: parent select, auto-slug on name entry
+- TestForm: sectioned layout, level/skill selects, access_type/status enums, toggles
+- QuestionForm: sectioned layout, type/difficulty enums, parent context (test section OR listening OR reading), topic multi-select
+- TestAttemptForm: readonly result fields, meta collapsed
+- AssessmentResultForm: sectioned, all fields read-only
+- LevelForm/SkillForm/TagForm/AudienceForm: auto-slug, description
+- ResourceForm (existing): reactive type-specific sections; card content instructions; listening media upload; reading passage; writing task fields; SEO collapsed
+- Media/WritingSubmission/LearningAttempt: proper columns/filters
+
+**Existing resources — tables rewritten:**
+- Every table: badge colors, filters, counts, dates, toggleable columns, default sort
+- Resources: type/level/skills/status badges, published date, featured icon, type filter
+- Tests: attempts count, level/skill/status badges, filters
+- Questions: type/difficulty badges, section/listening/reading columns, options count
+- Users: role badges with colour coding, verified icon, role filter
+- Categories/Topics: parent badge, resources/questions counts
+
+**Relation managers:**
+- Resource → Cards (only visible for card-type, auto-creates CardResource on first card)
+- Test → Sections
+- Question → Options (with is_correct toggle)
+- TestAttempt → Answers (readonly review)
+- LearningAttempt → Answers (readonly review)
+
+**Model changes:**
+- Resource: added `cards()` HasManyThrough (Resource → CardResource → ResourceCard) to make the RelationManager work uniformly

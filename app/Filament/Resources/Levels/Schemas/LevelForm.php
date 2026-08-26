@@ -1,28 +1,15 @@
 <?php
-
 namespace App\Filament\Resources\Levels\Schemas;
-
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\{TextInput, Textarea};
 use Filament\Schemas\Schema;
-
-class LevelForm
-{
-    public static function configure(Schema $schema): Schema
-    {
-        return $schema
-            ->components([
-                TextInput::make('name')
-                    ->required(),
-                TextInput::make('slug')
-                    ->required(),
-                Textarea::make('description')
-                    ->default(null)
-                    ->columnSpanFull(),
-                TextInput::make('sort_order')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-            ]);
+use Illuminate\Support\Str;
+class LevelForm {
+    public static function configure(Schema $schema): Schema {
+        return $schema->components([
+            TextInput::make('name')->required()->live(onBlur: true)->afterStateUpdated(fn($s,$set)=>$set('slug',Str::slug((string)$s))),
+            TextInput::make('slug')->required()->unique(ignoreRecord: true),
+            TextInput::make('sort_order')->numeric()->default(0),
+            Textarea::make('description')->rows(3)->columnSpanFull(),
+        ])->columns(2);
     }
 }

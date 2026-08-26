@@ -1,43 +1,37 @@
 <?php
-
 namespace App\Filament\Resources\Questions\Schemas;
 
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\{Select, TextInput, Textarea};
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class QuestionForm
 {
     public static function configure(Schema $schema): Schema
     {
-        return $schema
-            ->components([
-                TextInput::make('test_section_id')
-                    ->required()
-                    ->numeric(),
-                TextInput::make('type')
-                    ->required()
-                    ->default('single_choice'),
-                Textarea::make('question')
-                    ->required()
-                    ->columnSpanFull(),
-                Textarea::make('explanation')
-                    ->default(null)
-                    ->columnSpanFull(),
-                TextInput::make('points')
-                    ->required()
-                    ->numeric()
-                    ->default(1),
-                TextInput::make('difficulty')
-                    ->required()
-                    ->default('medium'),
-                TextInput::make('sort_order')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-                Textarea::make('metadata')
-                    ->default(null)
-                    ->columnSpanFull(),
-            ]);
+        return $schema->components([
+            Section::make('Question')->columns(2)->schema([
+                Textarea::make('question')->required()->rows(3)->columnSpanFull(),
+                Select::make('type')->native(false)->required()->default('single_choice')->options([
+                    'single_choice'=>'Single choice','multiple_choice'=>'Multiple choice','true_false'=>'True/False',
+                    'text'=>'Text','short_text'=>'Short text','matching'=>'Matching','ordering'=>'Ordering','gap_fill'=>'Gap fill',
+                ]),
+                Select::make('difficulty')->native(false)->required()->default('medium')->options([
+                    'easy'=>'Easy','medium'=>'Medium','hard'=>'Hard',
+                ]),
+                TextInput::make('points')->required()->numeric()->default(1),
+                TextInput::make('sort_order')->required()->numeric()->default(0),
+                Textarea::make('explanation')->rows(3)->columnSpanFull()
+                    ->helperText('Shown after the user answers.'),
+            ]),
+            Section::make('Belongs to')->columns(3)->schema([
+                Select::make('test_section_id')->label('Test section')->relationship('section','title')->searchable()->preload(),
+                Select::make('listening_resource_id')->label('Listening resource')->relationship('listeningResource','id')->searchable(),
+                Select::make('reading_resource_id')->label('Reading resource')->relationship('readingResource','id')->searchable(),
+            ])->description('A question belongs to one of: a test section, a listening resource, or a reading resource.'),
+            Section::make('Topics')->schema([
+                Select::make('topics')->relationship('topics','name')->multiple()->preload(),
+            ]),
+        ]);
     }
 }

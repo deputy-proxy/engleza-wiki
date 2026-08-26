@@ -17,6 +17,7 @@ class Resource extends Model {
     public function topics(){ return $this->belongsToMany(Topic::class); }
     public function media(){ return $this->hasMany(Media::class); }
     public function cardResource(){ return $this->hasOne(CardResource::class); }
+    public function cards(){ return $this->hasManyThrough(ResourceCard::class, CardResource::class, 'resource_id', 'card_resource_id'); }
     public function listeningResource(){ return $this->hasOne(ListeningResource::class); }
     public function readingResource(){ return $this->hasOne(ReadingResource::class); }
     public function writingResource(){ return $this->hasOne(WritingResource::class); }

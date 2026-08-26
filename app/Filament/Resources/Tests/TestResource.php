@@ -36,7 +36,7 @@ class TestResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            \App\Filament\Resources\Tests\RelationManagers\SectionsRelationManager::class,
         ];
     }
 
