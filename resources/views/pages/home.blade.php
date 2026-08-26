@@ -2,44 +2,143 @@
 
 <section class="relative overflow-hidden">
   <div class="mx-auto max-w-7xl px-6 pt-16 pb-20 grid lg:grid-cols-12 gap-12 items-center">
+    
+    <!-- Left Column: Content with staggered entrance animations -->
     <div class="lg:col-span-7">
-      <div class="inline-flex items-center gap-3 text-sm font-semibold text-brand-600 uppercase tracking-wider" data-testid="hero-eyebrow">
-        <span>Learn</span><span class="h-1 w-1 rounded-full bg-brand-500"></span>
-        <span>Teach</span><span class="h-1 w-1 rounded-full bg-brand-500"></span>
+      
+      <!-- Eyebrow -->
+      <div 
+        class="inline-flex items-center gap-3 text-sm font-semibold text-brand-600 uppercase tracking-wider transition-all duration-700 ease-out hover:tracking-widest" 
+        data-testid="hero-eyebrow"
+      >
+        <span>Learn</span>
+        <span class="h-1 w-1 rounded-full bg-brand-500 animate-pulse"></span>
+        <span>Teach</span>
+        <span class="h-1 w-1 rounded-full bg-brand-500 animate-pulse delay-150"></span>
         <span>Grow</span>
       </div>
+
+      <!-- Heading -->
       <h1 class="mt-4 text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight text-navy-900" data-testid="hero-title">
-        Everything you need<br>to learn and teach<br>English — <span class="text-brand-500">for free.</span>
+        Everything you need<br>to learn and teach<br>
+        English — <span class="text-brand-500 inline-block transition-transform duration-300 hover:scale-105">for free.</span>
       </h1>
+
+      <!-- Subtitle -->
       <p class="mt-6 max-w-xl text-lg text-navy-600" data-testid="hero-subtitle">
         engleza.wiki is your go-to resource for free, high-quality materials,
         tips and tools to make English learning and teaching easier, more effective
         and more enjoyable.
       </p>
-      <form action="{{ route('search') }}" method="GET" class="mt-8 max-w-xl flex gap-2 rounded-full bg-white p-2 shadow-[0_4px_30px_-8px_rgba(15,30,92,0.2)] ring-1 ring-navy-100">
-        <label class="flex-1 flex items-center gap-3 px-4">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-navy-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-          <input name="q" placeholder="Search lessons, grammar, vocabulary..." class="w-full border-0 bg-transparent py-3 text-sm text-navy-900 focus:outline-none" data-testid="hero-search-input">
+
+      <!-- Search Input with focus glow and button scale effect -->
+      <form 
+        action="{{ route('search') }}" 
+        method="GET" 
+        class="mt-8 max-w-xl flex gap-2 rounded-full bg-white p-2 shadow-[0_4px_30px_-8px_rgba(15,30,92,0.2)] ring-1 ring-navy-100 transition-all duration-300 focus-within:ring-2 focus-within:ring-brand-500 focus-within:shadow-[0_8px_35px_-8px_rgba(15,30,92,0.25)]"
+      >
+        <label class="flex-1 flex items-center gap-3 px-4 cursor-text">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-navy-400 transition-colors duration-200 group-focus-within:text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <input name="q" placeholder="Search lessons, grammar, vocabulary..." class="w-full border-0 bg-transparent py-3 text-sm text-navy-900 focus:outline-none placeholder:text-navy-400" data-testid="hero-search-input">
         </label>
-        <button class="btn-primary" data-testid="hero-search-btn">Search</button>
+        <button class="btn-primary transform transition-transform duration-200 active:scale-95 hover:scale-105" data-testid="hero-search-btn">Search</button>
       </form>
+
+      <!-- Action Buttons -->
       <div class="mt-8 flex flex-wrap gap-4">
-        <a href="{{ route('resources.index') }}" class="btn-outline" data-testid="hero-explore-btn">Explore Resources</a>
-        <a href="{{ route('tests.index') }}" class="btn-ghost text-brand-600" data-testid="hero-take-test-btn">Take the free English test →</a>
+        <a href="{{ route('resources.index') }}" class="btn-outline transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md" data-testid="hero-explore-btn">
+          Explore Resources
+        </a>
+        <a href="{{ route('tests.index') }}" class="btn-ghost text-brand-600 group inline-flex items-center gap-1 transition-all duration-300 hover:translate-x-1" data-testid="hero-take-test-btn">
+          Take the free English test 
+          <span class="transition-transform duration-200 group-hover:translate-x-1">→</span>
+        </a>
       </div>
     </div>
-    <div class="lg:col-span-5">
-      <div class="relative aspect-square rounded-[2rem] bg-gradient-to-br from-brand-50 via-white to-yellow-50 p-8 ring-1 ring-navy-100/60 shadow-[0_20px_60px_-20px_rgba(15,30,92,0.25)]">
-        <div class="absolute inset-6 rounded-3xl bg-white shadow-inner p-6 grid grid-cols-2 gap-4">
-          <div class="rounded-2xl bg-brand-50 p-4"><div class="text-xs font-semibold text-brand-600 uppercase">Grammar</div><div class="mt-3 text-2xl font-bold text-navy-900">Tenses</div><div class="mt-2 text-xs text-navy-600">Master past, present, future</div></div>
-          <div class="rounded-2xl bg-yellow-50 p-4"><div class="text-xs font-semibold text-yellow-700 uppercase">Vocabulary</div><div class="mt-3 text-2xl font-bold text-navy-900">Travel</div><div class="mt-2 text-xs text-navy-600">100+ practical words</div></div>
-          <div class="rounded-2xl bg-emerald-50 p-4"><div class="text-xs font-semibold text-emerald-700 uppercase">Test</div><div class="mt-3 text-2xl font-bold text-navy-900">CEFR</div><div class="mt-2 text-xs text-navy-600">Find your level for free</div></div>
-          <div class="rounded-2xl bg-purple-50 p-4"><div class="text-xs font-semibold text-purple-700 uppercase">Speaking</div><div class="mt-3 text-2xl font-bold text-navy-900">Practice</div><div class="mt-2 text-xs text-navy-600">Everyday conversations</div></div>
+
+    <!-- Right Column: Interactive 3D Card Container -->
+    <div class="lg:col-span-5 [perspective:1000px]">
+      <div 
+        id="interactive-3d-card"
+        class="relative aspect-square rounded-[2rem] bg-gradient-to-br from-brand-50 via-white to-yellow-50 p-8 ring-1 ring-navy-100/60 shadow-[0_20px_60px_-20px_rgba(15,30,92,0.25)] transition-transform duration-200 ease-out [transform-style:preserve-3d] cursor-pointer"
+      >
+        <!-- Inner Floating Grid with elevated 3D depth -->
+        <div class="absolute inset-6 rounded-3xl bg-white shadow-inner p-6 grid grid-cols-2 gap-4 [transform:translateZ(30px)]">
+          
+          <!-- Inner Card 1 -->
+          <div class="rounded-2xl bg-brand-50 p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:bg-brand-100/60">
+            <div class="text-xs font-semibold text-brand-600 uppercase">Grammar</div>
+            <div class="mt-3 text-2xl font-bold text-navy-900">Tenses</div>
+            <div class="mt-2 text-xs text-navy-600">Master past, present, future</div>
+          </div>
+
+          <!-- Inner Card 2 -->
+          <div class="rounded-2xl bg-yellow-50 p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:bg-yellow-100/60">
+            <div class="text-xs font-semibold text-yellow-700 uppercase">Vocabulary</div>
+            <div class="mt-3 text-2xl font-bold text-navy-900">Travel</div>
+            <div class="mt-2 text-xs text-navy-600">100+ practical words</div>
+          </div>
+
+          <!-- Inner Card 3 -->
+          <div class="rounded-2xl bg-emerald-50 p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:bg-emerald-100/60">
+            <div class="text-xs font-semibold text-emerald-700 uppercase">Test</div>
+            <div class="mt-3 text-2xl font-bold text-navy-900">CEFR</div>
+            <div class="mt-2 text-xs text-navy-600">Find your level for free</div>
+          </div>
+
+          <!-- Inner Card 4 -->
+          <div class="rounded-2xl bg-purple-50 p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:bg-purple-100/60">
+            <div class="text-xs font-semibold text-purple-700 uppercase">Speaking</div>
+            <div class="mt-3 text-2xl font-bold text-navy-900">Practice</div>
+            <div class="mt-2 text-xs text-navy-600">Everyday conversations</div>
+          </div>
+
         </div>
       </div>
     </div>
+
   </div>
 </section>
+
+<!-- Lightweight Script for 3D Tilt Interaction -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const card = document.getElementById('interactive-3d-card');
+    if (!card) return;
+
+    function handleMove(e) {
+      const rect = card.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+
+      // Max rotation angles (degrees)
+      const rotateX = ((y - centerY) / centerY) * -12;
+      const rotateY = ((x - centerX) / centerX) * 12;
+
+      card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+    }
+
+    function handleReset() {
+      card.style.transform = 'rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+    }
+
+    // Mouse Events
+    card.addEventListener('mousemove', handleMove);
+    card.addEventListener('mouseleave', handleReset);
+
+    // Touch Events for Mobile
+    card.addEventListener('touchmove', handleMove, { passive: true });
+    card.addEventListener('touchend', handleReset);
+  });
+</script>
 
 <section class="border-t border-navy-100/70 bg-navy-50/40">
   <div class="mx-auto max-w-7xl px-6 py-14 grid md:grid-cols-2 lg:grid-cols-4 gap-6" data-testid="value-strip">
