@@ -1,0 +1,23 @@
+<?php
+namespace App\Filament\Resources\ClassGroups\Schemas;
+use App\Models\ClassGroup;
+use Filament\Forms\Components\{Select, TextInput, Textarea, Toggle};
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+
+class ClassGroupForm {
+    public static function configure(Schema $schema): Schema {
+        return $schema->components([
+            Section::make('Class')->columns(2)->schema([
+                TextInput::make('name')->required()->maxLength(120),
+                TextInput::make('join_code')->maxLength(12)->helperText('Auto-generated if left empty.')
+                    ->default(fn () => ClassGroup::generateCode())->unique(ignoreRecord: true),
+                Select::make('teacher_id')->label('Teacher')->relationship('teacher','email')->searchable()->required()
+                    ->default(fn () => auth()->id()),
+                Select::make('test_id')->label('Assigned test')->relationship('test','title')->searchable()->preload(),
+                Toggle::make('is_active')->default(true),
+                Textarea::make('description')->rows(3)->columnSpanFull(),
+            ]),
+        ]);
+    }
+}

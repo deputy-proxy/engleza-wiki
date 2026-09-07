@@ -31,18 +31,10 @@
         and more enjoyable.
       </p>
 
-      <!-- Search with glowing focus-within ring and search icon -->
-      <form 
-        action="{{ route('search') }}" 
-        method="GET" 
-        class="mt-8 max-w-xl flex gap-2 rounded-full bg-white p-2 shadow-[0_4px_30px_-8px_rgba(15,30,92,0.2)] ring-1 ring-navy-100 transition-all duration-300 focus-within:ring-2 focus-within:ring-brand-500 focus-within:shadow-[0_8px_35px_-8px_rgba(15,30,92,0.25)]"
-      >
-        <label class="flex-1 flex items-center gap-3 px-4 cursor-text">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-navy-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-          <input name="q" placeholder="Search lessons, grammar, vocabulary..." class="w-full border-0 bg-transparent py-3 text-sm text-navy-900 focus:outline-none" data-testid="hero-search-input">
-        </label>
-        <button class="btn-primary" data-testid="hero-search-btn">Search</button>
-      </form>
+      <!-- Live search with instant suggestions -->
+      <div class="mt-8">
+        <livewire:home-search />
+      </div>
 
       <!-- Action Buttons with translate hover and icon move -->
       <div class="mt-8 flex flex-wrap gap-4">

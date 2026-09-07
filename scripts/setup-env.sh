@@ -27,6 +27,11 @@ fi
 
 ln -sf /usr/bin/php8.3 /usr/bin/php
 
+# Composer
+if ! command -v composer >/dev/null 2>&1; then
+    curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer >/dev/null 2>&1 || true
+fi
+
 # MariaDB
 mkdir -p /var/run/mysqld
 chown mysql:mysql /var/run/mysqld || true

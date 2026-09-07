@@ -21,6 +21,11 @@ Route::get('/tests/{test:slug}', [TestController::class,'show'])->name('tests.sh
 Route::middleware('throttle:20,1')->post('/tests/{test:slug}/start', [TestController::class,'start'])->name('tests.start');
 Route::get('/tests/{test:slug}/take/{attempt}', [TestController::class,'take'])->name('tests.take');
 Route::get('/tests/{test:slug}/result/{attempt}', [TestController::class,'result'])->name('tests.result');
+Route::get('/tests/{test:slug}/certificate/{attempt}', [\App\Http\Controllers\CertificateController::class,'download'])->name('tests.certificate');
+
+// Teacher class join codes (public join, teacher-only results)
+Route::get('/classes/{code}', [\App\Http\Controllers\ClassGroupController::class,'show'])->name('classes.show');
+Route::get('/classes/{code}/results', [\App\Http\Controllers\ClassGroupController::class,'results'])->name('classes.results')->middleware('auth');
 
 Route::middleware('guest')->group(function(){
     Route::get('/login',[AuthController::class,'showLogin'])->name('login');

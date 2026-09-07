@@ -6,6 +6,12 @@
     <div class="mt-3 text-7xl font-extrabold text-navy-900" data-testid="result-level">{{ $r?->level ?? $attempt->level_result ?? '—' }}</div>
     <div class="mt-3 text-xl text-navy-600">Overall score: <span class="font-bold text-navy-900" data-testid="result-percentage">{{ $r?->overall_percentage ?? $attempt->percentage }}%</span></div>
     <div class="mt-2 text-sm text-navy-500">{{ $r?->overall_score ?? $attempt->score }} points</div>
+    @if($attempt->status === 'completed')
+      <a href="{{ route('tests.certificate', ['test'=>$test->slug, 'attempt'=>$attempt->id]) }}" class="mt-6 inline-flex btn-primary bg-emerald-600 hover:bg-emerald-700" data-testid="download-certificate-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Download certificate (PDF)
+      </a>
+    @endif
   </div>
 
   <h2 class="mt-10 text-2xl font-bold text-navy-900">Performance breakdown</h2>

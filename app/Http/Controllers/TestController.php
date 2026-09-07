@@ -18,10 +18,19 @@ class TestController extends Controller {
     public function start(Test $test, Request $r) {
         abort_unless($test->status==='published' && $test->is_public, 404);
         if (!session()->has('anon_session')) session(['anon_session'=>Str::uuid()->toString()]);
+
+        // Optional class-code binding
+        $classGroupId = null;
+        if ($code = $r->input('class_code')) {
+            $g = \App\Models\ClassGroup::where('join_code', strtoupper($code))->where('is_active', true)->first();
+            if ($g && ($g->test_id === null || $g->test_id === $test->id)) $classGroupId = $g->id;
+        }
+
         $attempt = TestAttempt::create([
             'test_id'=>$test->id,
             'user_id'=>auth()->id(),
             'session_id'=>auth()->check() ? null : session('anon_session'),
+            'class_group_id'=>$classGroupId,
             'started_at'=>now(),
             'status'=>'started',
             'ip_address'=>$r->ip(),'user_agent'=>substr((string)$r->userAgent(),0,255),
