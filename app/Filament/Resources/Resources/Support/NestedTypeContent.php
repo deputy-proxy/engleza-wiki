@@ -32,7 +32,14 @@ class NestedTypeContent
             CardResource::updateOrCreate(['resource_id'=>$record->id], $nested['cardResource'] ?? []);
         }
         if ($record->type === 'listening' && isset($nested['listeningResource'])) {
-            ListeningResource::updateOrCreate(['resource_id'=>$record->id], $nested['listeningResource'] ?? []);
+            $data = $nested['listeningResource'] ?? [];
+            if (!empty($data['media_path']) && \Illuminate\Support\Facades\Storage::disk('public')->exists($data['media_path'])) {
+                $data['file_size'] = \Illuminate\Support\Facades\Storage::disk('public')->size($data['media_path']);
+                $data['mime_type'] = \Illuminate\Support\Facades\Storage::disk('public')->mimeType($data['media_path']) ?: 'audio/mpeg';
+                $data['media_type'] = str_starts_with($data['mime_type'], 'video/') ? 'video' : 'audio';
+                $data['original_filename'] = basename($data['media_path']);
+            }
+            ListeningResource::updateOrCreate(['resource_id'=>$record->id], $data);
         }
         if ($record->type === 'reading' && isset($nested['readingResource'])) {
             ReadingResource::updateOrCreate(['resource_id'=>$record->id], $nested['readingResource'] ?? []);

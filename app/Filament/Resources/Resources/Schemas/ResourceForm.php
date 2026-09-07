@@ -55,6 +55,10 @@ class ResourceForm
                         ->disk('public')->directory('listening')
                         ->acceptedFileTypes(['audio/mpeg','audio/mp3','video/mp4'])
                         ->maxSize(config('engleza.max_media_kb', 51200))
+                        ->columnSpanFull()
+                        ->live(),
+                    \Filament\Schemas\Components\View::make('filament.forms.listening-preview')
+                        ->visible(fn (callable $get) => filled($get('listeningResource.media_path')))
                         ->columnSpanFull(),
                 ])
                 ->visible(fn (callable $get) => $get('type') === 'listening'),

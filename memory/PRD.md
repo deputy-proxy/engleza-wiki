@@ -117,3 +117,14 @@ Completed comprehensive Filament admin pass:
 
 **Model changes:**
 - Resource: added `cards()` HasManyThrough (Resource → CardResource → ResourceCard) to make the RelationManager work uniformly
+
+## Iteration 4 — Admin power features (Sep 2026)
+
+Delivered the four next-action items:
+
+- **AttemptsChart widget** (`app/Filament/Widgets/AttemptsChart.php`) — 12-week bar chart on the Filament dashboard showing attempts started vs completed
+- **Listening live preview** — ResourceForm now has a live `Placeholder → view` component that renders a native `<audio>`/`<video>` player under the FileUpload; NestedTypeContent auto-detects mime_type / file_size / media_type / original_filename from the uploaded file
+- **Card bulk add** — CardsRelationManager has a "Bulk add" header action with separator selector (auto/tab/pipe/semicolon/comma) and a textarea that creates cards in one shot; verified live (created 4 cards on production)
+- **Question bulk import** — ListQuestions has a "Bulk import" header action with Target selector (Test section / Listening / Reading), context dropdown, and CSV textarea. Uses `str_getcsv` to parse; wraps everything in a DB transaction with per-row error reporting
+
+Also added `/app/scripts/setup-env.sh` — installed as a supervisor `setup-env` program running before the frontend service. It installs PHP 8.3 + required extensions + MariaDB, seeds the DB if empty, on every pod restart. Preserves data continuity across container restarts.
