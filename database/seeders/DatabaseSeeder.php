@@ -174,7 +174,7 @@ class DatabaseSeeder extends Seeder
                         'explanation' => $qd['exp'] ?? null, 'points' => 1, 'difficulty' => 'medium', 'sort_order' => $qo++,
                     ]);
                     foreach ($qd['opts'] as $i => [$val,$correct]) {
-                        QuestionOption::create(['question_id' => $q->id, 'label' => chr(65 + $i), 'value' => $val, 'is_correct' => $correct, 'sort_order' => $i]);
+                        QuestionOption::create(['question_id' => $q->id, 'label' => chr(65 + (int) $i), 'value' => $val, 'is_correct' => $correct, 'sort_order' => $i]);
                     }
                     if (! empty($qd['topic']) && ($t = $T($qd['topic']))) {
                         $q->topics()->sync([$t->id]);
