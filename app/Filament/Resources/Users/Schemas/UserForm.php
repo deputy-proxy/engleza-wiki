@@ -1,7 +1,10 @@
 <?php
+
 namespace App\Filament\Resources\Users\Schemas;
 
-use Filament\Forms\Components\{DateTimePicker, Select, TextInput};
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Hash;
 
@@ -13,7 +16,7 @@ class UserForm
             TextInput::make('name')->required()->maxLength(120),
             TextInput::make('email')->label('Email address')->email()->required()->unique(ignoreRecord: true),
             Select::make('role')->required()->native(false)->options([
-                'admin'=>'Admin','editor'=>'Editor','teacher'=>'Teacher','learner'=>'Learner',
+                'admin' => 'Admin', 'editor' => 'Editor', 'teacher' => 'Teacher', 'learner' => 'Learner',
             ])->default('learner'),
             DateTimePicker::make('email_verified_at')->label('Verified at'),
             TextInput::make('password')->password()->revealable()

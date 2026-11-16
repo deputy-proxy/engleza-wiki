@@ -19,8 +19,10 @@ class ClassGroupResource extends Resource
     protected static ?string $model = ClassGroup::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
-    protected static string|\UnitEnum|null $navigationGroup = "Assessments";
-    protected static string|null $navigationLabel = "Class Groups";
+
+    protected static string|\UnitEnum|null $navigationGroup = 'Assessments';
+
+    protected static ?string $navigationLabel = 'Class Groups';
 
     public static function form(Schema $schema): Schema
     {

@@ -9,7 +9,9 @@ use Illuminate\Support\Carbon;
 class AttemptsChart extends ChartWidget
 {
     protected ?string $heading = 'Test attempts — last 12 weeks';
+
     protected int|string|array $columnSpan = 'full';
+
     protected ?string $maxHeight = '260px';
 
     protected function getData(): array
@@ -20,11 +22,13 @@ class AttemptsChart extends ChartWidget
 
         $counts = $weeks->map(function ($start) {
             $end = (clone $start)->endOfWeek();
+
             return TestAttempt::whereBetween('created_at', [$start, $end])->count();
         })->all();
 
         $completed = $weeks->map(function ($start) {
             $end = (clone $start)->endOfWeek();
+
             return TestAttempt::whereBetween('completed_at', [$start, $end])->where('status', 'completed')->count();
         })->all();
 

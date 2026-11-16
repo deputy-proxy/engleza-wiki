@@ -26,6 +26,7 @@ class EditResource extends EditRecord
     protected function mutateFormDataBeforeSave(array $data): array
     {
         [$data, $this->nested] = NestedTypeContent::extract($data);
+
         return $data;
     }
 

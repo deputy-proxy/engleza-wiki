@@ -1,10 +1,13 @@
 <?php
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
-    public function up(): void {
+return new class extends Migration
+{
+    public function up(): void
+    {
         Schema::create('class_groups', function (Blueprint $t) {
             $t->id();
             $t->string('name');
@@ -19,8 +22,10 @@ return new class extends Migration {
             $t->foreignId('class_group_id')->nullable()->after('user_id')->constrained('class_groups')->nullOnDelete();
         });
     }
-    public function down(): void {
-        Schema::table('test_attempts', fn(Blueprint $t) => $t->dropConstrainedForeignId('class_group_id'));
+
+    public function down(): void
+    {
+        Schema::table('test_attempts', fn (Blueprint $t) => $t->dropConstrainedForeignId('class_group_id'));
         Schema::dropIfExists('class_groups');
     }
 };

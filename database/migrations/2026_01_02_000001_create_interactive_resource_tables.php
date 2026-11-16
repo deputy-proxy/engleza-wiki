@@ -1,11 +1,13 @@
 <?php
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 
-return new class extends Migration {
-    public function up(): void {
+return new class extends Migration
+{
+    public function up(): void
+    {
         Schema::create('card_resources', function (Blueprint $t) {
             $t->id();
             $t->foreignId('resource_id')->constrained()->cascadeOnDelete();
@@ -98,7 +100,9 @@ return new class extends Migration {
             $t->timestamps();
         });
     }
-    public function down(): void {
+
+    public function down(): void
+    {
         Schema::dropIfExists('learning_answers');
         Schema::dropIfExists('learning_attempts');
         Schema::table('questions', function (Blueprint $t) {

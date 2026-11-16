@@ -1,13 +1,19 @@
 <?php
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
-    public function up(): void {
+return new class extends Migration
+{
+    public function up(): void
+    {
         Schema::create('tests', function (Blueprint $t) {
-            $t->id(); $t->string('title'); $t->string('slug')->unique();
-            $t->text('description')->nullable(); $t->longText('instructions')->nullable();
+            $t->id();
+            $t->string('title');
+            $t->string('slug')->unique();
+            $t->text('description')->nullable();
+            $t->longText('instructions')->nullable();
             $t->foreignId('level_id')->nullable()->constrained()->nullOnDelete();
             $t->foreignId('skill_id')->nullable()->constrained()->nullOnDelete();
             $t->unsignedInteger('duration_minutes')->nullable();
@@ -23,7 +29,8 @@ return new class extends Migration {
         Schema::create('test_sections', function (Blueprint $t) {
             $t->id();
             $t->foreignId('test_id')->constrained()->cascadeOnDelete();
-            $t->string('title'); $t->text('description')->nullable();
+            $t->string('title');
+            $t->text('description')->nullable();
             $t->text('instructions')->nullable();
             $t->integer('sort_order')->default(0);
             $t->timestamps();
@@ -52,7 +59,7 @@ return new class extends Migration {
         Schema::create('question_topic', function (Blueprint $t) {
             $t->foreignId('question_id')->constrained()->cascadeOnDelete();
             $t->foreignId('topic_id')->constrained()->cascadeOnDelete();
-            $t->primary(['question_id','topic_id']);
+            $t->primary(['question_id', 'topic_id']);
         });
         Schema::create('test_attempts', function (Blueprint $t) {
             $t->id();
@@ -105,7 +112,11 @@ return new class extends Migration {
             $t->timestamp('created_at')->nullable();
         });
     }
-    public function down(): void {
-        foreach (['test_attempt_events','assessment_results','test_answers','test_attempts','question_topic','question_options','questions','test_sections','tests'] as $t) Schema::dropIfExists($t);
+
+    public function down(): void
+    {
+        foreach (['test_attempt_events', 'assessment_results', 'test_answers', 'test_attempts', 'question_topic', 'question_options', 'questions', 'test_sections', 'tests'] as $t) {
+            Schema::dropIfExists($t);
+        }
     }
 };

@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Questions;
 use App\Filament\Resources\Questions\Pages\CreateQuestion;
 use App\Filament\Resources\Questions\Pages\EditQuestion;
 use App\Filament\Resources\Questions\Pages\ListQuestions;
+use App\Filament\Resources\Questions\RelationManagers\OptionsRelationManager;
 use App\Filament\Resources\Questions\Schemas\QuestionForm;
 use App\Filament\Resources\Questions\Tables\QuestionsTable;
 use App\Models\Question;
@@ -19,9 +20,10 @@ class QuestionResource extends Resource
     protected static ?string $model = Question::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedQuestionMarkCircle;
-    protected static string|\UnitEnum|null $navigationGroup = 'Assessments';
-    protected static string|null $navigationLabel = 'Question Bank';
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Assessments';
+
+    protected static ?string $navigationLabel = 'Question Bank';
 
     public static function form(Schema $schema): Schema
     {
@@ -36,7 +38,7 @@ class QuestionResource extends Resource
     public static function getRelations(): array
     {
         return [
-            \App\Filament\Resources\Questions\RelationManagers\OptionsRelationManager::class,
+            OptionsRelationManager::class,
         ];
     }
 

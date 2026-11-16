@@ -1,8 +1,13 @@
 <?php
+
 namespace App\Filament\Resources\Tests\Tables;
 
-use Filament\Actions\{BulkActionGroup, DeleteBulkAction, EditAction, DeleteAction};
-use Filament\Tables\Columns\{IconColumn, TextColumn};
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
@@ -14,19 +19,19 @@ class TestsTable
             TextColumn::make('title')->searchable()->sortable(),
             TextColumn::make('level.name')->badge()->color('primary')->sortable(),
             TextColumn::make('skill.name')->badge()->color('success')->placeholder('—'),
-            TextColumn::make('status')->badge()->colors(['gray'=>'draft','success'=>'published','danger'=>'archived']),
-            TextColumn::make('access_type')->badge()->colors(['success'=>'free','warning'=>'registered','danger'=>'premium']),
+            TextColumn::make('status')->badge()->colors(['gray' => 'draft', 'success' => 'published', 'danger' => 'archived']),
+            TextColumn::make('access_type')->badge()->colors(['success' => 'free', 'warning' => 'registered', 'danger' => 'premium']),
             TextColumn::make('attempts_count')->counts('attempts')->label('Attempts')->sortable(),
             TextColumn::make('duration_minutes')->label('Time')->suffix(' min')->sortable()->toggleable(),
             IconColumn::make('is_public')->boolean()->toggleable(),
         ])
-        ->filters([
-            SelectFilter::make('status')->options(['draft'=>'Draft','published'=>'Published','archived'=>'Archived']),
-            SelectFilter::make('level')->relationship('level','name'),
-            SelectFilter::make('skill')->relationship('skill','name'),
-        ])
-        ->defaultSort('created_at','desc')
-        ->recordActions([EditAction::make(), DeleteAction::make()])
-        ->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
+            ->filters([
+                SelectFilter::make('status')->options(['draft' => 'Draft', 'published' => 'Published', 'archived' => 'Archived']),
+                SelectFilter::make('level')->relationship('level', 'name'),
+                SelectFilter::make('skill')->relationship('skill', 'name'),
+            ])
+            ->defaultSort('created_at', 'desc')
+            ->recordActions([EditAction::make(), DeleteAction::make()])
+            ->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Filament\Resources\LearningAttempts;
 use App\Filament\Resources\LearningAttempts\Pages\CreateLearningAttempt;
 use App\Filament\Resources\LearningAttempts\Pages\EditLearningAttempt;
 use App\Filament\Resources\LearningAttempts\Pages\ListLearningAttempts;
+use App\Filament\Resources\LearningAttempts\RelationManagers\AnswersRelationManager;
 use App\Filament\Resources\LearningAttempts\Schemas\LearningAttemptForm;
 use App\Filament\Resources\LearningAttempts\Tables\LearningAttemptsTable;
 use App\Models\LearningAttempt;
@@ -19,9 +20,10 @@ class LearningAttemptResource extends Resource
     protected static ?string $model = LearningAttempt::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAcademicCap;
-    protected static string|\UnitEnum|null $navigationGroup = 'Assessments';
-    protected static string|null $navigationLabel = 'Learning Attempts';
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Assessments';
+
+    protected static ?string $navigationLabel = 'Learning Attempts';
 
     public static function form(Schema $schema): Schema
     {
@@ -36,7 +38,7 @@ class LearningAttemptResource extends Resource
     public static function getRelations(): array
     {
         return [
-            \App\Filament\Resources\LearningAttempts\RelationManagers\AnswersRelationManager::class,
+            AnswersRelationManager::class,
         ];
     }
 

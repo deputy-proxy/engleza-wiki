@@ -19,9 +19,10 @@ class SkillResource extends Resource
     protected static ?string $model = Skill::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAcademicCap;
-    protected static string|\UnitEnum|null $navigationGroup = 'Content';
-    protected static string|null $navigationLabel = 'Skills';
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Content';
+
+    protected static ?string $navigationLabel = 'Skills';
 
     public static function form(Schema $schema): Schema
     {

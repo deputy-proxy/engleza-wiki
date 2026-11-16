@@ -13,6 +13,7 @@ class CreateResource extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         [$data, $this->nested] = NestedTypeContent::extract($data);
+
         return $data;
     }
 

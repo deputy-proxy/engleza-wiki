@@ -2,11 +2,15 @@
 
 namespace App\Filament\Resources\Resources\RelationManagers;
 
-use Filament\Actions\{CreateAction, DeleteAction, EditAction};
-use Filament\Forms\Components\{Select, Textarea, TextInput};
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
-use Filament\Tables\Columns\{IconColumn, TextColumn};
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
 /**
@@ -23,7 +27,7 @@ abstract class BaseQuestionsRelationManager extends RelationManager
         return $schema->components([
             Textarea::make('question')->required()->rows(2)->columnSpanFull(),
             Textarea::make('explanation')->rows(2)->columnSpanFull(),
-            Select::make('type')->options(['single_choice'=>'Single choice','multiple_choice'=>'Multiple choice','true_false'=>'True/False','text'=>'Text'])->default('single_choice')->required(),
+            Select::make('type')->options(['single_choice' => 'Single choice', 'multiple_choice' => 'Multiple choice', 'true_false' => 'True/False', 'text' => 'Text'])->default('single_choice')->required(),
             TextInput::make('points')->numeric()->default(1),
             TextInput::make('sort_order')->numeric()->default(0),
         ]);

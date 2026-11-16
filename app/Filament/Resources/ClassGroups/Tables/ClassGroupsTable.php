@@ -1,11 +1,20 @@
 <?php
+
 namespace App\Filament\Resources\ClassGroups\Tables;
-use Filament\Actions\{EditAction, DeleteAction, ViewAction, BulkActionGroup, DeleteBulkAction, Action};
-use Filament\Tables\Columns\{IconColumn, TextColumn};
+
+use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-class ClassGroupsTable {
-    public static function configure(Table $table): Table {
+class ClassGroupsTable
+{
+    public static function configure(Table $table): Table
+    {
         return $table->columns([
             TextColumn::make('name')->searchable()->sortable(),
             TextColumn::make('join_code')->badge()->color('primary')->copyable()->copyMessage('Join code copied'),
@@ -13,13 +22,13 @@ class ClassGroupsTable {
             TextColumn::make('test.title')->label('Assigned test')->placeholder('—')->limit(40),
             TextColumn::make('attempts_count')->counts('attempts')->label('Attempts')->sortable(),
             IconColumn::make('is_active')->boolean(),
-        ])->defaultSort('created_at','desc')
-        ->recordActions([
-            Action::make('results')->label('Results')->icon('heroicon-o-chart-bar')->color('success')
-                ->url(fn ($record) => route('classes.results', $record->join_code)),
-            EditAction::make(),
-            DeleteAction::make(),
-        ])
-        ->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
+        ])->defaultSort('created_at', 'desc')
+            ->recordActions([
+                Action::make('results')->label('Results')->icon('heroicon-o-chart-bar')->color('success')
+                    ->url(fn ($record) => route('classes.results', $record->join_code)),
+                EditAction::make(),
+                DeleteAction::make(),
+            ])
+            ->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
     }
 }

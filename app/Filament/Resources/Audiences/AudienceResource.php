@@ -19,9 +19,10 @@ class AudienceResource extends Resource
     protected static ?string $model = Audience::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
-    protected static string|\UnitEnum|null $navigationGroup = 'Content';
-    protected static string|null $navigationLabel = 'Audiences';
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Content';
+
+    protected static ?string $navigationLabel = 'Audiences';
 
     public static function form(Schema $schema): Schema
     {

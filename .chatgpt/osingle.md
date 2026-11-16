@@ -1,6 +1,6 @@
 ## 1. Select the issue
 
-Get the **oldest open issue** in `deputy-proxy/easyenglish-ro`. Read its current body and comments before coding. Treat the implementation plan in the issue body as the primary implementation specification, while resolving conflicts in favor of the latest explicitly approved product decisions documented in the issue and repository README. If the README and issue disagree, update the documentation or raise the conflict before implementing.
+Get the **oldest open issue** in `deputy-proxy/engleza-wiki`. Read its current body and comments before coding. Treat the implementation plan in the issue body as the primary implementation specification, while resolving conflicts in favor of the latest explicitly approved product decisions documented in the issue and repository README. If the README and issue disagree, update the documentation or raise the conflict before implementing.
 
 If there are no open issues, do nothing.
 
@@ -24,7 +24,7 @@ Do not substitute generic Laravel/PHP conventions when the repository establishe
 
 Use the Railway Sandbox MCP `repository_prepare` flow for:
 
-`deputy-proxy/easyenglish-ro`
+`deputy-proxy/engleza-wiki`
 
 Prepare the Sandbox for the issue's dedicated development branch.
 
@@ -34,7 +34,7 @@ Do NOT create a new Sandbox merely because a new issue is being processed.
 
 The expected model is:
 
-- one persistent Sandbox for `deputy-proxy/easyenglish-ro`
+- one persistent Sandbox for `deputy-proxy/engleza-wiki`
 - one development branch per issue
 - reuse the existing Sandbox for subsequent issues
 - create a new Sandbox only when no usable persistent Sandbox for this repository exists
@@ -90,7 +90,7 @@ Once implementation is complete and focused validation is clean, perform the **c
 
 At minimum, reconcile the current workflow and run its equivalent checks locally.
 
-For this repository, reconcile `.github/workflows/tests.yml` with `composer.json` before running checks. The current workflow uses PHP 8.4 and Node 22, runs `composer setup` (including frontend dependency installation/build), then `composer ci:check` (the configured PHP lint, static analysis, and tests). Do not claim additional checks run unless the workflow or local validation confirms them.
+For this repository, reconcile `.github/workflows/tests.yml` with `composer.json` and `package.json` before running checks. The current workflow uses PHP 8.4 with MySQL 8.4 and Node 22. The PHP job installs Composer dependencies, runs database migrations, then runs `composer ci:check` (Pint formatting validation, PHPStan/Larastan static analysis, and the Laravel test suite). The frontend job installs PHP dependencies needed for Filament assets, installs JavaScript dependencies with Yarn 1 using the committed `yarn.lock`, and runs `yarn build`. There is currently no frontend interaction-test script, so do not claim frontend tests are running. The source repository's OpenWA PoC job is not applicable because this repository has no corresponding PoC. Do not claim additional checks run unless the workflow or local validation confirms them.
 
 The full local validation is the **pre-PR gate**.
 
@@ -143,7 +143,7 @@ GitHub Actions remains authoritative for final validation. Local validation does
 The repository's CI should be optimized to avoid unnecessary repeated work:
 
 - cache Composer dependencies using the repository's Composer lockfile as the cache key/input;
-- cache npm dependencies using the repository's npm lockfile as the cache key/input;
+- cache Yarn dependencies using the repository's `yarn.lock` as the cache key/input;
 - run independent PHP and frontend validation in parallel jobs where the repository workflow permits;
 - avoid performing frontend setup/build as part of the PHP validation job when it can run independently;
 - cancel obsolete in-progress PR CI runs when a newer commit supersedes them.
@@ -188,13 +188,13 @@ After completing the issue, leave the repository Sandbox intact.
 
 Do not destroy the Sandbox merely because the issue is finished.
 
-The next scheduled run must attempt to reuse the **same repository-specific Sandbox** and prepare it for the next issue.
+The next scheduled run must attempt to reuse the **same engleza-wiki-specific Sandbox** and prepare it for the next issue.
 
 Preserve:
 
 - the repository checkout;
 - installed Composer dependencies;
-- installed npm dependencies;
+- installed Yarn dependencies;
 - other reusable development tooling;
 - any other valid environment state.
 

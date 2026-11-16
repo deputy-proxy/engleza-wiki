@@ -2,22 +2,31 @@
 
 namespace App\Filament\Resources\Resources\RelationManagers;
 
-use App\Models\{CardResource, ResourceCard};
-use Filament\Actions\{Action, CreateAction, DeleteAction, EditAction};
-use Filament\Forms\Components\{Select, Textarea, TextInput};
+use App\Models\CardResource;
+use App\Models\ResourceCard;
+use Filament\Actions\Action;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class CardsRelationManager extends RelationManager
 {
     protected static string $relationship = 'cards';
+
     protected static ?string $recordTitleAttribute = 'front';
+
     protected static ?string $title = 'Cards';
 
-    public static function canViewForRecord(\Illuminate\Database\Eloquent\Model $ownerRecord, string $pageClass): bool
+    public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     {
         return $ownerRecord->type === 'card';
     }
@@ -43,6 +52,7 @@ class CardsRelationManager extends RelationManager
             ->headerActions([
                 CreateAction::make()->using(function (array $data): ResourceCard {
                     $cardResource = CardResource::firstOrCreate(['resource_id' => $this->getOwnerRecord()->id]);
+
                     return ResourceCard::create([
                         'card_resource_id' => $cardResource->id,
                         'front' => $data['front'],
@@ -62,11 +72,11 @@ class CardsRelationManager extends RelationManager
                             ->label('Column separator')
                             ->native(false)
                             ->options([
-                                'auto'=>'Auto-detect (tab, |, or ;)',
-                                'tab'=>'Tab (spreadsheet paste)',
-                                'pipe'=>'Pipe |',
-                                'semicolon'=>'Semicolon ;',
-                                'comma'=>'Comma ,',
+                                'auto' => 'Auto-detect (tab, |, or ;)',
+                                'tab' => 'Tab (spreadsheet paste)',
+                                'pipe' => 'Pipe |',
+                                'semicolon' => 'Semicolon ;',
+                                'comma' => 'Comma ,',
                             ])->default('auto')->required(),
                         Textarea::make('lines')
                             ->label('One card per line — front then back')
@@ -80,31 +90,47 @@ class CardsRelationManager extends RelationManager
                         $cardResource = CardResource::firstOrCreate(['resource_id' => $this->getOwnerRecord()->id]);
                         $sep = $data['separator'] ?? 'auto';
                         $sepChar = match ($sep) {
-                            'tab'=>"\t", 'pipe'=>'|', 'semicolon'=>';', 'comma'=>',', default=>null,
+                            'tab' => "\t", 'pipe' => '|', 'semicolon' => ';', 'comma' => ',', default => null,
                         };
-                        $created = 0; $skipped = 0;
+                        $created = 0;
+                        $skipped = 0;
                         $start = $cardResource->cards()->max('sort_order') ?? -1;
                         foreach (preg_split('/\r?\n/', (string) $data['lines']) as $rawLine) {
                             $line = trim($rawLine);
-                            if ($line === '') continue;
+                            if ($line === '') {
+                                continue;
+                            }
                             // auto-detect separator per line
                             $use = $sepChar;
                             if ($use === null) {
-                                foreach (["\t",'|',';',','] as $c) if (str_contains($line, $c)) { $use = $c; break; }
+                                foreach (["\t", '|', ';', ','] as $c) {
+                                    if (str_contains($line, $c)) {
+                                        $use = $c;
+                                        break;
+                                    }
+                                }
                             }
-                            if ($use === null) { $skipped++; continue; }
+                            if ($use === null) {
+                                $skipped++;
+
+                                continue;
+                            }
                             $parts = array_map('trim', explode($use, $line, 2));
-                            if (count($parts) < 2 || $parts[0]==='' || $parts[1]==='') { $skipped++; continue; }
+                            if (count($parts) < 2 || $parts[0] === '' || $parts[1] === '') {
+                                $skipped++;
+
+                                continue;
+                            }
                             ResourceCard::create([
                                 'card_resource_id' => $cardResource->id,
                                 'front' => $parts[0],
-                                'back'  => $parts[1],
+                                'back' => $parts[1],
                                 'sort_order' => ++$start,
                             ]);
                             $created++;
                         }
                         Notification::make()
-                            ->title("Created {$created} card(s)" . ($skipped ? ", skipped {$skipped}" : ''))
+                            ->title("Created {$created} card(s)".($skipped ? ", skipped {$skipped}" : ''))
                             ->success()->send();
                     }),
             ])
