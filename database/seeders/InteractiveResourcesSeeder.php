@@ -231,7 +231,7 @@ class InteractiveResourcesSeeder extends Seeder
         ];
         foreach ($items as [$title,$level,$excerpt,$topic,$prompt,$instr,$min,$max,$time]) {
             $r = $this->makeResource($title, 'writing', $excerpt, $admin);
-            $this->attachTaxonomy($r,$level,'Writing',$topic,['Learners']);
+            $this->attachTaxonomy($r, $level, 'Writing', $topic, ['Learners']);
             WritingResource::updateOrCreate(['resource_id' => $r->id], [
                 'prompt' => $prompt, 'instructions' => $instr,
                 'minimum_words' => $min, 'maximum_words' => $max, 'recommended_time_minutes' => $time,
