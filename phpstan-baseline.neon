@@ -1297,12 +1297,6 @@ parameters:
 			path: database/seeders/DatabaseSeeder.php
 
 		-
-			message: '#^Parameter \#1 \$codepoint of function chr expects int\<0, 255\>, int given\.$#'
-			identifier: argument.type
-			count: 1
-			path: database/seeders/DatabaseSeeder.php
-
-		-
 			message: '#^Unable to resolve the template type TKey in call to function collect$#'
 			identifier: argument.templateType
 			count: 1
