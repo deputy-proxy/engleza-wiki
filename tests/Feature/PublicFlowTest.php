@@ -96,6 +96,37 @@ class PublicFlowTest extends TestCase
         $this->get('/admin/login')->assertOk();
     }
 
+    public function test_admin_can_open_filament_dashboard_and_resource_pages(): void
+    {
+        $admin = User::where('email', 'admin@engleza.wiki')->firstOrFail();
+
+        $this->actingAs($admin)->get('/admin')->assertOk();
+
+        $resources = [
+            'assessment-results',
+            'audiences',
+            'categories',
+            'class-groups',
+            'learning-attempts',
+            'levels',
+            'media',
+            'questions',
+            'resources',
+            'skills',
+            'tags',
+            'test-attempts',
+            'tests',
+            'topics',
+            'users',
+            'writing-submissions',
+        ];
+
+        foreach ($resources as $resource) {
+            $this->get('/admin/'.$resource)->assertOk();
+            $this->get('/admin/'.$resource.'/create')->assertOk();
+        }
+    }
+
     public function test_registration_creates_learner(): void
     {
         $this->post('/register', [

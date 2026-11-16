@@ -6,10 +6,10 @@
 
 ## Stack
 
-- **PHP 8.3** + **Laravel 13** (framework)
-- **Filament 4** (admin panel — Filament 5 not yet released as of Jan 2026; latest available is used)
+- **PHP 8.3+** + **Laravel 13.42** (framework)
+- **Filament 5.11** (admin panel)
 - **Blade** for public views
-- **Livewire 3** for the interactive test engine
+- **Livewire 4.4** for interactive components and the test engine
 - **Alpine.js** for small client interactions (timer, transitions)
 - **Tailwind CSS 4** for styling (via Vite)
 - **MySQL / MariaDB** for persistence
@@ -18,12 +18,14 @@ No React, Vue, Inertia, Bootstrap, jQuery, DaisyUI or other component libraries 
 
 ## Local development
 
-Prerequisites: PHP 8.3+, Composer 2, Node 20+, Yarn, MySQL/MariaDB.
+The committed Composer lockfile is resolved against PHP 8.3 (`config.platform.php`) so that the full dependency tree remains installable on the declared minimum runtime. CI currently validates on PHP 8.4. The frontend build uses Vite 8, which requires Node 22.12+ or Node 20.19+.
+
+Prerequisites: PHP 8.3+, Composer 2, Node 22.12+ (or Node 20.19+), Yarn 1.22.22, MySQL/MariaDB.
 
 ```bash
 # 1. Install dependencies
 composer install
-yarn install --ignore-engines
+yarn install --frozen-lockfile
 
 # 2. Environment
 cp .env.example .env   # (or edit /app/.env directly)
@@ -36,7 +38,7 @@ mysql -e "CREATE DATABASE engleza_wiki; CREATE USER 'engleza'@'localhost' IDENTI
 php artisan migrate:fresh --seed
 
 # 5. Build frontend assets
-npx vite build     # (or npx vite for dev with HMR)
+yarn build         # (or yarn dev for Vite HMR)
 
 # 6. Serve
 php -S 0.0.0.0:3000 -t public public/server.php
