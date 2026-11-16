@@ -1,7 +1,11 @@
 <?php
+
 namespace App\Filament\Resources\TestAttempts\Schemas;
 
-use Filament\Forms\Components\{DateTimePicker, Placeholder, Select, TextInput, Textarea};
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
@@ -11,10 +15,10 @@ class TestAttemptForm
     {
         return $schema->components([
             Section::make('Attempt')->columns(2)->schema([
-                Select::make('test_id')->label('Test')->relationship('test','title')->searchable()->preload()->required(),
-                Select::make('user_id')->label('User')->relationship('user','email')->searchable()->preload()->placeholder('Anonymous'),
+                Select::make('test_id')->label('Test')->relationship('test', 'title')->searchable()->preload()->required(),
+                Select::make('user_id')->label('User')->relationship('user', 'email')->searchable()->preload()->placeholder('Anonymous'),
                 TextInput::make('session_id')->placeholder('anonymous session'),
-                Select::make('status')->native(false)->required()->options(['started'=>'Started','completed'=>'Completed','abandoned'=>'Abandoned']),
+                Select::make('status')->native(false)->required()->options(['started' => 'Started', 'completed' => 'Completed', 'abandoned' => 'Abandoned']),
                 DateTimePicker::make('started_at'),
                 DateTimePicker::make('completed_at'),
             ]),

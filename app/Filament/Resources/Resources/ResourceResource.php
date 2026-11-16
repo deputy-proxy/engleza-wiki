@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Resources;
 use App\Filament\Resources\Resources\Pages\CreateResource;
 use App\Filament\Resources\Resources\Pages\EditResource;
 use App\Filament\Resources\Resources\Pages\ListResources;
+use App\Filament\Resources\Resources\RelationManagers\CardsRelationManager;
 use App\Filament\Resources\Resources\Schemas\ResourceForm;
 use App\Filament\Resources\Resources\Tables\ResourcesTable;
 use App\Models\Resource as ResourceModel;
@@ -19,9 +20,10 @@ class ResourceResource extends Resource
     protected static ?string $model = ResourceModel::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBookOpen;
-    protected static string|\UnitEnum|null $navigationGroup = 'Content';
-    protected static string|null $navigationLabel = 'Resources';
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Content';
+
+    protected static ?string $navigationLabel = 'Resources';
 
     public static function form(Schema $schema): Schema
     {
@@ -36,7 +38,7 @@ class ResourceResource extends Resource
     public static function getRelations(): array
     {
         return [
-            \App\Filament\Resources\Resources\RelationManagers\CardsRelationManager::class,
+            CardsRelationManager::class,
         ];
     }
 

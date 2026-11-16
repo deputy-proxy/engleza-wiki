@@ -19,9 +19,10 @@ class TopicResource extends Resource
     protected static ?string $model = Topic::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedHashtag;
-    protected static string|\UnitEnum|null $navigationGroup = 'Content';
-    protected static string|null $navigationLabel = 'Topics';
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Content';
+
+    protected static ?string $navigationLabel = 'Topics';
 
     public static function form(Schema $schema): Schema
     {

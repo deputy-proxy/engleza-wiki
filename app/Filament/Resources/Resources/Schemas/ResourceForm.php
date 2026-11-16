@@ -2,9 +2,16 @@
 
 namespace App\Filament\Resources\Resources\Schemas;
 
-use Filament\Forms\Components\{DateTimePicker, FileUpload, Select, TextInput, Textarea, Toggle};
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Str;
 
 class ResourceForm
 {
@@ -13,29 +20,29 @@ class ResourceForm
         return $schema->components([
             Section::make('Basic information')->schema([
                 TextInput::make('title')->required()->live(onBlur: true)
-                    ->afterStateUpdated(fn ($state, callable $set) => $set('slug', \Illuminate\Support\Str::slug((string)$state))),
+                    ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug((string) $state))),
                 TextInput::make('slug')->required(),
                 Select::make('type')->required()->native(false)->default('article')->options([
-                    'article'=>'Article','grammar'=>'Grammar','vocabulary'=>'Vocabulary','worksheet'=>'Worksheet',
-                    'lesson_plan'=>'Lesson plan','activity'=>'Activity','guide'=>'Guide','exercise'=>'Exercise',
-                    'card'=>'Card / Flashcards','listening'=>'Listening exercise','reading'=>'Reading exercise','writing'=>'Writing assignment',
+                    'article' => 'Article', 'grammar' => 'Grammar', 'vocabulary' => 'Vocabulary', 'worksheet' => 'Worksheet',
+                    'lesson_plan' => 'Lesson plan', 'activity' => 'Activity', 'guide' => 'Guide', 'exercise' => 'Exercise',
+                    'card' => 'Card / Flashcards', 'listening' => 'Listening exercise', 'reading' => 'Reading exercise', 'writing' => 'Writing assignment',
                 ])->reactive(),
-                Select::make('status')->required()->native(false)->default('draft')->options(['draft'=>'Draft','published'=>'Published','archived'=>'Archived']),
+                Select::make('status')->required()->native(false)->default('draft')->options(['draft' => 'Draft', 'published' => 'Published', 'archived' => 'Archived']),
                 Textarea::make('excerpt')->rows(2)->columnSpanFull(),
                 Textarea::make('content')->rows(8)->columnSpanFull()
-                    ->visible(fn (callable $get) => !in_array($get('type'), ['card','listening','reading','writing'])),
+                    ->visible(fn (callable $get) => ! in_array($get('type'), ['card', 'listening', 'reading', 'writing'])),
                 Toggle::make('featured'),
                 DateTimePicker::make('published_at'),
             ])->columns(2),
 
             Section::make('Taxonomy')->schema([
-                Select::make('level_id')->label('Level')->relationship('level','name')->searchable()->preload(),
-                Select::make('author_id')->label('Author')->relationship('author','name')->searchable()->preload(),
-                Select::make('skills')->multiple()->relationship('skills','name')->preload(),
-                Select::make('categories')->multiple()->relationship('categories','name')->preload(),
-                Select::make('topics')->multiple()->relationship('topics','name')->preload(),
-                Select::make('audiences')->multiple()->relationship('audiences','name')->preload(),
-                Select::make('tags')->multiple()->relationship('tags','name')->preload(),
+                Select::make('level_id')->label('Level')->relationship('level', 'name')->searchable()->preload(),
+                Select::make('author_id')->label('Author')->relationship('author', 'name')->searchable()->preload(),
+                Select::make('skills')->multiple()->relationship('skills', 'name')->preload(),
+                Select::make('categories')->multiple()->relationship('categories', 'name')->preload(),
+                Select::make('topics')->multiple()->relationship('topics', 'name')->preload(),
+                Select::make('audiences')->multiple()->relationship('audiences', 'name')->preload(),
+                Select::make('tags')->multiple()->relationship('tags', 'name')->preload(),
             ])->columns(2),
 
             // Type-specific: Card
@@ -53,11 +60,11 @@ class ResourceForm
                     FileUpload::make('listeningResource.media_path')
                         ->label('Audio or video file')
                         ->disk('public')->directory('listening')
-                        ->acceptedFileTypes(['audio/mpeg','audio/mp3','video/mp4'])
+                        ->acceptedFileTypes(['audio/mpeg', 'audio/mp3', 'video/mp4'])
                         ->maxSize(config('engleza.max_media_kb', 51200))
                         ->columnSpanFull()
                         ->live(),
-                    \Filament\Schemas\Components\View::make('filament.forms.listening-preview')
+                    View::make('filament.forms.listening-preview')
                         ->visible(fn (callable $get) => filled($get('listeningResource.media_path')))
                         ->columnSpanFull(),
                 ])

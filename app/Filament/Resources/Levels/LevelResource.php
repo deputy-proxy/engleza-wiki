@@ -19,9 +19,10 @@ class LevelResource extends Resource
     protected static ?string $model = Level::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChartBar;
-    protected static string|\UnitEnum|null $navigationGroup = 'Content';
-    protected static string|null $navigationLabel = 'Levels';
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Content';
+
+    protected static ?string $navigationLabel = 'Levels';
 
     public static function form(Schema $schema): Schema
     {

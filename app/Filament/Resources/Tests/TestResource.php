@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Tests;
 use App\Filament\Resources\Tests\Pages\CreateTest;
 use App\Filament\Resources\Tests\Pages\EditTest;
 use App\Filament\Resources\Tests\Pages\ListTests;
+use App\Filament\Resources\Tests\RelationManagers\SectionsRelationManager;
 use App\Filament\Resources\Tests\Schemas\TestForm;
 use App\Filament\Resources\Tests\Tables\TestsTable;
 use App\Models\Test;
@@ -19,9 +20,10 @@ class TestResource extends Resource
     protected static ?string $model = Test::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentList;
-    protected static string|\UnitEnum|null $navigationGroup = 'Assessments';
-    protected static string|null $navigationLabel = 'Tests';
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Assessments';
+
+    protected static ?string $navigationLabel = 'Tests';
 
     public static function form(Schema $schema): Schema
     {
@@ -36,7 +38,7 @@ class TestResource extends Resource
     public static function getRelations(): array
     {
         return [
-            \App\Filament\Resources\Tests\RelationManagers\SectionsRelationManager::class,
+            SectionsRelationManager::class,
         ];
     }
 

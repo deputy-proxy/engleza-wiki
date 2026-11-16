@@ -1,8 +1,13 @@
 <?php
+
 namespace App\Filament\Resources\Categories\Tables;
 
-use Filament\Actions\{BulkActionGroup, DeleteBulkAction, EditAction, DeleteAction};
-use Filament\Tables\Columns\{IconColumn, TextColumn};
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
 class CategoriesTable
@@ -16,8 +21,8 @@ class CategoriesTable
             IconColumn::make('is_active')->boolean(),
             TextColumn::make('sort_order')->sortable(),
         ])
-        ->defaultSort('sort_order')
-        ->recordActions([EditAction::make(), DeleteAction::make()])
-        ->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
+            ->defaultSort('sort_order')
+            ->recordActions([EditAction::make(), DeleteAction::make()])
+            ->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
     }
 }

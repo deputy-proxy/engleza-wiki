@@ -1,14 +1,20 @@
 <?php
+
 namespace App\Filament\Resources\AssessmentResults\Schemas;
-use Filament\Forms\Components\{Select, TextInput, Textarea};
+
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
-class AssessmentResultForm {
-    public static function configure(Schema $schema): Schema {
+class AssessmentResultForm
+{
+    public static function configure(Schema $schema): Schema
+    {
         return $schema->components([
             Section::make('Attempt')->columns(2)->schema([
-                Select::make('test_attempt_id')->label('Test attempt')->relationship('attempt','id')->searchable()->required(),
+                Select::make('test_attempt_id')->label('Test attempt')->relationship('attempt', 'id')->searchable()->required(),
                 TextInput::make('level')->readOnly(),
                 TextInput::make('overall_score')->numeric()->readOnly(),
                 TextInput::make('overall_percentage')->numeric()->suffix('%')->readOnly(),

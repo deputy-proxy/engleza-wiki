@@ -19,9 +19,10 @@ class AssessmentResultResource extends Resource
     protected static ?string $model = AssessmentResult::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChartPie;
-    protected static string|\UnitEnum|null $navigationGroup = 'Assessments';
-    protected static string|null $navigationLabel = 'Results';
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Assessments';
+
+    protected static ?string $navigationLabel = 'Results';
 
     public static function form(Schema $schema): Schema
     {

@@ -19,9 +19,10 @@ class WritingSubmissionResource extends Resource
     protected static ?string $model = WritingSubmission::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPencilSquare;
-    protected static string|\UnitEnum|null $navigationGroup = 'Assessments';
-    protected static string|null $navigationLabel = 'Writing Submissions';
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Assessments';
+
+    protected static ?string $navigationLabel = 'Writing Submissions';
 
     public static function form(Schema $schema): Schema
     {

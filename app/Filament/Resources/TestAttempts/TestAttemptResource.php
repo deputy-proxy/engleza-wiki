@@ -5,6 +5,7 @@ namespace App\Filament\Resources\TestAttempts;
 use App\Filament\Resources\TestAttempts\Pages\CreateTestAttempt;
 use App\Filament\Resources\TestAttempts\Pages\EditTestAttempt;
 use App\Filament\Resources\TestAttempts\Pages\ListTestAttempts;
+use App\Filament\Resources\TestAttempts\RelationManagers\AnswersRelationManager;
 use App\Filament\Resources\TestAttempts\Schemas\TestAttemptForm;
 use App\Filament\Resources\TestAttempts\Tables\TestAttemptsTable;
 use App\Models\TestAttempt;
@@ -19,9 +20,10 @@ class TestAttemptResource extends Resource
     protected static ?string $model = TestAttempt::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPlay;
-    protected static string|\UnitEnum|null $navigationGroup = 'Assessments';
-    protected static string|null $navigationLabel = 'Attempts';
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Assessments';
+
+    protected static ?string $navigationLabel = 'Attempts';
 
     public static function form(Schema $schema): Schema
     {
@@ -36,7 +38,7 @@ class TestAttemptResource extends Resource
     public static function getRelations(): array
     {
         return [
-            \App\Filament\Resources\TestAttempts\RelationManagers\AnswersRelationManager::class,
+            AnswersRelationManager::class,
         ];
     }
 
