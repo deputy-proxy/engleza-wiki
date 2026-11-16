@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Livewire\Resources\InteractiveCards;
 use App\Models\LearningAnswer;
 use App\Models\LearningAttempt;
 use App\Models\Resource;
@@ -9,6 +10,7 @@ use App\Models\User;
 use App\Services\Learning\LearningScoringService;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class InteractiveResourcesTest extends TestCase
@@ -28,6 +30,20 @@ class InteractiveResourcesTest extends TestCase
         $this->get('/resources/'.$r->slug)->assertOk()
             ->assertSee($r->title)
             ->assertSee('CARDS');
+    }
+
+    public function test_interactive_cards_component_can_reveal_and_navigate_cards(): void
+    {
+        $resource = Resource::where('type', 'card')->published()->firstOrFail();
+        $cards = $resource->cardResource->cards()->orderBy('sort_order')->get();
+        $firstCard = $cards->firstOrFail();
+
+        Livewire::test(InteractiveCards::class, ['resource' => $resource])
+            ->assertSee($firstCard->front)
+            ->call('reveal')
+            ->assertSee($firstCard->back)
+            ->call('next')
+            ->assertSee($cards->get(1)->front);
     }
 
     public function test_listening_resource_page_renders_with_questions(): void
