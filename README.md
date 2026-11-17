@@ -89,9 +89,41 @@ The shared question-response engine supports `single_choice`, `multiple_choice`,
 
 Scoring rules: single-choice, true/false and text answers are all-or-nothing; multiple choice uses positive partial credit based on correct selections minus incorrect selections, divided by the number of correct options; matching awards credit per correct pair; ordering awards credit per item in its correct position; gap-fill awards credit per correctly completed gap. Partial-credit scores are clamped between zero and the question's maximum points.
 
+## Learner progress, spaced repetition and adaptive practice
+
+Learner progress is derived from completed, scored formal test attempts, interactive learning attempts and adaptive practice sessions. In-progress, abandoned and expired attempts are excluded. Lesson completion is tracked separately and is never treated as evidence of mastery. Raw attempts and answers remain immutable; the progress profile is recalculated from source evidence when requested.
+
+### Mastery model
+
+- Each answered question is normalised to a 0–1 result using `points_awarded / question.points`. Partial-credit exercise types therefore contribute proportionally without mixing incompatible raw point scales.
+- Evidence weight is the product of a difficulty factor (`easy` 0.85, `medium` 1.0, `hard` 1.15), a 60-day recency half-life, and a repeat discount of `1 / sqrt(exposures to the same question)` within the dimension.
+- A topic or skill receives a mastery percentage only after at least **five distinct questions across two completed attempts**. Before that, the observed percentage is available for diagnostics, but the state is `insufficient_evidence`, not low mastery.
+- With sufficient evidence, mastery below 60% is `needs_practice`, 60–79.9% is `developing`, and 80% or above is `strong`. Confidence is `moderate` at the minimum evidence threshold and `high` at ten distinct questions across three attempts.
+- Skills are aggregated only from evidence explicitly linked to that skill (the test's skill or a resource's skills). Topics use question-topic links, falling back to resource topics for interactive learning attempts. Different skills/topics are never averaged into one proficiency score.
+- Adaptive practice contributes at 0.75 evidence weight so guided practice informs mastery without outweighing formal assessment. The displayed CEFR estimate comes from the latest completed formal test result, falling back to that test's assigned CEFR level. Lesson level and completion are not silently converted into an assessment result.
+
+### Vocabulary review policy
+
+A learner encounters review items when opening a published flashcard deck, a vocabulary-tagged listening/reading resource, or a vocabulary-tagged lesson/test activity. Supported question sources include accepted text/short-text answers, single-choice/true-false answers, matching pairs and gap-fill accepted answers. Items are deduplicated per learner using a SHA-256 identity of the normalised prompt and answer, so repeated appearances in multiple decks do not create duplicate queue entries. Private learner review history is stored separately from public source content.
+
+The deterministic scheduler uses four grades:
+
+- **Again:** retry in 10 minutes, reset successful repetitions, increment lapses, reduce ease by 0.20.
+- **Hard:** schedule at 1.2 × the previous interval (minimum one day), reduce ease by 0.15.
+- **Good:** first intervals are one day and three days; later intervals multiply the previous interval by the ease factor.
+- **Easy:** first intervals are four days and seven days; later intervals multiply the previous interval by 1.3 × the ease factor.
+
+Ease starts at 2.50 and is bounded between 1.30 and 3.00. Every review creates an auditable event with the grade, previous/new interval and review time. Learners can review due items at `/reviews` and see items scheduled in the next seven days.
+
+### Adaptive practice
+
+`/practice/start` creates a separate adaptive practice session from currently published, valid questions in public tests and listening/reading resources. The selector prioritises topics with demonstrated low mastery, applies explicit difficulty bounds (no CEFR evidence or A1/A2: easy–medium; B1/B2: easy–hard, rising to medium–hard with strong mastery; C1/C2: medium–hard; demonstrated mastery below 55%: easy–medium), selects up to ten questions, and excludes questions answered in the previous 14 days when alternatives exist. If every eligible question has been used recently, a deliberate revisit is allowed rather than returning an empty session. Responses, scores and answer disclosure belong to the adaptive session; formal test attempts, assigned question snapshots and scoring are unchanged.
+
+Teacher progress summaries appear only in the existing teacher/admin-protected class results view and use completed attempts attached to that exact class group. They do not include a learner's unrelated private activity, writing submissions or progress from other classes.
+
 ### Deployment note
 
-Run `php artisan migrate --force` during deployment. The assessment-integrity migrations add nullable attempt metadata and score-breakdown fields without rewriting historical scores. The curriculum migrations create new path, unit, lesson, activity and progress tables. The exercise-engine migration adds nullable JSON response payloads to test and learning answers; existing option/text columns remain intact and historical answers are not backfilled. Historical attempts without a saved question set retain their existing score but do not receive a reconstructed question review. Existing listening/reading resources default to showing answer explanations after completion, preserving the previous behaviour; the new toggle can disable that disclosure per resource.
+Run `php artisan migrate --force` during deployment. The assessment-integrity migrations add nullable attempt metadata and score-breakdown fields without rewriting historical scores. The curriculum migrations create new path, unit, lesson, activity and progress tables. The exercise-engine migration adds nullable JSON response payloads to test and learning answers. The learner-progress migration creates learner-specific vocabulary items and review events, isolated adaptive-practice sessions/answers, and indexes for completed learner attempts; existing option/text columns remain intact and historical answers are not backfilled. Historical attempts without a saved question set retain their existing score but do not receive a reconstructed question review. Existing listening/reading resources default to showing answer explanations after completion, preserving the previous behaviour; the new toggle can disable that disclosure per resource.
 
 ## Architecture overview
 
@@ -124,7 +156,7 @@ resources/views/
 php artisan test
 ```
 
-Covers public resources, anonymous and authenticated tests, all eight question types in both test and learning runners, structured answer validation and partial credit, weighted and unanswered scoring, empty assessments, rounding, question-order snapshots, expiry, idempotent completion, cross-attempt answer rejection, access and answer-disclosure settings, guest ownership, learning-path enrolment and sequential progression, publication readiness, resource availability, admin relation managers, learning answer disclosure, certificates and teacher/admin class reporting.
+Covers public resources, anonymous and authenticated tests, all eight question types in both test and learning runners, structured answer validation and partial credit, weighted and unanswered scoring, empty assessments, rounding, question-order snapshots, expiry, idempotent completion, cross-attempt answer rejection, access and answer-disclosure settings, guest ownership, learning-path enrolment and sequential progression, publication readiness, resource availability, admin relation managers, learning answer disclosure, certificates, learner mastery thresholds and confidence, spaced-repetition scheduling and deduplication, adaptive-practice isolation and answer disclosure, and class-group-scoped teacher progress summaries.
 
 ## Running in the Emergent preview
 

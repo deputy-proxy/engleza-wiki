@@ -67,12 +67,6 @@ parameters:
 			path: app/Filament/Resources/Resources/RelationManagers/CardsRelationManager.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Resource\:\:\$cardResource\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Filament/Resources/Resources/Support/NestedTypeContent.php
-
-		-
 			message: '#^Method App\\Filament\\Resources\\Resources\\Support\\NestedTypeContent\:\:extract\(\) has parameter \$data with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -283,12 +277,6 @@ parameters:
 			path: app/Http/Controllers/LearningController.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Resource\:\:\$topics\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ResourceController.php
-
-		-
 			message: '#^Method App\\Http\\Controllers\\ResourceController\:\:index\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -313,12 +301,6 @@ parameters:
 			path: app/Http/Controllers/ResourceController.php
 
 		-
-			message: '#^Relation ''cardResource'' is not found in App\\Models\\Resource model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Http/Controllers/ResourceController.php
-
-		-
 			message: '#^Relation ''categories'' is not found in App\\Models\\Resource model\.$#'
 			identifier: larastan.relationExistence
 			count: 2
@@ -331,21 +313,9 @@ parameters:
 			path: app/Http/Controllers/ResourceController.php
 
 		-
-			message: '#^Relation ''skills'' is not found in App\\Models\\Resource model\.$#'
-			identifier: larastan.relationExistence
-			count: 3
-			path: app/Http/Controllers/ResourceController.php
-
-		-
 			message: '#^Relation ''tags'' is not found in App\\Models\\Resource model\.$#'
 			identifier: larastan.relationExistence
 			count: 1
-			path: app/Http/Controllers/ResourceController.php
-
-		-
-			message: '#^Relation ''topics'' is not found in App\\Models\\Resource model\.$#'
-			identifier: larastan.relationExistence
-			count: 2
 			path: app/Http/Controllers/ResourceController.php
 
 		-
@@ -421,12 +391,6 @@ parameters:
 			path: app/Livewire/Resources/ExerciseRunner.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Resource\:\:\$cardResource\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Livewire/Resources/InteractiveCards.php
-
-		-
 			message: '#^Method App\\Livewire\\Resources\\InteractiveCards\:\:render\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -467,12 +431,6 @@ parameters:
 			identifier: missingType.return
 			count: 1
 			path: app/Models/Audience.php
-
-		-
-			message: '#^Method App\\Models\\CardResource\:\:cards\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/CardResource.php
 
 		-
 			message: '#^Method App\\Models\\CardResource\:\:resource\(\) has no return type specified\.$#'
@@ -559,12 +517,6 @@ parameters:
 			path: app/Models/Resource.php
 
 		-
-			message: '#^Method App\\Models\\Resource\:\:cardResource\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Resource.php
-
-		-
 			message: '#^Method App\\Models\\Resource\:\:cards\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -595,19 +547,7 @@ parameters:
 			path: app/Models/Resource.php
 
 		-
-			message: '#^Method App\\Models\\Resource\:\:skills\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Resource.php
-
-		-
 			message: '#^Method App\\Models\\Resource\:\:tags\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Resource.php
-
-		-
-			message: '#^Method App\\Models\\Resource\:\:topics\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
 			path: app/Models/Resource.php
@@ -731,12 +671,6 @@ parameters:
 			identifier: missingType.return
 			count: 1
 			path: app/Models/WritingSubmission.php
-
-		-
-			message: '#^Relation ''topics'' is not found in App\\Models\\Resource model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Services/Test/TestScoringService.php
 
 		-
 			message: '#^Parameter \#1 \$string of function rtrim expects string, bool\|string given\.$#'

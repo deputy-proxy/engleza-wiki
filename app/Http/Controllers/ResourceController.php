@@ -6,6 +6,7 @@ use App\Models\Level;
 use App\Models\Resource;
 use App\Models\Skill;
 use App\Services\Learning\LearningPathService;
+use App\Services\Learning\VocabularyReviewService;
 use Illuminate\Http\Request;
 
 class ResourceController extends Controller
@@ -33,7 +34,7 @@ class ResourceController extends Controller
         return view('pages.resources.index', compact('resources', 'levels', 'skills', 'types'));
     }
 
-    public function show(Resource $resource, LearningPathService $learning)
+    public function show(Resource $resource, LearningPathService $learning, VocabularyReviewService $reviews)
     {
         abort_unless($resource->status === 'published', 404);
         $resource->load(['level', 'skills', 'categories', 'tags', 'topics', 'audiences', 'media', 'author']);
@@ -51,12 +52,18 @@ class ResourceController extends Controller
         // Eager-load type-specific children
         if ($resource->type === 'card') {
             $resource->load('cardResource.cards');
+            if (auth()->check()) {
+                $reviews->encounterResource(auth()->user(), $resource);
+            }
         }
         if ($resource->type === 'listening') {
             $resource->load('listeningResource.questions.options');
         }
         if ($resource->type === 'reading') {
             $resource->load('readingResource.questions.options');
+        }
+        if (auth()->check() && in_array($resource->type, ['listening', 'reading'], true)) {
+            $reviews->encounterResource(auth()->user(), $resource);
         }
         if ($resource->type === 'writing') {
             $resource->load('writingResource');

@@ -1,12 +1,146 @@
 <x-layout :title="'Dashboard – engleza.wiki'">
 <section class="mx-auto max-w-6xl px-6 py-12">
-  <h1 class="text-3xl font-extrabold text-navy-900">Welcome, {{ auth()->user()->name }}</h1>
-  <p class="text-navy-600 mt-1">Your English progress at a glance.</p>
-  <div class="mt-8 grid md:grid-cols-3 gap-6">
-    <div class="card p-6"><div class="text-sm text-navy-500">Tests completed</div><div class="mt-2 text-4xl font-extrabold text-navy-900" data-testid="stat-tests">{{ $completed->count() }}</div></div>
-    <div class="card p-6"><div class="text-sm text-navy-500">Average score</div><div class="mt-2 text-4xl font-extrabold text-navy-900" data-testid="stat-avg">{{ $avg }}%</div></div>
-    <div class="card p-6"><div class="text-sm text-navy-500">Latest level</div><div class="mt-2 text-4xl font-extrabold text-brand-600" data-testid="stat-level">{{ $latestLevel ?? '—' }}</div></div>
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <h1 class="text-3xl font-extrabold text-navy-900">Welcome, {{ auth()->user()->name }}</h1>
+      <p class="text-navy-600 mt-1">Your English progress at a glance.</p>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <a href="{{ route('dashboard.learning') }}" class="btn-outline">My learning</a>
+      <a href="{{ route('reviews.index') }}" class="btn-outline">Vocabulary review</a>
+      <form method="POST" action="{{ route('practice.start') }}">@csrf<button type="submit" class="btn-primary">Start adaptive practice</button></form>
+    </div>
   </div>
+
+  <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="card p-5"><div class="text-sm text-navy-500">Tests completed</div><div class="mt-2 text-3xl font-extrabold text-navy-900" data-testid="stat-tests">{{ $completed->count() }}</div></div>
+    <div class="card p-5"><div class="text-sm text-navy-500">Recent average</div><div class="mt-2 text-3xl font-extrabold text-navy-900" data-testid="stat-avg">{{ $avg }}%</div></div>
+    <div class="card p-5"><div class="text-sm text-navy-500">Latest CEFR assessment</div><div class="mt-2 text-3xl font-extrabold text-brand-600" data-testid="stat-level">{{ $progress['cefr']['level'] ?? $latestLevel ?? '—' }}</div>
+      @if($progress['cefr']['assessed_at'])<p class="mt-1 text-xs text-navy-500">Assessed {{ $progress['cefr']['assessed_at']->diffForHumans() }}</p>@endif
+    </div>
+    <div class="card p-5"><div class="text-sm text-navy-500">Vocabulary reviews due</div><div class="mt-2 text-3xl font-extrabold text-navy-900">{{ $progress['stats']['reviews_due'] }}</div><a href="{{ route('reviews.index') }}" class="mt-1 inline-block text-sm font-semibold text-brand-600">Review now →</a></div>
+  </div>
+
+  @if(count($progress['learning_paths']))
+    <section class="mt-10">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <h2 class="text-2xl font-bold text-navy-900">Your learning paths</h2>
+        <a href="{{ route('dashboard.learning') }}" class="text-sm font-semibold text-brand-600">View all learning →</a>
+      </div>
+      <div class="mt-4 grid gap-4 md:grid-cols-2">
+        @foreach($progress['learning_paths'] as $path)
+          <article class="card p-5">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                @if($path['level'])<span class="chip">{{ $path['level'] }}</span>@endif
+                <h3 class="mt-2 font-bold text-navy-900">{{ $path['title'] }}</h3>
+              </div>
+              <span class="text-sm font-semibold text-navy-700">{{ number_format($path['percentage'], 0) }}%</span>
+            </div>
+            <div class="mt-3 h-2 overflow-hidden rounded-full bg-navy-100"><div class="h-full rounded-full bg-brand-500" style="width: {{ $path['percentage'] }}%"></div></div>
+            <p class="mt-2 text-xs text-navy-500">{{ $path['completed_lessons'] }} of {{ $path['available_lessons'] }} lessons completed · Completion is activity, not mastery.</p>
+            @if($path['next_lesson'])
+              <a href="{{ $path['next_lesson']['url'] }}" class="mt-4 inline-flex text-sm font-semibold text-brand-600">Continue: {{ $path['next_lesson']['title'] }} →</a>
+              @if(count($path['next_lesson']['objectives']))
+                <ul class="mt-2 list-disc pl-5 text-xs text-navy-600">
+                  @foreach(array_slice($path['next_lesson']['objectives'], 0, 2) as $objective)<li>{{ $objective }}</li>@endforeach
+                </ul>
+              @endif
+            @else
+              <a href="{{ $path['url'] }}" class="mt-4 inline-flex text-sm font-semibold text-brand-600">Review path →</a>
+            @endif
+          </article>
+        @endforeach
+      </div>
+    </section>
+  @endif
+
+  <div class="mt-10 grid gap-8 lg:grid-cols-2">
+    <section>
+      <div class="flex items-center justify-between gap-3">
+        <h2 class="text-2xl font-bold text-navy-900">Progress by skill</h2>
+        <span class="text-xs text-navy-500">Evidence-based mastery</span>
+      </div>
+      <div class="card mt-4 divide-y divide-navy-100">
+        @forelse($progress['skills'] as $skill)
+          <div class="p-4">
+            <div class="flex items-center justify-between gap-3">
+              <span class="font-semibold text-navy-900">{{ $skill['name'] }}</span>
+              @if($skill['mastery_percentage'] !== null)
+                <div class="flex items-center gap-2"><span class="text-xs font-semibold text-navy-500">{{ $skill['mastery_state'] === 'needs_practice' ? 'Needs practice' : ucfirst($skill['mastery_state']) }}</span><strong class="text-navy-900">{{ number_format($skill['mastery_percentage'], 1) }}%</strong></div>
+              @else
+                <span class="text-xs font-semibold text-navy-500">Not enough evidence</span>
+              @endif
+            </div>
+            <div class="mt-2 h-2 overflow-hidden rounded-full bg-navy-100">
+              <div class="h-full rounded-full bg-brand-500" style="width: {{ $skill['mastery_percentage'] ?? 0 }}%"></div>
+            </div>
+            <p class="mt-1 text-xs text-navy-500">{{ $skill['unique_questions'] }} distinct questions · {{ $skill['attempt_count'] }} attempts · {{ ucfirst(str_replace('_', ' ', $skill['confidence'])) }} confidence</p>
+          </div>
+        @empty
+          <p class="p-5 text-sm text-navy-600">Complete a test or interactive exercise to start building your skill profile.</p>
+        @endforelse
+      </div>
+    </section>
+
+    <section>
+      <h2 class="text-2xl font-bold text-navy-900">Progress by topic</h2>
+      <div class="card mt-4 divide-y divide-navy-100">
+        @forelse($progress['topics'] as $topic)
+          <div class="p-4">
+            <div class="flex items-center justify-between gap-3">
+              <span class="font-semibold text-navy-900">{{ $topic['name'] }}</span>
+              @if($topic['mastery_percentage'] !== null)
+                <div class="flex items-center gap-2"><span class="text-xs font-semibold text-navy-500">{{ $topic['mastery_state'] === 'needs_practice' ? 'Needs practice' : ucfirst($topic['mastery_state']) }}</span><strong class="text-navy-900">{{ number_format($topic['mastery_percentage'], 1) }}%</strong></div>
+              @else
+                <span class="text-xs font-semibold text-navy-500">Not enough evidence</span>
+              @endif
+            </div>
+            <div class="mt-2 h-2 overflow-hidden rounded-full bg-navy-100">
+              <div class="h-full rounded-full bg-brand-500" style="width: {{ $topic['mastery_percentage'] ?? 0 }}%"></div>
+            </div>
+            <p class="mt-1 text-xs text-navy-500">{{ $topic['unique_questions'] }} distinct questions · {{ $topic['attempt_count'] }} attempts · {{ ucfirst(str_replace('_', ' ', $topic['confidence'])) }} confidence</p>
+          </div>
+        @empty
+          <p class="p-5 text-sm text-navy-600">Topic mastery appears as you answer tagged questions.</p>
+        @endforelse
+      </div>
+    </section>
+  </div>
+
+  <div class="mt-10 grid gap-8 lg:grid-cols-2">
+    <section>
+      <h2 class="text-2xl font-bold text-navy-900">Recommended next steps</h2>
+      <div class="mt-4 space-y-3">
+        @forelse($progress['recommendations'] as $recommendation)
+          <a href="{{ $recommendation['url'] }}" class="card block p-5 hover:shadow-lg">
+            <span class="text-xs font-semibold uppercase tracking-wide text-brand-600">{{ $recommendation['type'] === 'topic' ? 'Practise a topic' : ($recommendation['type'] === 'review' ? 'Spaced review' : 'Learning path') }}</span>
+            <h3 class="mt-1 font-bold text-navy-900">{{ $recommendation['title'] }}</h3>
+            <p class="mt-1 text-sm text-navy-600">{{ $recommendation['reason'] }}</p>
+          </a>
+        @empty
+          <div class="card p-5"><p class="text-sm text-navy-600">Your next steps will appear here as you build a learning history.</p></div>
+        @endforelse
+      </div>
+    </section>
+    <section>
+      <h2 class="text-2xl font-bold text-navy-900">Recent learning activity</h2>
+      <div class="card mt-4 divide-y divide-navy-100">
+        @forelse($progress['recent_activity'] as $activity)
+          <div class="flex items-center justify-between gap-4 p-4">
+            <div>
+              @if($activity['url'])<a href="{{ $activity['url'] }}" class="font-semibold text-navy-900 hover:text-brand-600">{{ $activity['title'] }}</a>@else<span class="font-semibold text-navy-900">{{ $activity['title'] }}</span>@endif
+              <p class="text-sm text-navy-600">{{ $activity['detail'] }}</p>
+            </div>
+            <time class="shrink-0 text-xs text-navy-500">{{ $activity['date']?->diffForHumans() }}</time>
+          </div>
+        @empty
+          <p class="p-5 text-sm text-navy-600">Your completed lessons and exercises will appear here.</p>
+        @endforelse
+      </div>
+    </section>
+  </div>
+
   <h2 class="mt-12 text-2xl font-bold text-navy-900">Recent tests</h2>
   <div class="mt-4 space-y-3">
     @forelse($attempts as $a)
@@ -17,11 +151,12 @@
     @empty <p class="text-navy-600">No tests yet. <a class="text-brand-600 font-semibold" href="{{ route('tests.index') }}">Take one →</a></p>
     @endforelse
   </div>
+
   <h2 class="mt-12 text-2xl font-bold text-navy-900">Saved resources</h2>
-  <div class="mt-4 grid md:grid-cols-2 gap-4">
+  <div class="mt-4 grid gap-4 md:grid-cols-2">
     @forelse($saved as $s)
       <a href="{{ route('resources.show',$s->resource->slug) }}" class="card p-5 hover:shadow-lg"><div class="font-bold text-navy-900">{{ $s->resource->title }}</div></a>
-    @empty <p class="text-navy-600 col-span-full">Nothing saved yet.</p>
+    @empty <p class="text-navy-600">Nothing saved yet.</p>
     @endforelse
   </div>
 </section>
