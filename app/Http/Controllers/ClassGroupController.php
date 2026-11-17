@@ -20,7 +20,7 @@ class ClassGroupController extends Controller
     public function results(string $code)
     {
         $group = ClassGroup::where('join_code', strtoupper($code))->firstOrFail();
-        abort_unless(auth()->check() && (auth()->id() === $group->teacher_id || auth()->user()->role === 'admin'), 403);
+        abort_unless(auth()->check() && ((string) auth()->id() === (string) $group->teacher_id || auth()->user()->role === 'admin'), 403);
         $attempts = TestAttempt::where('class_group_id', $group->id)->with('test', 'user')->latest()->get();
         $completed = $attempts->where('status', 'completed');
         $avg = $completed->count() ? round($completed->avg('percentage'), 1) : 0;

@@ -1,12 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Access to an undefined property App\\Models\\TestSection\:\:\$test\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Filament/Resources/Questions/Pages/ListQuestions.php
-
-		-
 			message: '#^Argument of an invalid type list\<string\>\|false supplied for foreach, only iterables are supported\.$#'
 			identifier: foreach.nonIterable
 			count: 1
@@ -22,24 +16,6 @@ parameters:
 			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(string\|null\)\: mixed\)\|null, ''trim'' given\.$#'
 			identifier: argument.type
 			count: 1
-			path: app/Filament/Resources/Questions/Pages/ListQuestions.php
-
-		-
-			message: '#^Relation ''resource'' is not found in App\\Models\\ListeningResource model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Filament/Resources/Questions/Pages/ListQuestions.php
-
-		-
-			message: '#^Relation ''resource'' is not found in App\\Models\\ReadingResource model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Filament/Resources/Questions/Pages/ListQuestions.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>title" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 2
 			path: app/Filament/Resources/Questions/Pages/ListQuestions.php
 
 		-
@@ -92,18 +68,6 @@ parameters:
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Resource\:\:\$cardResource\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Filament/Resources/Resources/Support/NestedTypeContent.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Resource\:\:\$listeningResource\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Filament/Resources/Resources/Support/NestedTypeContent.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Resource\:\:\$readingResource\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/Filament/Resources/Resources/Support/NestedTypeContent.php
@@ -175,12 +139,6 @@ parameters:
 			path: app/Filament/Resources/WritingSubmissions/Schemas/WritingSubmissionForm.php
 
 		-
-			message: '#^Relation ''attempts'' is not found in App\\Models\\Test model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Filament/Widgets/MostPopularTests.php
-
-		-
 			message: '#^Parameter \#1 \$num of function round expects float\|int, float\|int\<min, \-1\>\|int\<1, max\>\|string given\.$#'
 			identifier: argument.type
 			count: 1
@@ -229,38 +187,8 @@ parameters:
 			path: app/Http/Controllers/CategoryController.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\TestAttempt\:\:\$result\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/CertificateController.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\TestAttempt\:\:\$user\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/CertificateController.php
-
-		-
 			message: '#^Method App\\Http\\Controllers\\CertificateController\:\:download\(\) has no return type specified\.$#'
 			identifier: missingType.return
-			count: 1
-			path: app/Http/Controllers/CertificateController.php
-
-		-
-			message: '#^Relation ''result'' is not found in App\\Models\\TestAttempt model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Http/Controllers/CertificateController.php
-
-		-
-			message: '#^Relation ''test'' is not found in App\\Models\\TestAttempt model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Http/Controllers/CertificateController.php
-
-		-
-			message: '#^Relation ''user'' is not found in App\\Models\\TestAttempt model\.$#'
-			identifier: larastan.relationExistence
 			count: 1
 			path: app/Http/Controllers/CertificateController.php
 
@@ -284,18 +212,6 @@ parameters:
 
 		-
 			message: '#^Relation ''test'' is not found in App\\Models\\ClassGroup model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Http/Controllers/ClassGroupController.php
-
-		-
-			message: '#^Relation ''test'' is not found in App\\Models\\TestAttempt model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Http/Controllers/ClassGroupController.php
-
-		-
-			message: '#^Relation ''user'' is not found in App\\Models\\TestAttempt model\.$#'
 			identifier: larastan.relationExistence
 			count: 1
 			path: app/Http/Controllers/ClassGroupController.php
@@ -332,18 +248,6 @@ parameters:
 
 		-
 			message: '#^Relation ''resource'' is not found in App\\Models\\SavedResource model\.$#'
-			identifier: larastan.relationExistence
-			count: 2
-			path: app/Http/Controllers/DashboardController.php
-
-		-
-			message: '#^Relation ''result'' is not found in App\\Models\\TestAttempt model\.$#'
-			identifier: larastan.relationExistence
-			count: 2
-			path: app/Http/Controllers/DashboardController.php
-
-		-
-			message: '#^Relation ''test'' is not found in App\\Models\\TestAttempt model\.$#'
 			identifier: larastan.relationExistence
 			count: 2
 			path: app/Http/Controllers/DashboardController.php
@@ -387,30 +291,6 @@ parameters:
 		-
 			message: '#^Method App\\Http\\Controllers\\LearningController\:\:submitWriting\(\) has no return type specified\.$#'
 			identifier: missingType.return
-			count: 1
-			path: app/Http/Controllers/LearningController.php
-
-		-
-			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/LearningController.php
-
-		-
-			message: '#^Relation ''answers'' is not found in App\\Models\\LearningAttempt model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Http/Controllers/LearningController.php
-
-		-
-			message: '#^Relation ''listeningResource'' is not found in App\\Models\\Resource model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Http/Controllers/LearningController.php
-
-		-
-			message: '#^Relation ''readingResource'' is not found in App\\Models\\Resource model\.$#'
-			identifier: larastan.relationExistence
 			count: 1
 			path: app/Http/Controllers/LearningController.php
 
@@ -463,19 +343,7 @@ parameters:
 			path: app/Http/Controllers/ResourceController.php
 
 		-
-			message: '#^Relation ''listeningResource'' is not found in App\\Models\\Resource model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Http/Controllers/ResourceController.php
-
-		-
 			message: '#^Relation ''media'' is not found in App\\Models\\Resource model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Http/Controllers/ResourceController.php
-
-		-
-			message: '#^Relation ''readingResource'' is not found in App\\Models\\Resource model\.$#'
 			identifier: larastan.relationExistence
 			count: 1
 			path: app/Http/Controllers/ResourceController.php
@@ -511,12 +379,6 @@ parameters:
 			path: app/Http/Controllers/SearchController.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\TestAttempt\:\:\$result\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/TestController.php
-
-		-
 			message: '#^Method App\\Http\\Controllers\\TestController\:\:index\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -547,49 +409,7 @@ parameters:
 			path: app/Http/Controllers/TestController.php
 
 		-
-			message: '#^Relation ''answers'' is not found in App\\Models\\TestAttempt model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Http/Controllers/TestController.php
-
-		-
-			message: '#^Relation ''level'' is not found in App\\Models\\Test model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Http/Controllers/TestController.php
-
-		-
-			message: '#^Relation ''result'' is not found in App\\Models\\TestAttempt model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Http/Controllers/TestController.php
-
-		-
-			message: '#^Relation ''sections'' is not found in App\\Models\\Test model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Http/Controllers/TestController.php
-
-		-
-			message: '#^Relation ''skill'' is not found in App\\Models\\Test model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Http/Controllers/TestController.php
-
-		-
-			message: '#^Relation ''test'' is not found in App\\Models\\TestAttempt model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Http/Controllers/TestController.php
-
-		-
 			message: '#^Access to an undefined property App\\Models\\Resource\:\:\$level\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Livewire/HomeSearch.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Test\:\:\$level\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/Livewire/HomeSearch.php
@@ -611,18 +431,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Livewire/HomeSearch.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Resource\:\:\$listeningResource\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Livewire/Resources/ExerciseRunner.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Resource\:\:\$readingResource\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Livewire/Resources/ExerciseRunner.php
 
 		-
 			message: '#^Method App\\Livewire\\Resources\\ExerciseRunner\:\:render\(\) has no return type specified\.$#'
@@ -739,42 +547,6 @@ parameters:
 			path: app/Models/ClassGroup.php
 
 		-
-			message: '#^Method App\\Models\\LearningAnswer\:\:attempt\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/LearningAnswer.php
-
-		-
-			message: '#^Method App\\Models\\LearningAnswer\:\:option\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/LearningAnswer.php
-
-		-
-			message: '#^Method App\\Models\\LearningAnswer\:\:question\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/LearningAnswer.php
-
-		-
-			message: '#^Method App\\Models\\LearningAttempt\:\:answers\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/LearningAttempt.php
-
-		-
-			message: '#^Method App\\Models\\LearningAttempt\:\:resource\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/LearningAttempt.php
-
-		-
-			message: '#^Method App\\Models\\LearningAttempt\:\:user\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/LearningAttempt.php
-
-		-
 			message: '#^Method App\\Models\\Level\:\:resources\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -787,18 +559,6 @@ parameters:
 			path: app/Models/Level.php
 
 		-
-			message: '#^Method App\\Models\\ListeningResource\:\:questions\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/ListeningResource.php
-
-		-
-			message: '#^Method App\\Models\\ListeningResource\:\:resource\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/ListeningResource.php
-
-		-
 			message: '#^Method App\\Models\\Media\:\:resource\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -809,54 +569,6 @@ parameters:
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/Question.php
-
-		-
-			message: '#^Method App\\Models\\Question\:\:listeningResource\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Question.php
-
-		-
-			message: '#^Method App\\Models\\Question\:\:options\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Question.php
-
-		-
-			message: '#^Method App\\Models\\Question\:\:readingResource\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Question.php
-
-		-
-			message: '#^Method App\\Models\\Question\:\:section\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Question.php
-
-		-
-			message: '#^Method App\\Models\\Question\:\:topics\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Question.php
-
-		-
-			message: '#^Method App\\Models\\QuestionOption\:\:question\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/QuestionOption.php
-
-		-
-			message: '#^Method App\\Models\\ReadingResource\:\:questions\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/ReadingResource.php
-
-		-
-			message: '#^Method App\\Models\\ReadingResource\:\:resource\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/ReadingResource.php
 
 		-
 			message: '#^Class App\\Models\\Resource uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
@@ -907,19 +619,7 @@ parameters:
 			path: app/Models/Resource.php
 
 		-
-			message: '#^Method App\\Models\\Resource\:\:listeningResource\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Resource.php
-
-		-
 			message: '#^Method App\\Models\\Resource\:\:media\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Resource.php
-
-		-
-			message: '#^Method App\\Models\\Resource\:\:readingResource\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
 			path: app/Models/Resource.php
@@ -997,24 +697,6 @@ parameters:
 			path: app/Models/Test.php
 
 		-
-			message: '#^Method App\\Models\\Test\:\:allQuestions\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Test.php
-
-		-
-			message: '#^Method App\\Models\\Test\:\:attempts\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Test.php
-
-		-
-			message: '#^Method App\\Models\\Test\:\:level\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Test.php
-
-		-
 			message: '#^Method App\\Models\\Test\:\:scopePublished\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -1025,78 +707,6 @@ parameters:
 			identifier: missingType.parameter
 			count: 1
 			path: app/Models/Test.php
-
-		-
-			message: '#^Method App\\Models\\Test\:\:sections\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Test.php
-
-		-
-			message: '#^Method App\\Models\\Test\:\:skill\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Test.php
-
-		-
-			message: '#^Method App\\Models\\TestAnswer\:\:attempt\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/TestAnswer.php
-
-		-
-			message: '#^Method App\\Models\\TestAnswer\:\:option\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/TestAnswer.php
-
-		-
-			message: '#^Method App\\Models\\TestAnswer\:\:question\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/TestAnswer.php
-
-		-
-			message: '#^Method App\\Models\\TestAttempt\:\:answers\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/TestAttempt.php
-
-		-
-			message: '#^Method App\\Models\\TestAttempt\:\:classGroup\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/TestAttempt.php
-
-		-
-			message: '#^Method App\\Models\\TestAttempt\:\:result\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/TestAttempt.php
-
-		-
-			message: '#^Method App\\Models\\TestAttempt\:\:test\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/TestAttempt.php
-
-		-
-			message: '#^Method App\\Models\\TestAttempt\:\:user\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/TestAttempt.php
-
-		-
-			message: '#^Method App\\Models\\TestSection\:\:questions\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/TestSection.php
-
-		-
-			message: '#^Method App\\Models\\TestSection\:\:test\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/TestSection.php
 
 		-
 			message: '#^Method App\\Models\\Topic\:\:children\(\) has no return type specified\.$#'
@@ -1171,74 +781,8 @@ parameters:
 			path: app/Models/WritingSubmission.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\LearningAnswer\:\:\$option\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Services/Learning/LearningScoringService.php
-
-		-
-			message: '#^Relation ''option'' is not found in App\\Models\\LearningAnswer model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Services/Learning/LearningScoringService.php
-
-		-
-			message: '#^Relation ''question'' is not found in App\\Models\\LearningAnswer model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Services/Learning/LearningScoringService.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\TestAnswer\:\:\$option\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Services/Test/TestScoringService.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\TestAnswer\:\:\$question\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Services/Test/TestScoringService.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\TestAttempt\:\:\$test\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Services/Test/TestScoringService.php
-
-		-
-			message: '#^Parameter \#1 \$array \(list\) of array_values is already a list, call has no effect\.$#'
-			identifier: arrayValues.list
-			count: 1
-			path: app/Services/Test/TestScoringService.php
-
-		-
-			message: '#^Property App\\Models\\TestAttempt\:\:\$time_spent_seconds \(int\<0, max\>\|null\) does not accept float\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: app/Services/Test/TestScoringService.php
-
-		-
-			message: '#^Relation ''option'' is not found in App\\Models\\TestAnswer model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Services/Test/TestScoringService.php
-
-		-
-			message: '#^Relation ''question'' is not found in App\\Models\\TestAnswer model\.$#'
-			identifier: larastan.relationExistence
-			count: 2
-			path: app/Services/Test/TestScoringService.php
-
-		-
 			message: '#^Relation ''topics'' is not found in App\\Models\\Resource model\.$#'
 			identifier: larastan.relationExistence
-			count: 1
-			path: app/Services/Test/TestScoringService.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>title" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
 			count: 1
 			path: app/Services/Test/TestScoringService.php
 

@@ -6,6 +6,7 @@ use App\Models\ClassGroup;
 use App\Models\Resource;
 use App\Models\Test;
 use App\Models\TestAttempt;
+use App\Services\Test\TestAttemptService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -27,10 +28,10 @@ class TestController extends Controller
         return view('pages.tests.show', compact('test', 'questionCount'));
     }
 
-    public function start(Test $test, Request $r)
+    public function start(Test $test, Request $r, TestAttemptService $attempts)
     {
-        abort_unless($test->status === 'published' && $test->is_public, 404);
-        if (! session()->has('anon_session')) {
+        $attempts->authorizeStart($test, auth()->id());
+        if (! auth()->check() && ! session()->has('anon_session')) {
             session(['anon_session' => Str::uuid()->toString()]);
         }
 
@@ -43,14 +44,13 @@ class TestController extends Controller
             }
         }
 
-        $attempt = TestAttempt::create([
-            'test_id' => $test->id,
+        $attempt = $attempts->start($test, [
             'user_id' => auth()->id(),
             'session_id' => auth()->check() ? null : session('anon_session'),
             'class_group_id' => $classGroupId,
             'started_at' => now(),
             'status' => 'started',
-            'ip_address' => $r->ip(), 'user_agent' => substr((string) $r->userAgent(), 0, 255),
+            'ip_address' => $r->ip(), 'user_agent' => $r->userAgent(),
         ]);
 
         return redirect()->route('tests.take', ['test' => $test->slug, 'attempt' => $attempt->id]);
@@ -60,18 +60,21 @@ class TestController extends Controller
     {
         abort_unless($attempt->test_id === $test->id, 404);
         $this->authorizeAttempt($attempt);
-        if ($attempt->status === 'completed') {
+        if (in_array($attempt->status, ['completed', 'expired'], true)) {
             return redirect()->route('tests.result', ['test' => $test->slug, 'attempt' => $attempt->id]);
         }
+        abort_unless($attempt->status === 'started', 410);
 
         return view('pages.tests.take', compact('test', 'attempt'));
     }
 
-    public function result(Test $test, TestAttempt $attempt)
+    public function result(Test $test, TestAttempt $attempt, TestAttemptService $attempts)
     {
         abort_unless($attempt->test_id === $test->id, 404);
         $this->authorizeAttempt($attempt);
-        $attempt->load(['result', 'test', 'answers.question']);
+        abort_unless(in_array($attempt->status, ['completed', 'expired'], true), 404);
+        $attempt->load(['result', 'test', 'answers.question.options', 'answers.option']);
+        $questions = $attempts->questionPayload($attempt, revealAnswers: true);
         $recIds = [];
         if ($attempt->result && $attempt->result->recommendation) {
             $data = json_decode($attempt->result->recommendation, true) ?: [];
@@ -79,16 +82,11 @@ class TestController extends Controller
         }
         $recommendations = Resource::published()->whereIn('id', $recIds)->get();
 
-        return view('pages.tests.result', compact('test', 'attempt', 'recommendations'));
+        return view('pages.tests.result', compact('test', 'attempt', 'recommendations', 'questions'));
     }
 
     private function authorizeAttempt(TestAttempt $attempt): void
     {
-        if ($attempt->user_id) {
-            abort_unless(auth()->id() === $attempt->user_id, 403);
-
-            return;
-        }
-        abort_unless(session('anon_session') === $attempt->session_id, 403);
+        app(TestAttemptService::class)->authorize($attempt, auth()->id(), session('anon_session'));
     }
 }

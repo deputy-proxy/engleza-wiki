@@ -4,20 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Models\Test;
 use App\Models\TestAttempt;
+use App\Services\Test\TestAttemptService;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class CertificateController extends Controller
 {
-    public function download(Test $test, TestAttempt $attempt)
+    public function download(Test $test, TestAttempt $attempt, TestAttemptService $attempts)
     {
         abort_unless($attempt->test_id === $test->id, 404);
         abort_unless($attempt->status === 'completed', 404);
-        // authz: owner (or anon session)
-        if ($attempt->user_id) {
-            abort_unless(auth()->id() === $attempt->user_id, 403);
-        } else {
-            abort_unless(session('anon_session') === $attempt->session_id, 403);
-        }
+        $attempts->authorize($attempt, auth()->id(), session('anon_session'));
 
         $attempt->load('result', 'user', 'test.level');
         $name = $attempt->user?->name ?: 'Anonymous learner';

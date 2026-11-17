@@ -57,6 +57,7 @@ class ResourceForm
             Section::make('Listening content')
                 ->schema([
                     Textarea::make('listeningResource.instructions')->label('Instructions')->rows(2)->columnSpanFull(),
+                    Toggle::make('listeningResource.show_correct_answers')->label('Show correct answers after submission')->default(true),
                     FileUpload::make('listeningResource.media_path')
                         ->label('Audio or video file')
                         ->disk('public')->directory('listening')
@@ -75,6 +76,7 @@ class ResourceForm
                 ->schema([
                     TextInput::make('readingResource.title')->label('Passage title'),
                     Textarea::make('readingResource.instructions')->label('Instructions')->rows(2)->columnSpanFull(),
+                    Toggle::make('readingResource.show_correct_answers')->label('Show correct answers after submission')->default(true),
                     Textarea::make('readingResource.content')->label('Reading passage')->rows(12)->columnSpanFull(),
                 ])
                 ->visible(fn (callable $get) => $get('type') === 'reading'),

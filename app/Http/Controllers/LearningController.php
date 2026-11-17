@@ -2,75 +2,70 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\LearningAnswer;
 use App\Models\LearningAttempt;
 use App\Models\Resource;
 use App\Models\WritingSubmission;
-use App\Services\Learning\LearningScoringService;
+use App\Services\Learning\LearningAttemptService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class LearningController extends Controller
 {
     // Start listening/reading attempt
-    public function start(Resource $resource, Request $r)
+    public function start(Resource $resource, Request $r, LearningAttemptService $attempts)
     {
-        abort_unless(in_array($resource->type, ['listening', 'reading']), 404);
-        if (! session()->has('anon_session')) {
-            session(['anon_session' => Str::uuid()->toString()]);
+        if (! session()->has('anon_session') && ! auth()->check()) {
+            session(['anon_session' => (string) Str::uuid()]);
         }
-        $attempt = LearningAttempt::create([
-            'resource_id' => $resource->id,
-            'user_id' => auth()->id(),
-            'session_id' => auth()->check() ? null : session('anon_session'),
-            'started_at' => now(), 'status' => 'started',
-            'ip_address' => $r->ip(), 'user_agent' => substr((string) $r->userAgent(), 0, 255),
-        ]);
+        $attempt = $attempts->start($resource, auth()->id(), session('anon_session'), $r->ip(), $r->userAgent());
+        session()->put('active_learning_attempts.'.$resource->id, $attempt->id);
 
-        return redirect()->route('resources.show', $resource->slug)->with('active_attempt', $attempt->id);
+        return redirect()->route('resources.show', $resource->slug);
     }
 
-    public function submit(Resource $resource, Request $r, LearningScoringService $scoring)
+    public function submit(Resource $resource, Request $r, LearningAttemptService $attempts)
     {
-        abort_unless(in_array($resource->type, ['listening', 'reading']), 404);
-        $attempt = LearningAttempt::findOrFail($r->integer('attempt_id'));
-        abort_unless($attempt->resource_id === $resource->id, 403);
-        // ownership check
-        if ($attempt->user_id) {
-            abort_unless($attempt->user_id === auth()->id(), 403);
-        } else {
-            abort_unless($attempt->session_id === session('anon_session'), 403);
+        abort_unless(in_array($resource->type, ['listening', 'reading'], true), 404);
+        $data = $r->validate([
+            'attempt_id' => ['required', 'integer'],
+            'answers' => ['sometimes', 'array'],
+            'answers.*' => ['required', 'integer'],
+        ]);
+        $attempt = LearningAttempt::query()->findOrFail((int) $data['attempt_id']);
+        abort_unless($attempt->resource_id === $resource->id, 404);
+        $attempts->authorize($attempt, auth()->id(), session('anon_session'));
+        if ($attempt->status === 'completed') {
+            return redirect()->route('resources.result', ['resource' => $resource->slug, 'attempt' => $attempt->id]);
         }
-        // save answers
-        $answers = $r->input('answers', []); // [questionId => optionId]
-        foreach ($answers as $qid => $oid) {
-            LearningAnswer::updateOrCreate(
-                ['learning_attempt_id' => $attempt->id, 'question_id' => (int) $qid],
-                ['question_option_id' => (int) $oid, 'answered_at' => now()]
-            );
-        }
-        $scoring->score($attempt->fresh());
+        DB::transaction(function () use ($data, $attempt, $attempts): void {
+            foreach ($data['answers'] ?? [] as $questionId => $optionId) {
+                abort_unless($attempts->recordAnswer($attempt, (int) $questionId, (int) $optionId, auth()->id(), session('anon_session')), 422);
+            }
+            $attempts->complete($attempt, auth()->id(), session('anon_session'));
+        });
+        session()->forget('active_learning_attempts.'.$attempt->resource_id);
 
         return redirect()->route('resources.result', ['resource' => $resource->slug, 'attempt' => $attempt->id]);
     }
 
-    public function result(Resource $resource, LearningAttempt $attempt)
+    public function result(Resource $resource, LearningAttempt $attempt, LearningAttemptService $attempts)
     {
+        abort_unless(in_array($resource->type, ['listening', 'reading'], true), 404);
         abort_unless($attempt->resource_id === $resource->id, 404);
-        if ($attempt->user_id) {
-            abort_unless($attempt->user_id === auth()->id(), 403);
-        } else {
-            abort_unless($attempt->session_id === session('anon_session'), 403);
-        }
+        abort_unless($attempt->status === 'completed', 404);
+        $attempts->authorize($attempt, auth()->id(), session('anon_session'));
         $attempt->load(['answers.question.options', 'answers.option']);
+        $questions = $attempts->questionPayload($resource, revealAnswers: true, attempt: $attempt);
         if ($resource->type === 'listening') {
             $resource->load('listeningResource');
-        }
-        if ($resource->type === 'reading') {
+            $showCorrectAnswers = (bool) ($resource->listeningResource->show_correct_answers ?? true);
+        } else {
             $resource->load('readingResource');
+            $showCorrectAnswers = (bool) ($resource->readingResource->show_correct_answers ?? true);
         }
 
-        return view('pages.resources.types.result', compact('resource', 'attempt'));
+        return view('pages.resources.types.result', compact('resource', 'attempt', 'showCorrectAnswers', 'questions'));
     }
 
     // Writing submissions

@@ -28,7 +28,7 @@
   @else
     <div class="card p-8 text-center bg-emerald-50 border-emerald-200" data-testid="exercise-result">
       <div class="text-sm uppercase font-semibold text-emerald-700 tracking-widest">Your score</div>
-      <div class="mt-2 text-5xl font-extrabold text-navy-900" data-testid="exercise-score">{{ (int)($attempt?->score ?? 0) }} / {{ count($questions) }}</div>
+      <div class="mt-2 text-5xl font-extrabold text-navy-900" data-testid="exercise-score">{{ (float) ($attempt?->score ?? 0) }} / {{ (float) ($attempt?->total_points ?? 0) }}</div>
       <div class="mt-2 text-lg text-navy-700" data-testid="exercise-percentage">{{ $attempt?->percentage ?? 0 }}%</div>
     </div>
     <div class="mt-8 space-y-4">
@@ -37,13 +37,22 @@
         <div class="card p-6">
           <div class="text-sm text-brand-600 font-semibold flex items-center justify-between">
             <span>Question {{ $i+1 }}</span>
-            @if($ans?->is_correct)<span class="chip bg-emerald-50 text-emerald-700">Correct</span>
-            @else<span class="chip bg-rose-50 text-rose-700">Incorrect</span>@endif
+            @if(!$ans)
+              <span class="chip bg-navy-50 text-navy-600">Not answered</span>
+            @elseif(!$showCorrectAnswers)
+              <span class="chip bg-navy-50 text-navy-600">Submitted</span>
+            @elseif($ans->is_correct)
+              <span class="chip bg-emerald-50 text-emerald-700">Correct</span>
+            @else
+              <span class="chip bg-rose-50 text-rose-700">Incorrect</span>
+            @endif
           </div>
           <h3 class="mt-2 font-bold text-navy-900">{{ $q['text'] }}</h3>
-          <div class="mt-3 text-sm text-navy-700">Correct answer: <strong class="text-emerald-700">{{ $correctOpt['label'] ?? '' }}. {{ $correctOpt['value'] ?? '' }}</strong></div>
-          @if(!empty($q['explanation']))
-            <div class="mt-2 text-sm text-navy-600"><em>Explanation:</em> {{ $q['explanation'] }}</div>
+          @if($correctOpt)
+            <div class="mt-3 text-sm text-navy-700">Correct answer: <strong class="text-emerald-700">{{ $correctOpt['label'] }}. {{ $correctOpt['value'] }}</strong></div>
+          @endif
+          @if(!empty(($q['explanation'] ?? null)))
+            <div class="mt-2 text-sm text-navy-600"><em>Explanation:</em> {{ ($q['explanation'] ?? null) }}</div>
           @endif
         </div>
       @endforeach
