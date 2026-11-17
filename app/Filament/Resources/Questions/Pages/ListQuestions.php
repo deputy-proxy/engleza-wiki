@@ -39,16 +39,16 @@ class ListQuestions extends ListRecords
                         ->live(),
                     Select::make('test_section_id')->label('Test section')
                         ->relationship('section', 'title')->searchable()
-                        ->getOptionLabelFromRecordUsing(fn (TestSection $s) => ($s->test?->title ? $s->test->title.' — ' : '').$s->title)
+                        ->getOptionLabelFromRecordUsing(fn (TestSection $s) => ($s->test->title ? $s->test->title.' — ' : '').$s->title)
                         ->visible(fn ($get) => $get('target') === 'section')
                         ->required(fn ($get) => $get('target') === 'section'),
                     Select::make('listening_resource_id')->label('Listening resource')
-                        ->options(fn () => ListeningResource::with('resource')->get()->mapWithKeys(fn ($r) => [$r->id => $r->resource?->title ?? '#'.$r->id])->all())
+                        ->options(fn () => ListeningResource::with('resource')->get()->mapWithKeys(fn ($r) => [$r->id => $r->resource->title ?: '#'.$r->id])->all())
                         ->searchable()
                         ->visible(fn ($get) => $get('target') === 'listening')
                         ->required(fn ($get) => $get('target') === 'listening'),
                     Select::make('reading_resource_id')->label('Reading resource')
-                        ->options(fn () => ReadingResource::with('resource')->get()->mapWithKeys(fn ($r) => [$r->id => $r->resource?->title ?? '#'.$r->id])->all())
+                        ->options(fn () => ReadingResource::with('resource')->get()->mapWithKeys(fn ($r) => [$r->id => $r->resource->title ?: '#'.$r->id])->all())
                         ->searchable()
                         ->visible(fn ($get) => $get('target') === 'reading')
                         ->required(fn ($get) => $get('target') === 'reading'),

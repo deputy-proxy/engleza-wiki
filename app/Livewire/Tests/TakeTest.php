@@ -2,97 +2,82 @@
 
 namespace App\Livewire\Tests;
 
-use App\Models\QuestionOption;
 use App\Models\Test;
-use App\Models\TestAnswer;
 use App\Models\TestAttempt;
-use App\Services\Test\TestScoringService;
+use App\Services\Test\TestAttemptService;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 
 class TakeTest extends Component
 {
+    #[Locked]
     public Test $test;
 
+    #[Locked]
     public TestAttempt $attempt;
 
+    #[Locked]
     public array $questions = [];
 
+    #[Locked]
     public int $currentIndex = 0;
 
-    public array $answers = []; // [questionId => optionId]
+    #[Locked]
+    public array $answers = [];
 
-    public function mount(Test $test, TestAttempt $attempt): void
+    public function mount(Test $test, TestAttempt $attempt, TestAttemptService $attempts): void
     {
         abort_unless($attempt->test_id === $test->id, 404);
-        if ($attempt->user_id) {
-            abort_unless(auth()->id() === $attempt->user_id, 403);
-        } else {
-            abort_unless(session('anon_session') === $attempt->session_id, 403);
+        $attempts->authorize($attempt, auth()->id(), session('anon_session'));
+        if ($attempt->status === 'started' && $test->duration_minutes !== null && $attempt->started_at !== null
+            && now()->greaterThanOrEqualTo($attempt->started_at->copy()->addMinutes($test->duration_minutes))) {
+            $attempts->complete($attempt, auth()->id(), session('anon_session'));
+            $attempt->refresh();
         }
-        if ($attempt->status === 'completed') {
+        if (in_array($attempt->status, ['completed', 'expired'], true)) {
             $this->redirectRoute('tests.result', ['test' => $test->slug, 'attempt' => $attempt->id]);
 
             return;
         }
         $this->test = $test;
         $this->attempt = $attempt;
-        $qs = $test->allQuestions()->load('options')->map(function ($q) {
-            return [
-                'id' => $q->id,
-                'text' => $q->question,
-                'section' => $q->section?->title,
-                'options' => $q->options->map(fn ($o) => ['id' => $o->id, 'label' => $o->label, 'value' => $o->value])->all(),
-            ];
-        });
-        $this->questions = $qs->all();
-        // load existing answers
-        $prev = TestAnswer::where('test_attempt_id', $attempt->id)->get();
-        foreach ($prev as $p) {
-            $this->answers[$p->question_id] = $p->question_option_id;
-        }
+        $this->questions = $attempts->questionPayload($attempt);
+        $this->answers = $attempt->answers()->pluck('question_option_id', 'question_id')->map(fn ($id): int => (int) $id)->all();
     }
 
-    public function selectOption(int $questionId, int $optionId): void
+    public function selectOption(int $questionId, int $optionId, TestAttemptService $attempts): void
     {
-        // verify option belongs to question
-        $ok = QuestionOption::where('id', $optionId)->where('question_id', $questionId)->exists();
-        if (! $ok) {
+        if (! $attempts->recordAnswer($this->attempt, $questionId, $optionId, auth()->id(), session('anon_session'))) {
+            if ($this->attempt->fresh()->status === 'expired') {
+                $attempts->complete($this->attempt, auth()->id(), session('anon_session'));
+                $this->redirectRoute('tests.result', ['test' => $this->test->slug, 'attempt' => $this->attempt->id]);
+            }
+
             return;
         }
         $this->answers[$questionId] = $optionId;
-        TestAnswer::updateOrCreate(
-            ['test_attempt_id' => $this->attempt->id, 'question_id' => $questionId],
-            ['question_option_id' => $optionId, 'answered_at' => now()]
-        );
     }
 
     public function next(): void
     {
-        if ($this->currentIndex < count($this->questions) - 1) {
-            $this->currentIndex++;
-        }
+        $this->currentIndex = min($this->currentIndex + 1, max(0, count($this->questions) - 1));
     }
 
     public function prev(): void
     {
-        if ($this->currentIndex > 0) {
-            $this->currentIndex--;
+        $this->currentIndex = max(0, $this->currentIndex - 1);
+    }
+
+    public function jumpTo(int $index): void
+    {
+        if ($index >= 0 && $index < count($this->questions)) {
+            $this->currentIndex = $index;
         }
     }
 
-    public function jumpTo(int $i): void
+    public function submit(TestAttemptService $attempts): void
     {
-        if ($i >= 0 && $i < count($this->questions)) {
-            $this->currentIndex = $i;
-        }
-    }
-
-    public function submit(TestScoringService $scoring): void
-    {
-        if ($this->attempt->status === 'completed') {
-            return;
-        }
-        $scoring->score($this->attempt->fresh());
+        $attempts->complete($this->attempt, auth()->id(), session('anon_session'));
         $this->redirectRoute('tests.result', ['test' => $this->test->slug, 'attempt' => $this->attempt->id]);
     }
 

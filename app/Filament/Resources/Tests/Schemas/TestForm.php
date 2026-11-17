@@ -29,7 +29,7 @@ class TestForm
             ]),
             Section::make('Configuration')->columns(3)->schema([
                 TextInput::make('duration_minutes')->numeric()->suffix('min'),
-                TextInput::make('passing_score')->numeric()->suffix('%'),
+                TextInput::make('passing_score')->numeric()->step(1)->minValue(0)->maxValue(100)->suffix('%'),
                 DateTimePicker::make('published_at'),
                 Toggle::make('is_public')->default(true),
                 Toggle::make('shuffle_questions')->default(false),

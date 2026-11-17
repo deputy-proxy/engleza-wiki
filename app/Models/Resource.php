@@ -4,7 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
+/**
+ * @property-read ListeningResource|null $listeningResource
+ * @property-read ReadingResource|null $readingResource
+ */
 class Resource extends Model
 {
     use HasFactory;
@@ -63,11 +68,13 @@ class Resource extends Model
         return $this->hasManyThrough(ResourceCard::class, CardResource::class, 'resource_id', 'card_resource_id');
     }
 
+    /** @return HasOne<ListeningResource, $this> */
     public function listeningResource()
     {
         return $this->hasOne(ListeningResource::class);
     }
 
+    /** @return HasOne<ReadingResource, $this> */
     public function readingResource()
     {
         return $this->hasOne(ReadingResource::class);

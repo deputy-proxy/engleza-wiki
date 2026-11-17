@@ -3,133 +3,106 @@
 namespace App\Services\Test;
 
 use App\Models\AssessmentResult;
+use App\Models\Question;
 use App\Models\Resource;
-use App\Models\TestAnswer;
 use App\Models\TestAttempt;
+use App\Services\Assessment\QuestionScoringService;
+use Illuminate\Support\Facades\DB;
 
 class TestScoringService
 {
+    public function __construct(
+        private readonly QuestionScoringService $questionScoring,
+        private readonly TestQuestionOrderService $questionOrder,
+    ) {}
+
     public function score(TestAttempt $attempt): AssessmentResult
     {
-        $answers = TestAnswer::with('question.section', 'question.topics', 'option')->where('test_attempt_id', $attempt->id)->get();
-        $totalPoints = 0;
-        $earnedPoints = 0;
-        $bySkill = []; // skillName => ['earned'=>x,'total'=>y]
-        $byTopic = []; // topicId => ['earned'=>x,'total'=>y,'name'=>...]
-
-        foreach ($answers as $ans) {
-            $q = $ans->question;
-            if (! $q) {
-                continue;
+        return DB::transaction(function () use ($attempt): AssessmentResult {
+            $locked = TestAttempt::query()->with('test.level')->whereKey($attempt->id)->lockForUpdate()->firstOrFail();
+            $existing = AssessmentResult::where('test_attempt_id', $locked->id)->first();
+            if (in_array($locked->status, ['completed', 'expired'], true) && $existing) {
+                return $existing;
             }
-            $points = $q->points;
-            $totalPoints += $points;
-
-            $correct = false;
-            if ($ans->option && $ans->option->is_correct) {
-                $correct = true;
+            if (in_array($locked->status, ['completed', 'expired'], true) && $locked->question_order === null) {
+                abort(409, 'This historical attempt cannot be rescored because its original question set was not recorded.');
             }
-            $ans->is_correct = $correct;
-            $ans->points_awarded = $correct ? $points : 0;
-            $ans->save();
-            if ($correct) {
-                $earnedPoints += $points;
-            }
+            abort_unless(in_array($locked->status, ['started', 'completed', 'expired'], true), 410);
+            $order = $this->questionOrder->forAttempt($locked);
+            $questionsById = Question::query()
+                ->whereIn('id', $order)
+                ->whereIn('test_section_id', $locked->test->sections()->select('id'))
+                ->with(['section', 'topics'])
+                ->get()
+                ->keyBy('id');
+            $questions = collect($order)->map(fn (int $questionId) => $questionsById->get($questionId))->filter()->values();
+            $answers = $locked->answers()->with('option')->get();
+            $scores = $this->questionScoring->score($questions, $answers);
 
-            $skillName = $q->section?->title ?? 'General';
-            $bySkill[$skillName] ??= ['earned' => 0, 'total' => 0];
-            $bySkill[$skillName]['total'] += $points;
-            if ($correct) {
-                $bySkill[$skillName]['earned'] += $points;
-            }
-
-            foreach ($q->topics as $t) {
-                $byTopic[$t->id] ??= ['earned' => 0, 'total' => 0, 'name' => $t->name, 'slug' => $t->slug];
-                $byTopic[$t->id]['total'] += $points;
-                if ($correct) {
-                    $byTopic[$t->id]['earned'] += $points;
+            foreach ($scores['question_scores'] as $questionId => $score) {
+                $answer = $answers->firstWhere('question_id', $questionId);
+                if ($answer) {
+                    $answer->forceFill(['is_correct' => $score['is_correct'], 'points_awarded' => $score['earned_points']])->save();
                 }
             }
-        }
 
-        $pct = $totalPoints > 0 ? round(($earnedPoints / $totalPoints) * 100, 1) : 0;
-        $level = $this->estimateLevel($pct, $attempt->test->level?->slug);
+            $pct = $scores['percentage'];
+            $level = $this->estimateLevel($pct, $locked->test->level?->slug);
+            $skill = fn (string $name): ?float => isset($scores['by_section'][$name]) && $scores['by_section'][$name]['total'] > 0
+                ? round(($scores['by_section'][$name]['earned'] / $scores['by_section'][$name]['total']) * 100, 1) : null;
+            $weak = collect($scores['by_topic'])->filter(fn (array $topic): bool => $topic['total'] > 0 && ($topic['earned'] / $topic['total']) * 100 < 70);
+            $resourceIds = Resource::published()->whereHas('topics', fn ($query) => $query->whereIn('topics.id', $weak->keys()))->limit(6)->pluck('id')->all();
+            $recommendation = json_encode(['weak_topics' => $weak->pluck('name')->values()->all(), 'resource_ids' => $resourceIds], JSON_THROW_ON_ERROR);
 
-        $skillPct = fn ($k) => isset($bySkill[$k]) && $bySkill[$k]['total'] > 0 ? round(($bySkill[$k]['earned'] / $bySkill[$k]['total']) * 100, 1) : null;
+            $locked->forceFill([
+                'score' => $scores['earned_points'], 'total_points' => $scores['total_points'], 'percentage' => $pct,
+                'level_result' => $level, 'passed' => $locked->test->passing_score === null ? null : ($scores['total_points'] > 0 && $pct >= $locked->test->passing_score),
+                'status' => $locked->status === 'expired' ? 'expired' : 'completed', 'completed_at' => now(),
+                'time_spent_seconds' => $locked->started_at ? max(0, (int) $locked->started_at->diffInSeconds(now(), false)) : null,
+            ])->save();
 
-        // Recommendations: find weak topics (<70%), find matching published resources
-        $weakTopicIds = [];
-        foreach ($byTopic as $id => $d) {
-            $p = $d['total'] > 0 ? ($d['earned'] / $d['total']) * 100 : 100;
-            if ($p < 70) {
-                $weakTopicIds[] = $id;
-            }
-        }
-        $recIds = Resource::published()
-            ->whereHas('topics', fn ($q) => $q->whereIn('topics.id', $weakTopicIds))
-            ->limit(6)->pluck('id')->toArray();
-        $recommendation = json_encode(['weak_topics' => array_values(array_map(fn ($id) => $byTopic[$id]['name'], $weakTopicIds)), 'resource_ids' => $recIds]);
-
-        $attempt->score = $earnedPoints;
-        $attempt->percentage = $pct;
-        $attempt->level_result = $level;
-        $attempt->status = 'completed';
-        $attempt->completed_at = now();
-        if ($attempt->started_at) {
-            $attempt->time_spent_seconds = $attempt->started_at->diffInSeconds(now());
-        }
-        $attempt->save();
-
-        $result = AssessmentResult::updateOrCreate(
-            ['test_attempt_id' => $attempt->id],
-            [
-                'overall_score' => $earnedPoints, 'overall_percentage' => $pct, 'level' => $level,
-                'grammar_score' => $skillPct('Grammar'),
-                'vocabulary_score' => $skillPct('Vocabulary'),
-                'reading_score' => $skillPct('Reading'),
-                'writing_score' => $skillPct('Writing'),
-                'listening_score' => $skillPct('Listening'),
-                'speaking_score' => $skillPct('Speaking'),
-                'recommendation' => $recommendation,
-            ]
-        );
-
-        return $result;
+            return AssessmentResult::updateOrCreate(['test_attempt_id' => $locked->id], [
+                'overall_score' => $scores['earned_points'], 'overall_percentage' => $pct, 'total_points' => $scores['total_points'],
+                'breakdown' => $scores['breakdown'], 'level' => $level,
+                'grammar_score' => $skill('Grammar'), 'vocabulary_score' => $skill('Vocabulary'),
+                'reading_score' => $skill('Reading'), 'writing_score' => $skill('Writing'),
+                'listening_score' => $skill('Listening'), 'speaking_score' => $skill('Speaking'), 'recommendation' => $recommendation,
+            ]);
+        });
     }
 
-    private function estimateLevel(float $pct, ?string $testLevelSlug): string
+    private function estimateLevel(float $percentage, ?string $slug): string
     {
-        if ($testLevelSlug) {
-            $order = ['pre-a1', 'a1', 'a2', 'b1', 'b2', 'c1', 'c2'];
-            $idx = array_search($testLevelSlug, $order);
-            if ($idx === false) {
-                $idx = 2;
+        if ($slug === null) {
+            if ($percentage >= 90) {
+                return 'C1';
             }
-            if ($pct >= 90 && $idx < count($order) - 1) {
-                return strtoupper($order[$idx + 1]);
+            if ($percentage >= 75) {
+                return 'B2';
             }
-            if ($pct >= 60) {
-                return strtoupper($order[$idx]);
+            if ($percentage >= 55) {
+                return 'B1';
             }
-            if ($pct >= 30 && $idx > 0) {
-                return strtoupper($order[$idx - 1]);
+            if ($percentage >= 35) {
+                return 'A2';
             }
 
-            return strtoupper($order[max(0, $idx - 1)]);
-        }
-        if ($pct >= 90) {
-            return 'C1';
-        }
-        if ($pct >= 75) {
-            return 'B2';
-        }
-        if ($pct >= 55) {
-            return 'B1';
-        }
-        if ($pct >= 35) {
-            return 'A2';
+            return 'A1';
         }
 
-        return 'A1';
+        $levels = ['pre-a1', 'a1', 'a2', 'b1', 'b2', 'c1', 'c2'];
+        $index = array_search($slug, $levels, true);
+        $index = $index === false ? 2 : $index;
+        if ($percentage >= 90 && $index < count($levels) - 1) {
+            return strtoupper($levels[$index + 1]);
+        }
+        if ($percentage >= 60) {
+            return strtoupper($levels[$index]);
+        }
+        if ($percentage >= 30 && $index > 0) {
+            return strtoupper($levels[$index - 1]);
+        }
+
+        return strtoupper($levels[max(0, $index - 1)]);
     }
 }
