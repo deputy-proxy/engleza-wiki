@@ -44,6 +44,18 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(LessonProgress::class);
     }
 
+    /** @return HasMany<LearnerVocabularyItem, $this> */
+    public function vocabularyItems()
+    {
+        return $this->hasMany(LearnerVocabularyItem::class);
+    }
+
+    /** @return HasMany<AdaptivePracticeSession, $this> */
+    public function adaptivePracticeSessions()
+    {
+        return $this->hasMany(AdaptivePracticeSession::class);
+    }
+
     public function savedResources()
     {
         return $this->hasMany(SavedResource::class);

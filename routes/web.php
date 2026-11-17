@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdaptivePracticeController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CertificateController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\LearningPathController;
 use App\Http\Controllers\ResourceController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\VocabularyReviewController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -25,6 +27,11 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/learning/activities/{activity}/complete', [LearningPathController::class, 'completeActivity'])->name('learning.activities.complete');
     Route::post('/learning/lessons/{lesson:slug}/complete', [LearningPathController::class, 'completeLesson'])->name('learning.lessons.complete');
     Route::get('/my-learning', [LearningPathController::class, 'myLearning'])->name('dashboard.learning');
+    Route::get('/reviews', [VocabularyReviewController::class, 'index'])->name('reviews.index');
+    Route::post('/reviews/{item}/answer', [VocabularyReviewController::class, 'answer'])->name('reviews.answer')->middleware('throttle:60,1');
+    Route::post('/practice/start', [AdaptivePracticeController::class, 'start'])->name('practice.start');
+    Route::get('/practice/{session}', [AdaptivePracticeController::class, 'show'])->name('practice.show');
+    Route::post('/practice/{session}/submit', [AdaptivePracticeController::class, 'submit'])->name('practice.submit')->middleware('throttle:30,1');
 });
 
 Route::get('/categories/{category:slug}', [CategoryController::class, 'show'])->name('categories.show');

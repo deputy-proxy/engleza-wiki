@@ -12,6 +12,7 @@ use App\Models\LessonProgress;
 use App\Models\TestAttempt;
 use App\Models\WritingSubmission;
 use App\Services\Learning\LearningPathService;
+use App\Services\Learning\VocabularyReviewService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -50,9 +51,10 @@ class LearningPathController extends Controller
         return redirect()->route('learning.paths.show', $path);
     }
 
-    public function lesson(LearningLesson $lesson, LearningPathService $learning): View
+    public function lesson(LearningLesson $lesson, LearningPathService $learning, VocabularyReviewService $reviews): View
     {
         $lesson = $learning->lesson($lesson, (int) auth()->id());
+        $reviews->encounterLesson(auth()->user(), $lesson);
         $lessonProgress = $learning->startLesson($lesson, (int) auth()->id());
         $activityProgress = LessonActivityProgress::query()->where('user_id', auth()->id())
             ->whereIn('lesson_activity_id', $lesson->activities->pluck('id'))->get()->keyBy('lesson_activity_id');

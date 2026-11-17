@@ -6,10 +6,11 @@ use App\Models\Resource;
 use App\Models\SavedResource;
 use App\Models\TestAttempt;
 use App\Models\WritingSubmission;
+use App\Services\Learning\LearnerProgressService;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(LearnerProgressService $progressService)
     {
         $u = auth()->user();
         $attempts = TestAttempt::where('user_id', $u->id)->with('test', 'result')->latest()->limit(10)->get();
@@ -17,8 +18,9 @@ class DashboardController extends Controller
         $avg = $completed->count() ? round($completed->avg('percentage'), 1) : 0;
         $latestLevel = $completed->first()?->level_result;
         $saved = SavedResource::where('user_id', $u->id)->with('resource')->latest()->limit(6)->get();
+        $progress = $progressService->summary($u);
 
-        return view('pages.dashboard.index', compact('attempts', 'completed', 'avg', 'latestLevel', 'saved'));
+        return view('pages.dashboard.index', compact('attempts', 'completed', 'avg', 'latestLevel', 'saved', 'progress'));
     }
 
     public function tests()

@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -13,6 +15,9 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property-read ReadingResource|null $readingResource
  * @property-read WritingResource|null $writingResource
  * @property-read Level|null $level
+ * @property-read Collection<int, Skill> $skills
+ * @property-read Collection<int, Topic> $topics
+ * @property-read CardResource|null $cardResource
  */
 class Resource extends Model
 {
@@ -43,6 +48,7 @@ class Resource extends Model
         return $this->belongsToMany(Tag::class);
     }
 
+    /** @return BelongsToMany<Skill, $this> */
     public function skills()
     {
         return $this->belongsToMany(Skill::class);
@@ -53,6 +59,7 @@ class Resource extends Model
         return $this->belongsToMany(Audience::class);
     }
 
+    /** @return BelongsToMany<Topic, $this> */
     public function topics()
     {
         return $this->belongsToMany(Topic::class);
@@ -63,6 +70,7 @@ class Resource extends Model
         return $this->hasMany(Media::class);
     }
 
+    /** @return HasOne<CardResource, $this> */
     public function cardResource()
     {
         return $this->hasOne(CardResource::class);
