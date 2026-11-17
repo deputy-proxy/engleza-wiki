@@ -1,119 +1,94 @@
-<x-layout :title="'Your result – '.$test->title">
-@php $r = $attempt->result; @endphp
-<section class="mx-auto max-w-3xl px-6 py-12">
-  <div class="card p-10 text-center">
-    <div class="text-sm font-semibold uppercase text-brand-600 tracking-widest">Your English level</div>
-    <div class="mt-3 text-7xl font-extrabold text-navy-900" data-testid="result-level">{{ $r?->level ?? $attempt->level_result ?? '—' }}</div>
-    <div class="mt-3 text-xl text-navy-600">Overall score: <span class="font-bold text-navy-900" data-testid="result-percentage">{{ $r?->overall_percentage ?? $attempt->percentage }}%</span></div>
-    <div class="mt-2 text-sm text-navy-500">@if(($r?->total_points ?? $attempt->total_points) !== null){{ $r?->overall_score ?? $attempt->score }} / {{ $r?->total_points ?? $attempt->total_points }} points @else{{ $r?->overall_score ?? $attempt->score }} points @endif</div>
+<x-layout :title="$test->title.' · Result'" description="Your assessment result and question review.">
+<div class="mx-auto max-w-4xl px-4 py-12">
+  <a href="{{ route('tests.show', $test->slug) }}" class="text-sm font-semibold text-brand-600 hover:underline">← Back to test</a>
+  <div class="mt-6 card p-8 text-center">
+    <p class="text-sm font-semibold uppercase tracking-widest text-navy-500">Assessment result</p>
+    <h1 class="mt-2 text-3xl font-extrabold text-navy-900">{{ $test->title }}</h1>
+    <div class="mt-6 text-5xl font-extrabold text-navy-900">{{ number_format((float) ($attempt->percentage ?? 0), 1) }}%</div>
+    <p class="mt-2 text-navy-600">{{ number_format((float) ($attempt->score ?? 0), 2) }} / {{ number_format((float) ($attempt->total_points ?? 0), 2) }} points</p>
     @if($attempt->status === 'expired')
-      <div class="mt-3 inline-flex chip bg-amber-50 text-amber-800" data-testid="result-expired-status">Time expired. Only answers saved before the deadline were scored.</div>
-    @endif
-    @if($test->passing_score !== null && $attempt->passed !== null)
-      <div class="mt-3 inline-flex chip {{ $attempt->passed ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700' }}" data-testid="result-pass-status">{{ $attempt->passed ? 'Passed' : 'Not passed' }} · Required {{ $test->passing_score }}%</div>
-    @endif
-    @if($attempt->status === 'completed')
-      <a href="{{ route('tests.certificate', ['test'=>$test->slug, 'attempt'=>$attempt->id]) }}" class="mt-6 inline-flex btn-primary bg-emerald-600 hover:bg-emerald-700" data-testid="download-certificate-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-        Download certificate (PDF)
-      </a>
+      <p class="mt-4 text-sm font-semibold text-amber-700">Time expired. This attempt expired, and answers saved before the deadline were scored.</p>
+    @elseif($attempt->result?->passed)
+      <p class="mt-4 text-sm font-semibold text-emerald-700">You passed this assessment.</p>
+    @else
+      <p class="mt-4 text-sm font-semibold text-navy-600">Keep practising and try again.</p>
     @endif
   </div>
 
-  @php
-    $sectionScores = data_get($r?->breakdown, 'sections', []);
-    if (empty($sectionScores)) {
-      $sectionScores = collect([
-        'Grammar' => $r?->grammar_score,
-        'Vocabulary' => $r?->vocabulary_score,
-        'Reading' => $r?->reading_score,
-        'Writing' => $r?->writing_score,
-        'Listening' => $r?->listening_score,
-        'Speaking' => $r?->speaking_score,
-      ])->filter(fn ($score) => $score !== null)->map(fn ($score) => ['percentage' => $score])->all();
-    }
-    $topicScores = data_get($r?->breakdown, 'topics', []);
-  @endphp
-  @if(!empty($sectionScores))
-    <h2 class="mt-10 text-2xl font-bold text-navy-900">Performance breakdown</h2>
-    <div class="mt-4 space-y-3" data-testid="result-breakdown">
-      @foreach($sectionScores as $name => $section)
-        @php $value = (float) $section['percentage']; @endphp
-        <div>
-          <div class="flex justify-between text-sm mb-1">
-            <span class="font-semibold text-navy-900">{{ $name }}</span>
-            <span class="text-navy-600">{{ $value }}% @if(isset($section['total_points'])) · {{ $section['earned_points'] }} / {{ $section['total_points'] }} points @endif</span>
-          </div>
-          <div class="h-2.5 w-full rounded-full bg-navy-100 overflow-hidden"><div class="h-full {{ $value>=70?'bg-emerald-500':($value>=50?'bg-yellow-500':'bg-rose-500') }}" style="width: {{ $value }}%"></div></div>
-        </div>
-      @endforeach
-    </div>
-  @endif
-
-  @if(!empty($topicScores))
-    <h2 class="mt-10 text-2xl font-bold text-navy-900">Topic breakdown</h2>
-    <div class="mt-4 space-y-3" data-testid="result-topic-breakdown">
-      @foreach($topicScores as $topic)
-        <div class="card p-4">
-          <div class="flex justify-between text-sm mb-1">
-            <span class="font-semibold text-navy-900">{{ $topic['name'] }}</span>
-            <span class="text-navy-600">{{ $topic['percentage'] }}% · {{ $topic['earned_points'] }} / {{ $topic['total_points'] }} points</span>
-          </div>
-          <div class="h-2.5 w-full rounded-full bg-navy-100 overflow-hidden"><div class="h-full bg-brand-500" style="width: {{ $topic['percentage'] }}%"></div></div>
-        </div>
-      @endforeach
-    </div>
-  @endif
-
-  @if($test->show_correct_answers && !empty($questions))
-    <h2 class="mt-10 text-2xl font-bold text-navy-900">Answer review</h2>
-    <div class="mt-4 space-y-4" data-testid="test-answer-review">
-      @foreach($questions as $question)
-        @php
-          $answer = $attempt->answers->firstWhere('question_id', $question['id']);
-          $selectedOption = collect($question['options'])->firstWhere('id', $answer?->question_option_id);
-          $correctOption = collect($question['options'])->firstWhere('is_correct', true);
-        @endphp
-        <div class="card p-5">
-          <h3 class="font-semibold text-navy-900">{{ $question['text'] }}</h3>
-          @if($selectedOption)
-            <p class="mt-2 text-sm text-navy-600">Your answer: {{ $selectedOption['label'] }}. {{ $selectedOption['value'] }}</p>
-          @else
-            <p class="mt-2 text-sm text-navy-500">Not answered</p>
-          @endif
-          @if($correctOption)
-            <p class="mt-2 text-sm text-emerald-700">Correct answer: {{ $correctOption['label'] }}. {{ $correctOption['value'] }}</p>
-          @endif
-          @if(($question['explanation'] ?? null))
-            <p class="mt-2 text-sm text-navy-600">{{ ($question['explanation'] ?? null) }}</p>
-          @endif
-        </div>
-      @endforeach
-    </div>
-  @endif
+  <section class="mt-10">
+    <h2 class="text-xl font-bold text-navy-900">Question review</h2>
+    @if($questions === [])
+      <p class="mt-3 text-sm text-navy-600">A question-by-question review is unavailable for this historical attempt.</p>
+    @else
+      <div class="mt-5 space-y-4">
+        @foreach($questions as $i => $question)
+          @php
+            $answer = $attempt->answers->firstWhere('question_id', $question['id']);
+            $payload = $answer?->answer_payload ?? ($answer?->question_option_id !== null ? (int) $answer->question_option_id : $answer?->answer_text);
+            $correctOptions = collect($question['options'])->where('is_correct', true);
+            $selectedValues = [];
+            if (is_array($payload) && array_is_list($payload) && $question['options'] !== []) {
+                $selectedValues = collect($question['options'])->whereIn('id', array_map('intval', $payload))->pluck('value')->all();
+            }
+          @endphp
+          <article class="card p-6">
+            <div class="flex items-center justify-between gap-3">
+              <p class="text-xs font-semibold uppercase tracking-widest text-brand-600">Question {{ $i + 1 }} · {{ $question['section'] ?? 'General' }}</p>
+              @if(!$answer)
+                <span class="chip bg-navy-50 text-navy-600">Not answered</span>
+              @elseif(!array_key_exists('answer_key', $question))
+                <span class="chip bg-navy-50 text-navy-600">Submitted</span>
+              @elseif($answer->is_correct)
+                <span class="chip bg-emerald-50 text-emerald-700">Correct</span>
+              @else
+                <span class="chip bg-rose-50 text-rose-700">Incorrect</span>
+              @endif
+            </div>
+            <h3 class="mt-2 font-bold text-navy-900">{{ $question['text'] }}</h3>
+            @if($answer)
+              <p class="mt-3 text-sm text-navy-700"><strong>Your answer:</strong>
+                @if($selectedValues !== [])
+                  {{ implode(', ', $selectedValues) }}
+                @elseif(is_array($payload))
+                  <code>{{ json_encode($payload, JSON_UNESCAPED_UNICODE) }}</code>
+                @elseif($payload !== null)
+                  {{ $payload }}
+                @else
+                  Not answered
+                @endif
+              </p>
+            @endif
+            @if(array_key_exists('answer_key', $question))
+              @if($correctOptions->isNotEmpty())
+                <p class="mt-2 text-sm text-emerald-700"><strong>Correct answer:</strong> {{ $correctOptions->pluck('value')->join(', ') }}</p>
+              @elseif(isset($question['answer_key']['accepted_answers']))
+                <p class="mt-2 text-sm text-emerald-700"><strong>Accepted answers:</strong> {{ implode(', ', $question['answer_key']['accepted_answers']) }}</p>
+              @else
+                <p class="mt-2 text-sm font-semibold text-emerald-700">Answer key</p>
+                <pre class="mt-1 overflow-x-auto rounded-lg bg-emerald-50 p-3 text-xs text-emerald-800">{{ json_encode($question['answer_key'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
+              @endif
+              @if(!empty($question['explanation']))
+                <p class="mt-3 text-sm text-navy-600"><strong>Explanation:</strong> {{ $question['explanation'] }}</p>
+              @endif
+            @endif
+          </article>
+        @endforeach
+      </div>
+    @endif
+  </section>
 
   @if($recommendations->isNotEmpty())
-  <h2 class="mt-10 text-2xl font-bold text-navy-900">Recommended for you</h2>
-  <p class="text-sm text-navy-600 mt-1">Based on the areas where you can improve.</p>
-  <div class="mt-4 grid md:grid-cols-2 gap-4" data-testid="result-recommendations">
-    @foreach($recommendations as $rec)
-      <a href="{{ route('resources.show',$rec->slug) }}" class="card p-5 hover:shadow-lg transition">
-        <div class="text-xs text-brand-600 font-semibold">{{ ucfirst(str_replace('_',' ',$rec->type)) }}</div>
-        <div class="mt-2 font-bold text-navy-900">{{ $rec->title }}</div>
-        <div class="mt-1 text-sm text-navy-600 line-clamp-2">{{ $rec->excerpt }}</div>
-      </a>
-    @endforeach
-  </div>
+    <section class="mt-10">
+      <h2 class="text-xl font-bold text-navy-900">Recommended next steps</h2>
+      <div class="mt-4 grid gap-4 sm:grid-cols-2">
+        @foreach($recommendations as $resource)
+          <a href="{{ route('resources.show', $resource) }}" class="card p-5 hover:border-brand-300">
+            <h3 class="font-bold text-navy-900">{{ $resource->title }}</h3>
+            <p class="mt-2 text-sm text-navy-600">{{ $resource->excerpt }}</p>
+          </a>
+        @endforeach
+      </div>
+    </section>
   @endif
-
-  @guest
-  <div class="mt-10 card p-6 bg-brand-50 border border-brand-100 text-center">
-    <p class="text-navy-900 font-semibold">Create a free account to save your result and track your progress.</p>
-    <div class="mt-4 flex gap-3 justify-center">
-      <a href="{{ route('register') }}" class="btn-primary" data-testid="result-register-btn">Create free account</a>
-      <a href="{{ route('login') }}" class="btn-outline">Log in</a>
-    </div>
-  </div>
-  @endguest
-</section>
+</div>
 </x-layout>

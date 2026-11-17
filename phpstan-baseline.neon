@@ -73,12 +73,6 @@ parameters:
 			path: app/Filament/Resources/Resources/Support/NestedTypeContent.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Resource\:\:\$writingResource\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Filament/Resources/Resources/Support/NestedTypeContent.php
-
-		-
 			message: '#^Method App\\Filament\\Resources\\Resources\\Support\\NestedTypeContent\:\:extract\(\) has parameter \$data with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -265,12 +259,6 @@ parameters:
 			path: app/Http/Controllers/HomeController.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Resource\:\:\$writingResource\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/LearningController.php
-
-		-
 			message: '#^Method App\\Http\\Controllers\\LearningController\:\:result\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -337,12 +325,6 @@ parameters:
 			path: app/Http/Controllers/ResourceController.php
 
 		-
-			message: '#^Relation ''level'' is not found in App\\Models\\Resource model\.$#'
-			identifier: larastan.relationExistence
-			count: 3
-			path: app/Http/Controllers/ResourceController.php
-
-		-
 			message: '#^Relation ''media'' is not found in App\\Models\\Resource model\.$#'
 			identifier: larastan.relationExistence
 			count: 1
@@ -364,12 +346,6 @@ parameters:
 			message: '#^Relation ''topics'' is not found in App\\Models\\Resource model\.$#'
 			identifier: larastan.relationExistence
 			count: 2
-			path: app/Http/Controllers/ResourceController.php
-
-		-
-			message: '#^Relation ''writingResource'' is not found in App\\Models\\Resource model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
 			path: app/Http/Controllers/ResourceController.php
 
 		-
@@ -407,12 +383,6 @@ parameters:
 			identifier: missingType.return
 			count: 1
 			path: app/Http/Controllers/TestController.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Resource\:\:\$level\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Livewire/HomeSearch.php
 
 		-
 			message: '#^Method App\\Livewire\\HomeSearch\:\:render\(\) has no return type specified\.$#'
@@ -607,18 +577,6 @@ parameters:
 			path: app/Models/Resource.php
 
 		-
-			message: '#^Method App\\Models\\Resource\:\:learningAttempts\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Resource.php
-
-		-
-			message: '#^Method App\\Models\\Resource\:\:level\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Resource.php
-
-		-
 			message: '#^Method App\\Models\\Resource\:\:media\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -650,12 +608,6 @@ parameters:
 
 		-
 			message: '#^Method App\\Models\\Resource\:\:topics\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Resource.php
-
-		-
-			message: '#^Method App\\Models\\Resource\:\:writingResource\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
 			path: app/Models/Resource.php

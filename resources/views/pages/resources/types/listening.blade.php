@@ -11,6 +11,7 @@
   </div>
   <h1 class="mt-4 text-4xl md:text-5xl font-extrabold text-navy-900" data-testid="resource-title">{{ $resource->title }}</h1>
   <p class="mt-3 text-lg text-navy-600">{{ $resource->excerpt }}</p>
+  @include('pages.learning._resource-context')
 
   @php $lr = $resource->listeningResource; @endphp
   @if($lr?->instructions)<div class="mt-6 card p-5 bg-purple-50/60 border-purple-100"><p class="text-navy-800">{{ $lr->instructions }}</p></div>@endif

@@ -11,6 +11,7 @@
   </div>
   <h1 class="mt-4 text-4xl md:text-5xl font-extrabold text-navy-900" data-testid="resource-title">{{ $resource->title }}</h1>
   <p class="mt-3 text-lg text-navy-600">{{ $resource->excerpt }}</p>
+  @include('pages.learning._resource-context')
 
   @php $rr = $resource->readingResource; @endphp
   <div class="mt-8 grid lg:grid-cols-2 gap-8">

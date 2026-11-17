@@ -4,11 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * @property-read ListeningResource|null $listeningResource
  * @property-read ReadingResource|null $readingResource
+ * @property-read WritingResource|null $writingResource
+ * @property-read Level|null $level
  */
 class Resource extends Model
 {
@@ -23,6 +27,7 @@ class Resource extends Model
         return $this->belongsTo(User::class, 'author_id');
     }
 
+    /** @return BelongsTo<Level, $this> */
     public function level()
     {
         return $this->belongsTo(Level::class);
@@ -80,14 +85,22 @@ class Resource extends Model
         return $this->hasOne(ReadingResource::class);
     }
 
+    /** @return HasOne<WritingResource, $this> */
     public function writingResource()
     {
         return $this->hasOne(WritingResource::class);
     }
 
+    /** @return HasMany<LearningAttempt, $this> */
     public function learningAttempts()
     {
         return $this->hasMany(LearningAttempt::class);
+    }
+
+    /** @return HasMany<LessonActivity, $this> */
+    public function lessonActivities()
+    {
+        return $this->hasMany(LessonActivity::class);
     }
 
     public function scopePublished($q)

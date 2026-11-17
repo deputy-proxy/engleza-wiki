@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Level;
 use App\Models\Resource;
 use App\Models\Skill;
+use App\Services\Learning\LearningPathService;
 use Illuminate\Http\Request;
 
 class ResourceController extends Controller
@@ -32,7 +33,7 @@ class ResourceController extends Controller
         return view('pages.resources.index', compact('resources', 'levels', 'skills', 'types'));
     }
 
-    public function show(Resource $resource)
+    public function show(Resource $resource, LearningPathService $learning)
     {
         abort_unless($resource->status === 'published', 404);
         $resource->load(['level', 'skills', 'categories', 'tags', 'topics', 'audiences', 'media', 'author']);
@@ -61,6 +62,9 @@ class ResourceController extends Controller
             $resource->load('writingResource');
         }
 
-        return view($view, compact('resource', 'related'));
+        $learningActivities = $resource->lessonActivities()->with('lesson.unit.path')->get()
+            ->filter(fn ($activity): bool => $learning->isLessonAvailable($activity->lesson));
+
+        return view($view, compact('resource', 'related', 'learningActivities'));
     }
 }

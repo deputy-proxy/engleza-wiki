@@ -42,20 +42,45 @@ class TakeTest extends Component
         $this->test = $test;
         $this->attempt = $attempt;
         $this->questions = $attempts->questionPayload($attempt);
-        $this->answers = $attempt->answers()->pluck('question_option_id', 'question_id')->map(fn ($id): int => (int) $id)->all();
+        $this->answers = $attempt->answers()->get()->mapWithKeys(fn ($answer): array => [
+            (int) $answer->question_id => $answer->answer_payload
+                ?? ($answer->question_option_id !== null ? (int) $answer->question_option_id : $answer->answer_text),
+        ])->all();
     }
 
     public function selectOption(int $questionId, int $optionId, TestAttemptService $attempts): void
     {
-        if (! $attempts->recordAnswer($this->attempt, $questionId, $optionId, auth()->id(), session('anon_session'))) {
-            if ($this->attempt->fresh()->status === 'expired') {
-                $attempts->complete($this->attempt, auth()->id(), session('anon_session'));
-                $this->redirectRoute('tests.result', ['test' => $this->test->slug, 'attempt' => $this->attempt->id]);
-            }
+        $this->setAnswer($questionId, $optionId, $attempts);
+    }
 
-            return;
+    public function setAnswer(int $questionId, mixed $response, TestAttemptService $attempts): void
+    {
+        if ($attempts->recordResponse($this->attempt, $questionId, $response, auth()->id(), session('anon_session'))) {
+            $this->answers[$questionId] = $response;
+        } elseif ($this->attempt->fresh()->status === 'expired') {
+            $attempts->complete($this->attempt, auth()->id(), session('anon_session'));
+            $this->redirectRoute('tests.result', ['test' => $this->test->slug, 'attempt' => $this->attempt->id]);
         }
-        $this->answers[$questionId] = $optionId;
+    }
+
+    public function toggleOption(int $questionId, int $optionId, TestAttemptService $attempts): void
+    {
+        $selected = array_values(array_map('intval', (array) ($this->answers[$questionId] ?? [])));
+        $selected = in_array($optionId, $selected, true)
+            ? array_values(array_diff($selected, [$optionId]))
+            : [...$selected, $optionId];
+        $this->setAnswer($questionId, $selected, $attempts);
+    }
+
+    public function setStructuredAnswer(int $questionId, string $key, string $value, TestAttemptService $attempts): void
+    {
+        $response = (array) ($this->answers[$questionId] ?? []);
+        if ($value === '') {
+            unset($response[$key]);
+        } else {
+            $response[$key] = $value;
+        }
+        $this->setAnswer($questionId, $response, $attempts);
     }
 
     public function next(): void

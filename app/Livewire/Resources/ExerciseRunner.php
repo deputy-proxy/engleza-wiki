@@ -58,6 +58,11 @@ class ExerciseRunner extends Component
 
     public function pick(int $questionId, int $optionId, LearningAttemptService $attempts): void
     {
+        $this->setAnswer($questionId, $optionId, $attempts);
+    }
+
+    public function setAnswer(int $questionId, mixed $response, LearningAttemptService $attempts): void
+    {
         if ($this->submitted) {
             return;
         }
@@ -65,9 +70,29 @@ class ExerciseRunner extends Component
         if (! $this->attempt) {
             return;
         }
-        if ($attempts->recordAnswer($this->attempt, $questionId, $optionId, auth()->id(), session('anon_session'))) {
-            $this->answers[$questionId] = $optionId;
+        if ($attempts->recordResponse($this->attempt, $questionId, $response, auth()->id(), session('anon_session'))) {
+            $this->answers[$questionId] = $response;
         }
+    }
+
+    public function toggleOption(int $questionId, int $optionId, LearningAttemptService $attempts): void
+    {
+        $selected = array_values(array_map('intval', (array) ($this->answers[$questionId] ?? [])));
+        $selected = in_array($optionId, $selected, true)
+            ? array_values(array_diff($selected, [$optionId]))
+            : [...$selected, $optionId];
+        $this->setAnswer($questionId, $selected, $attempts);
+    }
+
+    public function setStructuredAnswer(int $questionId, string $key, string $value, LearningAttemptService $attempts): void
+    {
+        $response = (array) ($this->answers[$questionId] ?? []);
+        if ($value === '') {
+            unset($response[$key]);
+        } else {
+            $response[$key] = $value;
+        }
+        $this->setAnswer($questionId, $response, $attempts);
     }
 
     public function submit(LearningAttemptService $attempts): void

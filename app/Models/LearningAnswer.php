@@ -12,9 +12,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class LearningAnswer extends Model
 {
-    protected $fillable = ['learning_attempt_id', 'question_id', 'question_option_id', 'answer_text', 'is_correct', 'points_awarded', 'answered_at'];
+    protected $fillable = ['learning_attempt_id', 'question_id', 'question_option_id', 'answer_text', 'answer_payload', 'is_correct', 'points_awarded', 'answered_at'];
 
-    protected $casts = ['answered_at' => 'datetime', 'is_correct' => 'bool'];
+    protected $casts = ['answer_payload' => 'array', 'answered_at' => 'datetime', 'is_correct' => 'bool'];
 
     /** @return BelongsTo<LearningAttempt, $this> */
     public function attempt()
