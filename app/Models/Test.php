@@ -40,6 +40,12 @@ class Test extends Model
         return $this->hasMany(TestSection::class)->orderBy('sort_order');
     }
 
+    /** @return HasMany<LessonActivity, $this> */
+    public function lessonActivities()
+    {
+        return $this->hasMany(LessonActivity::class);
+    }
+
     /** @return HasMany<TestAttempt, $this> */
     public function attempts()
     {

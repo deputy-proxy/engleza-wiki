@@ -6,6 +6,8 @@ use Illuminate\Support\Collection;
 
 class QuestionScoringService
 {
+    public function __construct(private readonly QuestionResponseService $responses) {}
+
     /**
      * @param  Collection<int, mixed>  $questions
      * @param  Collection<int, mixed>  $answers
@@ -24,11 +26,11 @@ class QuestionScoringService
             $questionId = (int) $question->id;
             $points = (float) $question->points;
             $answer = $answersByQuestion->get($questionId);
-            $correct = $answer !== null
-                && $answer->option !== null
-                && (int) $answer->option->question_id === $questionId
-                && (bool) $answer->option->is_correct;
-            $earned = $correct ? $points : 0.0;
+            $response = $answer === null ? null : ($answer->answer_payload
+                ?? ($answer->question_option_id !== null ? (int) $answer->question_option_id : $answer->answer_text));
+            $evaluation = $this->responses->evaluate($question, $response);
+            $earned = $evaluation['valid'] ? $evaluation['earned_points'] : 0.0;
+            $correct = $evaluation['valid'] && $evaluation['correct'];
             $section = $question->section->title ?? 'General';
 
             $totalPoints += $points;

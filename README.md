@@ -77,9 +77,21 @@ Test access rules: `free` allows guest and registered learners; `registered` req
 
 Historical attempts are not recalculated against edited content. If their original question set was never recorded, their existing score/history is preserved and no potentially misleading question review is generated.
 
+## Learning paths and reusable exercises
+
+Learning paths are published sequences of ordered units, lessons and activities. A lesson activity references an existing resource or test, so content remains canonical and reusable instead of being copied into a course. Lessons and paths carry CEFR level, skills, topics, objectives, publication dates and ordering metadata. Draft and archived content is not learner-visible.
+
+Create and publish content in `/admin` using **Learning paths**, **Units**, **Lessons** and **Activities**. Edit pages provide nested managers: manage units from a path, lessons from a unit and ordered activities from a lesson. Recommended workflow: create a draft path; add and publish units; create draft lessons and link existing resources/tests; publish each lesson after its unit and referenced content are ready; then publish the path. Model validation requires a publication date, a published unit, at least one valid activity and supported question definitions for linked interactive resources/tests. Published lesson activities cannot be edited or removed in place: unpublish the lesson, make changes, then republish it to re-run readiness checks.
+
+Learners browse `/learning`, enrol in a path, and continue from `/my-learning`. Lessons unlock in server-enforced order. Required activities must be completed before a lesson can be completed. Listening/reading activities require a completed owned learning attempt; writing activities require a submitted writing response; test activities require a completed owned test attempt. Other resource activities can be manually marked complete from the lesson page. Progress is stored per learner, lesson and activity. In-progress attempts and lessons can be resumed. Completed lessons remain complete and reviewable; learners may revisit resources and create new assessment attempts without overwriting historical attempts or resetting lesson completion. A resource page linked from a lesson shows its lesson context.
+
+The shared question-response engine supports `single_choice`, `multiple_choice`, `true_false`, `text`, `short_text`, `matching`, `ordering` and `gap_fill` in both formal tests and listening/reading exercises. Matching, ordering and gap-fill definitions are authored in the Question form's **Exercise configuration (JSON)** field. Structured definitions are validated before saving, and lesson publication checks every linked interactive question. Learner payloads omit answer keys and correctness flags until a completed attempt and only disclose them when the resource/test setting permits it.
+
+Scoring rules: single-choice, true/false and text answers are all-or-nothing; multiple choice uses positive partial credit based on correct selections minus incorrect selections, divided by the number of correct options; matching awards credit per correct pair; ordering awards credit per item in its correct position; gap-fill awards credit per correctly completed gap. Partial-credit scores are clamped between zero and the question's maximum points.
+
 ### Deployment note
 
-Run `php artisan migrate --force` during deployment. The new attempt metadata and score-breakdown fields are nullable, and existing scores are not rewritten or backfilled. Historical attempts without a saved question set retain their existing score but do not receive a reconstructed question review. Existing listening/reading resources default to showing answer explanations after completion, preserving the previous behaviour; the new toggle can disable that disclosure per resource.
+Run `php artisan migrate --force` during deployment. The assessment-integrity migrations add nullable attempt metadata and score-breakdown fields without rewriting historical scores. The curriculum migrations create new path, unit, lesson, activity and progress tables. The exercise-engine migration adds nullable JSON response payloads to test and learning answers; existing option/text columns remain intact and historical answers are not backfilled. Historical attempts without a saved question set retain their existing score but do not receive a reconstructed question review. Existing listening/reading resources default to showing answer explanations after completion, preserving the previous behaviour; the new toggle can disable that disclosure per resource.
 
 ## Architecture overview
 
@@ -91,7 +103,7 @@ app/
 ├── Models/                   # Eloquent models (Resource, Test, Question, TestAttempt, …)
 ├── Services/Assessment/      # Shared weighted scoring and section/topic breakdowns
 ├── Services/Test/            # Test attempt lifecycle, question-order snapshots and scoring
-├── Services/Learning/        # Shared listening/reading attempt lifecycle and scoring
+├── Services/Learning/        # Curriculum progression and listening/reading attempt lifecycle
 ├── Filament/Resources/       # Admin CRUD for every content and assessment model
 └── Filament/Widgets/         # Dashboard widgets (Stats, Popular tests)
 
@@ -112,7 +124,7 @@ resources/views/
 php artisan test
 ```
 
-Covers public resources, anonymous and authenticated tests, weighted and unanswered scoring, empty assessments, rounding, question-order snapshots, expiry, idempotent completion, cross-attempt answer rejection, access and answer-disclosure settings, guest ownership, learning controller/Livewire parity, learning answer disclosure, certificates and teacher/admin class reporting.
+Covers public resources, anonymous and authenticated tests, all eight question types in both test and learning runners, structured answer validation and partial credit, weighted and unanswered scoring, empty assessments, rounding, question-order snapshots, expiry, idempotent completion, cross-attempt answer rejection, access and answer-disclosure settings, guest ownership, learning-path enrolment and sequential progression, publication readiness, resource availability, admin relation managers, learning answer disclosure, certificates and teacher/admin class reporting.
 
 ## Running in the Emergent preview
 

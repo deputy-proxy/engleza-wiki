@@ -7,6 +7,7 @@ use App\Http\Controllers\ClassGroupController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LearningController;
+use App\Http\Controllers\LearningPathController;
 use App\Http\Controllers\ResourceController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\TestController;
@@ -15,6 +16,17 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/resources', [ResourceController::class, 'index'])->name('resources.index');
 Route::get('/resources/{resource:slug}', [ResourceController::class, 'show'])->name('resources.show');
+
+Route::get('/learning', [LearningPathController::class, 'index'])->name('learning.paths.index');
+Route::get('/learning/{path:slug}', [LearningPathController::class, 'show'])->name('learning.paths.show');
+Route::middleware('auth')->group(function (): void {
+    Route::post('/learning/{path:slug}/enroll', [LearningPathController::class, 'enroll'])->name('learning.paths.enroll');
+    Route::get('/learning/lessons/{lesson:slug}', [LearningPathController::class, 'lesson'])->name('learning.lessons.show');
+    Route::post('/learning/activities/{activity}/complete', [LearningPathController::class, 'completeActivity'])->name('learning.activities.complete');
+    Route::post('/learning/lessons/{lesson:slug}/complete', [LearningPathController::class, 'completeLesson'])->name('learning.lessons.complete');
+    Route::get('/my-learning', [LearningPathController::class, 'myLearning'])->name('dashboard.learning');
+});
+
 Route::get('/categories/{category:slug}', [CategoryController::class, 'show'])->name('categories.show');
 Route::get('/search', [SearchController::class, 'index'])->name('search');
 

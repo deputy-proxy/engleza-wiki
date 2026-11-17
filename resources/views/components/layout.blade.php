@@ -183,6 +183,7 @@
     <nav class="hidden lg:flex items-center gap-7 text-sm font-medium text-navy-700">
       <a href="{{ route('home') }}" class="hover:text-brand-600" data-testid="nav-home">Home</a>
       <a href="{{ route('resources.index') }}" class="hover:text-brand-600" data-testid="nav-resources">Resources</a>
+      <a href="{{ route('learning.paths.index') }}" class="hover:text-brand-600" data-testid="nav-learning">Learning paths</a>
       <a href="{{ route('grammar') }}" class="hover:text-brand-600" data-testid="nav-grammar">Grammar</a>
       <a href="{{ route('vocabulary') }}" class="hover:text-brand-600" data-testid="nav-vocabulary">Vocabulary</a>
       <a href="{{ route('for-teachers') }}" class="hover:text-brand-600" data-testid="nav-for-teachers">For Teachers</a>
@@ -194,6 +195,7 @@
       </a>
       @auth
         <a href="{{ route('dashboard') }}" class="btn-ghost" data-testid="nav-dashboard">Dashboard</a>
+        <a href="{{ route('dashboard.learning') }}" class="btn-ghost" data-testid="nav-my-learning">My learning</a>
         <form method="POST" action="{{ route('logout') }}">@csrf<button class="btn-outline" data-testid="nav-logout">Log out</button></form>
       @else
         <a href="{{ route('login') }}" class="btn-ghost" data-testid="nav-login">Log in</a>

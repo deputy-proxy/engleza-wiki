@@ -11,6 +11,7 @@
   </div>
   <h1 class="mt-4 text-4xl md:text-5xl font-extrabold text-navy-900" data-testid="resource-title">{{ $resource->title }}</h1>
   <p class="mt-3 text-lg text-navy-600">{{ $resource->excerpt }}</p>
+  @include('pages.learning._resource-context')
 
   @php $wr = $resource->writingResource; @endphp
   <div class="mt-8 card p-8 bg-sky-50/60 border-sky-100" data-testid="writing-task">

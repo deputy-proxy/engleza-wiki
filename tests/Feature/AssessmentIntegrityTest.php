@@ -485,6 +485,74 @@ class AssessmentIntegrityTest extends TestCase
      * @param  array<string, mixed>  $testAttributes
      * @return array{0: Assessment, 1: array<int, Question>, 2: array<string, Topic>}
      */
+    public function test_all_supported_question_types_run_through_both_assessment_and_learning_components(): void
+    {
+        $user = User::factory()->create();
+        $cases = [
+            'single_choice' => ['response' => 'option'],
+            'true_false' => ['response' => 'option'],
+            'multiple_choice' => ['response' => 'multiple'],
+            'text' => ['response' => 'RIGHT ANSWER'],
+            'short_text' => ['response' => 'right answer'],
+            'matching' => ['response' => ['cat' => 'gato', 'dog' => 'perro'], 'metadata' => ['pairs' => [
+                ['left' => 'cat', 'right' => 'gato'], ['left' => 'dog', 'right' => 'perro'],
+            ]]],
+            'ordering' => ['response' => [0 => 'first', 1 => 'second'], 'metadata' => ['items' => ['first', 'second']]],
+            'gap_fill' => ['response' => ['gap_1' => 'is'], 'metadata' => ['gaps' => ['gap_1' => 'is']]],
+        ];
+
+        foreach ($cases as $type => $case) {
+            [$test, $testQuestions] = $this->makeAssessment([['section' => 'Types', 'points' => 4, 'correct' => true]]);
+            [$resource, $learningQuestions] = $this->makeReadingResource([['points' => 4, 'correct' => true]]);
+            $testQuestion = $testQuestions[0];
+            $learningQuestion = $learningQuestions[0];
+            foreach ([$testQuestion, $learningQuestion] as $question) {
+                $options = $question->options;
+                $metadata = $case['metadata'] ?? [];
+                if ($type === 'multiple_choice') {
+                    $options[1]->update(['is_correct' => true]);
+                }
+                if (in_array($type, ['text', 'short_text'], true)) {
+                    $options[0]->update(['value' => 'Right answer']);
+                }
+                $question->update(['type' => $type, 'metadata' => $metadata]);
+            }
+            $testResponse = match ($case['response']) {
+                'option' => (int) $testQuestion->options[0]->id,
+                'multiple' => [(int) $testQuestion->options[0]->id, (int) $testQuestion->options[1]->id],
+                default => $case['response'],
+            };
+            $learningResponse = match ($case['response']) {
+                'option' => (int) $learningQuestion->options[0]->id,
+                'multiple' => [(int) $learningQuestion->options[0]->id, (int) $learningQuestion->options[1]->id],
+                default => $case['response'],
+            };
+
+            $testAttempt = app(TestAttemptService::class)->start($test, [
+                'user_id' => $user->id, 'started_at' => now(), 'status' => 'started',
+            ]);
+            $beforeTest = app(TestAttemptService::class)->questionPayload($testAttempt);
+            self::assertArrayNotHasKey('answer_key', $beforeTest[0], $type);
+            self::assertArrayNotHasKey('is_correct', $beforeTest[0]['options'][0] ?? [], $type);
+            Livewire::actingAs($user)->test(TakeTest::class, ['test' => $test, 'attempt' => $testAttempt])
+                ->call('setAnswer', (int) $testQuestion->id, $testResponse)->call('submit');
+            $testAttempt->refresh();
+            self::assertSame('completed', $testAttempt->status, $type.' test');
+            self::assertSame(4.0, (float) $testAttempt->score, $type.' test score');
+            self::assertArrayHasKey('answer_key', app(TestAttemptService::class)->questionPayload($testAttempt, true)[0], $type.' test answer key');
+
+            $beforeLearning = app(LearningAttemptService::class)->questionPayload($resource);
+            self::assertArrayNotHasKey('answer_key', $beforeLearning[0], $type);
+            self::assertArrayNotHasKey('is_correct', $beforeLearning[0]['options'][0] ?? [], $type);
+            $component = Livewire::actingAs($user)->test(ExerciseRunner::class, ['resource' => $resource]);
+            $component->call('setAnswer', (int) $learningQuestion->id, $learningResponse)->call('submit');
+            $learningAttempt = $component->get('attempt');
+            self::assertSame('completed', $learningAttempt->status, $type.' learning');
+            self::assertSame(4.0, (float) $learningAttempt->score, $type.' learning score');
+            self::assertArrayHasKey('answer_key', $component->get('questions')[0], $type.' learning answer key');
+        }
+    }
+
     private function makeAssessment(array $definitions, array $testAttributes = []): array
     {
         $test = Assessment::query()->create(Assessment::factory()->raw($testAttributes));

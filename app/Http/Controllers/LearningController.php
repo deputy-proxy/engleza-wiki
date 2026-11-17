@@ -73,7 +73,7 @@ class LearningController extends Controller
     {
         abort_unless($resource->type === 'writing', 404);
         $wr = $resource->writingResource;
-        abort_unless($wr, 404);
+        abort_unless($wr !== null, 404);
         $data = $r->validate(['content' => 'required|string|max:20000', 'status' => 'nullable|in:draft,submitted']);
         $words = str_word_count(strip_tags($data['content']));
         $sub = WritingSubmission::create([
