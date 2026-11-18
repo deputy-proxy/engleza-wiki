@@ -29,7 +29,7 @@ class ResourceController extends Controller
         $resources = $q->latest('published_at')->paginate(12)->withQueryString();
         $levels = Level::orderBy('sort_order')->get();
         $skills = Skill::orderBy('name')->get();
-        $types = ['article' => 'Articles', 'grammar' => 'Grammar', 'vocabulary' => 'Vocabulary', 'worksheet' => 'Worksheets', 'lesson_plan' => 'Lesson Plans', 'activity' => 'Activities', 'guide' => 'Guides', 'exercise' => 'Exercises', 'card' => 'Cards', 'listening' => 'Listening', 'reading' => 'Reading', 'writing' => 'Writing'];
+        $types = ['article' => 'Articles', 'grammar' => 'Grammar', 'vocabulary' => 'Vocabulary', 'worksheet' => 'Worksheets', 'lesson_plan' => 'Lesson Plans', 'activity' => 'Activities', 'guide' => 'Guides', 'exercise' => 'Exercises', 'card' => 'Cards', 'listening' => 'Listening', 'reading' => 'Reading', 'writing' => 'Writing'];\n        $types = array_map(fn (string $label): string => __($label), $types);
 
         return view('pages.resources.index', compact('resources', 'levels', 'skills', 'types'));
     }
