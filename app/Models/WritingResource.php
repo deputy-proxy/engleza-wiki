@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\HasTranslations;
 use Illuminate\Database\Eloquent\Model;
 
+/** @property-read \App\Models\Resource|null $resource */
 class WritingResource extends Model
 {
     use HasTranslations;

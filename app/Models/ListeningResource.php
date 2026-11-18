@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * @property-read ContentResource $resource
+ * @property-read ContentResource|null $resource
  * @property-read Collection<int, Question> $questions
  */
 class ListeningResource extends Model
@@ -20,7 +20,7 @@ class ListeningResource extends Model
 
     protected $casts = ['show_correct_answers' => 'boolean'];
 
-    protected $fillable = ['resource_id', 'instructions', 'show_correct_answers', 'media_path', 'media_type', 'original_filename', 'mime_type', 'file_size', 'duration_seconds'];
+    protected $fillable = ['resource_id', 'instructions', 'show_correct_answers', 'media_path', 'media_type', 'original_filename', 'mime_type', 'file_size', 'duration_seconds', 'media_source_url', 'media_license', 'media_attribution', 'media_permission_reference'];
 
     /** @return BelongsTo<ContentResource, $this> */
     public function resource()

@@ -27,6 +27,12 @@ class TestForm
                 Textarea::make('description')->rows(2)->columnSpanFull(),
                 Textarea::make('instructions')->rows(4)->columnSpanFull(),
             ]),
+            Section::make('Editorial review')->collapsed()->columns(2)->schema([
+                TextInput::make('editorial_status')->disabled()->dehydrated(false),
+                TextInput::make('editorialReviewer.name')->label('Reviewer')->disabled()->dehydrated(false),
+                TextInput::make('editorial_reviewed_at')->label('Reviewed at')->disabled()->dehydrated(false),
+                Textarea::make('editorial_notes')->label('Review notes')->rows(3)->disabled()->dehydrated(false)->columnSpanFull(),
+            ]),
             Section::make('Configuration')->columns(3)->schema([
                 TextInput::make('duration_minutes')->numeric()->suffix('min'),
                 TextInput::make('passing_score')->numeric()->step(1)->minValue(0)->maxValue(100)->suffix('%'),

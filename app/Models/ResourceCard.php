@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/** @property-read CardResource|null $cardResource */
 class ResourceCard extends Model
 {
     protected $fillable = ['card_resource_id', 'front', 'back', 'sort_order'];

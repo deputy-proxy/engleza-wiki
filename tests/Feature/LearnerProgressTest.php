@@ -172,6 +172,7 @@ class LearnerProgressTest extends TestCase
             'learning_lesson_id' => $lesson->id, 'type' => 'resource', 'resource_id' => $resource->id,
             'title' => 'Read', 'sort_order' => 1, 'is_required' => true,
         ]);
+        $lesson->approveEditorialReview(User::factory()->create(['role' => 'admin']));
         $lesson->update(['status' => 'published']);
         $path->update(['status' => 'published', 'published_at' => now()]);
         LearningPathEnrollment::query()->create([
@@ -282,6 +283,8 @@ class LearnerProgressTest extends TestCase
             $question->topics()->attach($topic);
             $questions->push([$question, $correct]);
         }
+
+        $test->refresh()->approveEditorialReview(User::factory()->create(['role' => 'admin']));
 
         $service = app(AdaptivePracticeService::class);
         $session = $service->start($user);

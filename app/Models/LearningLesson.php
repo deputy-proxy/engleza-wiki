@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Contracts\EditorialReviewable;
+use App\Models\Concerns\HasEditorialReview;
 use App\Models\Concerns\HasTranslations;
 use App\Services\Assessment\QuestionResponseService;
 use Illuminate\Database\Eloquent\Model;
@@ -10,9 +12,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Validation\ValidationException;
 
-/** @property-read LearningUnit|null $unit */
-class LearningLesson extends Model
+/**
+ * @property-read LearningUnit|null $unit
+ * @property string $editorial_status
+ * @property int|null $editorial_reviewed_by
+ */
+class LearningLesson extends Model implements EditorialReviewable
 {
+    use HasEditorialReview;
     use HasTranslations;
 
     protected $fillable = ['learning_unit_id', 'level_id', 'title', 'slug', 'description', 'objectives', 'status', 'sort_order', 'published_at'];
@@ -30,6 +37,12 @@ class LearningLesson extends Model
                 throw ValidationException::withMessages(['status' => implode(' ', $issues)]);
             }
         });
+    }
+
+    /** @return array<int, string> */
+    public function editorialReviewableFields(): array
+    {
+        return ['learning_unit_id', 'level_id', 'title', 'slug', 'description', 'objectives', 'sort_order', 'published_at'];
     }
 
     /** @return array<int, string> */
@@ -53,7 +66,7 @@ class LearningLesson extends Model
             if ($activity->type === 'resource') {
                 $resource = $activity->resource;
                 if ($activity->resource_id === null || $activity->test_id !== null || $resource === null
-                    || $resource->status !== 'published' || ($resource->published_at !== null && $resource->published_at->gt(now()))) {
+                    || $resource->status !== 'published' || ! $resource->isEditorialVisible() || ($resource->published_at !== null && $resource->published_at->gt(now()))) {
                     $issues[] = 'Every resource activity must reference a currently published resource.';
                     break;
                 }
@@ -76,7 +89,7 @@ class LearningLesson extends Model
             } elseif ($activity->type === 'test') {
                 $test = $activity->test;
                 if ($activity->test_id === null || $activity->resource_id !== null || $test === null
-                    || $test->status !== 'published' || ! $test->is_public
+                    || $test->status !== 'published' || ! $test->isEditorialVisible() || ! $test->is_public
                     || ! in_array($test->access_type, ['free', 'registered'], true)
                     || ($test->published_at !== null && $test->published_at->gt(now()))) {
                     $issues[] = 'Every test activity must reference a currently published, accessible test.';

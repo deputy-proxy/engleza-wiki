@@ -6,6 +6,7 @@ use App\Models\Concerns\HasTranslations;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/** @property-read \App\Models\Resource|null $resource */
 class CardResource extends Model
 {
     use HasTranslations;

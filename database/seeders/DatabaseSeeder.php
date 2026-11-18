@@ -103,13 +103,15 @@ class DatabaseSeeder extends Seeder
                 ['slug' => Str::slug($title)],
                 [
                     'title' => $title, 'excerpt' => $excerpt,
-                    'content' => "## $title\n\n$excerpt\n\nThis resource is part of engleza.wiki's free English learning collection. It provides clear explanations, practical examples, and useful exercises to help you improve.\n\n### Key points\n- Concept clearly explained\n- Multiple examples\n- Practice exercises\n- Answer key\n\n### Example\n\nShe **works** in a hospital. They **don't play** football on Sundays. Where **do you live**?\n\n### When to use it\n\nUse this pattern for habits, routines, facts, and general truths.",
+                    'content' => $this->resourceContent(Str::slug($title), $excerpt),
                     'type' => str_contains(strtolower($title), 'worksheet') ? 'worksheet' : (str_contains(strtolower($title), 'lesson plan') ? 'lesson_plan' : 'article'),
-                    'status' => 'published', 'level_id' => $L($level), 'author_id' => $admin->id,
+                    'status' => $i < 4 ? 'published' : 'draft', 'level_id' => $L($level), 'author_id' => $admin->id,
                     'featured' => $i < 4,
                     'published_at' => now()->subDays(20 - $i),
                     'seo_title' => $title.' — engleza.wiki',
                     'seo_description' => $excerpt,
+                    'canonical_url' => null,
+                    'robots_index' => $i < 4,
                 ]
             );
             $skill = $S(str_contains($cat, 'Grammar') ? 'Grammar' : (str_contains($cat, 'Vocab') ? 'Vocabulary' : (str_contains($cat, 'Listening') ? 'Listening' : (str_contains($cat, 'Speaking') ? 'Speaking' : (str_contains($cat, 'Writing') ? 'Writing' : (str_contains($cat, 'Reading') ? 'Reading' : 'Grammar'))))));
@@ -135,6 +137,210 @@ class DatabaseSeeder extends Seeder
         // Interactive resources (cards, listening, reading, writing)
         $this->call(InteractiveResourcesSeeder::class);
         $this->call(RomanianTranslationsSeeder::class);
+    }
+
+    private function resourceContent(string $slug, string $excerpt): string
+    {
+        return match ($slug) {
+            'understanding-the-present-simple' => <<<'CONTENT'
+# Present Simple: form and use
+
+## Learning objective
+By the end of this lesson, you can describe routines, repeated actions and facts, and form affirmative, negative and question sentences in the Present Simple.
+
+## When to use it
+Use the Present Simple for:
+- habits and routines: *I walk to work every morning.*
+- facts and general truths: *Water boils at 100°C at sea level.*
+- states and preferences: *She knows the answer. We like jazz.*
+- fixed timetables: *The train leaves at 8:15.*
+
+## How to form it
+
+| Sentence | I / you / we / they | he / she / it |
+|---|---|---|
+| Affirmative | work | works |
+| Negative | do not (don't) work | does not (doesn't) work |
+| Question | Do ... work? | Does ... work? |
+
+In affirmative sentences, add **-s** to most verbs after *he, she* and *it*. Add **-es** after endings such as *-s, -sh, -ch, -x* and *-o*: *watches, fixes, goes*. A consonant + *y* changes to *-ies*: *study → studies*. A vowel + *y* keeps the *y*: *play → plays*.
+
+For negatives and questions, use **does** for he/she/it. The main verb returns to its base form: *Does she work?* not *Does she works?*
+
+## Worked examples
+- *Mara teaches English.* The subject is third-person singular, so *teach* becomes *teaches*.
+- *They don't live near the station.* Use *do not* + base verb for a plural subject.
+- *Does your brother drive to work?* Use *does* and keep *drive* in the base form.
+- *The shop opens at nine.* A regular opening time is a timetable or routine.
+
+## Common mistakes
+- Incorrect: *He work every day.* Correct: *He works every day.*
+- Incorrect: *She doesn't likes tea.* Correct: *She doesn't like tea.*
+- Incorrect: *Do he speak English?* Correct: *Does he speak English?*
+- Do not use the Present Simple for an action happening right now when the Present Continuous is required: *I am speaking now.*
+
+## Practice
+Choose the correct form.
+1. My sister ___ (study) biology.
+2. We ___ (not/watch) television during dinner.
+3. ___ your parents ___ (live) nearby?
+4. The first lesson ___ (start) at 9:00.
+
+## Answer key and explanations
+1. **studies** — *my sister* is third-person singular; consonant + *y* changes to *-ies*.
+2. **don't watch** — use *don't* with *we* and the base verb *watch*.
+3. **Do ... live** — use *do* with the plural subject *your parents*.
+4. **starts** — *the first lesson* is singular, so add *-s*.
+CONTENT,
+            'past-simple-explained' => <<<'CONTENT'
+# Past Simple: completed actions in the past
+
+## Learning objective
+Use the Past Simple to describe completed past events, form negatives and questions, and distinguish regular from irregular verb forms.
+
+## When to use it
+Use the Past Simple for an action or situation completed at a finished time in the past. Common time expressions include *yesterday, last week, in 2022, two days ago* and *when I was a child*.
+
+## Affirmative forms
+For most regular verbs, add **-ed**: *work → worked, clean → cleaned*. If a verb ends in consonant + *y*, change *y* to *-ied*: *study → studied*. Some short consonant-vowel-consonant verbs double the final consonant: *stop → stopped*.
+
+Irregular verbs have their own past forms and must be learned: *go → went, see → saw, buy → bought, have → had*.
+
+The verb *be* has two past forms: **was** with *I/he/she/it* and **were** with *you/we/they*.
+
+## Negatives and questions
+Use **did not (didn't) + base verb** for all subjects:
+- *I didn't see the message.*
+- *They didn't go by bus.*
+
+Use **Did + subject + base verb?**:
+- *Did you call Anna?*
+- *Where did he buy the book?*
+
+After *did* or *didn't*, do not use the past form of the main verb. The past meaning is already carried by *did*.
+
+## Worked examples
+- *We visited York last Saturday.* The finished time expression *last Saturday* fits the Past Simple.
+- *She bought a new laptop yesterday.* *Buy* is irregular; its past form is *bought*.
+- *Were you at home at six?* Use *were* with *you*.
+
+## Common mistakes
+- Incorrect: *Did you went home?* Correct: *Did you go home?*
+- Incorrect: *He didn't studied.* Correct: *He didn't study.*
+- Incorrect: *I were tired.* Correct: *I was tired.*
+- Do not add *-ed* to an irregular verb: *buyed* is incorrect; use *bought*.
+
+## Practice
+Complete each sentence.
+1. We ___ (take) the early train yesterday.
+2. Leo ___ (not/finish) his homework last night.
+3. ___ you ___ (see) the new exhibition?
+4. I ___ (be) ill on Monday, but my friends ___ (be) fine.
+
+## Answer key and explanations
+1. **took** — *take* is irregular.
+2. **didn't finish** — after *didn't*, use the base form.
+3. **Did ... see** — questions use *did* + subject + base verb.
+4. **was; were** — use *was* with *I* and *were* with plural *my friends*.
+CONTENT,
+            'present-perfect-vs-past-simple' => <<<'CONTENT'
+# Present Perfect or Past Simple?
+
+## Learning objective
+Choose between the Present Perfect and Past Simple by deciding whether the time period is still open or finished, and whether the sentence focuses on present relevance or a completed past event.
+
+## Form
+The Present Perfect is **have/has + past participle**: *I have finished; she has gone*. The Past Simple uses the past form: *I finished; she went*.
+
+## Main difference
+Use the **Present Perfect** when the exact time is not stated or the experience/result is connected to the present:
+- *I've lost my keys.* The result matters now: I cannot open the door.
+- *Have you ever tried sushi?* The question is about life experience, not a particular date.
+- *She's worked here for five years.* She still works here.
+
+Use the **Past Simple** with a finished past time or when you describe a completed event in a finished period:
+- *I lost my keys yesterday.* The time is finished and specified.
+- *We visited Rome in 2021.* 2021 is a finished period.
+- *She worked there for five years.* The context presents that period as finished.
+
+Common Present Perfect time expressions include *ever, never, already, yet, just, since* and *for*. Common Past Simple expressions include *yesterday, last month, in 2019* and *two hours ago*.
+
+## Worked contrast
+- *Have you seen the new film?* asks whether the experience has happened up to now.
+- *Did you see the film on Friday?* asks about a specific finished time.
+- *He's lived in Cluj since 2020.* He still lives there.
+- *He lived in Cluj from 2015 to 2020.* That period is over.
+
+## Common mistakes
+- Incorrect: *I have seen her yesterday.* Correct: *I saw her yesterday.*
+- Incorrect: *Did you ever visit London?* In standard experience questions, use *Have you ever visited London?*
+- Do not choose a tense from one keyword alone. Check what the speaker means and whether the time period is finished.
+
+## Practice
+Choose the more appropriate form.
+1. I ___ (finish) the report, so you can read it now.
+2. We ___ (meet) in 2018.
+3. ___ you ever ___ (eat) Korean food?
+4. She ___ (work) here for six months and still works here.
+
+## Answer key and explanations
+1. **have finished** — the completed result is relevant now; no finished time is given.
+2. **met** — *in 2018* is a finished past time.
+3. **Have ... eaten** — asks about experience up to the present.
+4. **has worked** — the period continues to now; *for six months* describes duration.
+CONTENT,
+            'common-english-prepositions' => <<<'CONTENT'
+# Common English prepositions: place, time and movement
+
+## Learning objective
+Choose common prepositions of place, time and movement in everyday sentences, especially *in, on, at, to, into, across* and *through*.
+
+## Place: in, on and at
+- **in** describes an enclosed space or area: *in a room, in a city, in a country*.
+- **on** describes a surface or line: *on the table, on the wall, on King Street*.
+- **at** identifies a point or specific location: *at the door, at the bus stop, at work*.
+
+Compare: *She is in the school* (inside the building) and *She is at school* (there as a student or for school-related activity).
+
+## Time: in, on and at
+- **in** + months, years, seasons and parts of the day: *in June, in 2025, in winter, in the morning*.
+- **on** + days and dates: *on Tuesday, on 14 May, on my birthday*.
+- **at** + clock times and some fixed expressions: *at 7:30, at noon, at night, at the weekend* (British English).
+
+## Movement
+- **to** indicates a destination: *go to the station*.
+- **into** indicates movement from outside to inside: *walk into the room*.
+- **onto** indicates movement to a surface: *put the bag onto the chair*.
+- **across** means from one side to the other: *walk across the bridge*.
+- **through** means from one end or side to another within an enclosed space or medium: *walk through the tunnel*.
+
+## Worked examples
+- *The keys are on the shelf.* They are resting on a surface.
+- *Our meeting starts at 10:00 on Thursday.* Use *at* for the time and *on* for the day.
+- *They moved to Berlin in April.* Use *to* for the destination and *in* for the month.
+- *The children ran through the tunnel and across the field.* The first movement is inside the tunnel; the second crosses an open area.
+
+## Common mistakes
+- Incorrect: *in Monday*. Correct: *on Monday*.
+- Incorrect: *at the morning*. Correct: *in the morning*.
+- Incorrect: *arrive to the airport*. Use *arrive at the airport*; use *arrive in London* for a city.
+- Do not confuse *in* (position) with *into* (movement): *She is in the room* / *She walked into the room*.
+
+## Practice
+Complete with a suitable preposition.
+1. The appointment is ___ 3:30 ___ Friday.
+2. My cousin lives ___ a small village ___ Spain.
+3. The cat jumped ___ the box.
+4. We walked ___ the bridge to reach the other side.
+
+## Answer key and explanations
+1. **at; on** — clock time takes *at*; a day takes *on*.
+2. **in; in** — use *in* for a village and a country.
+3. **into** — the cat moves from outside to inside the box.
+4. **across** — the walk goes from one side of the bridge to the other.
+CONTENT,
+            default => "# {$slug}\n\n{$excerpt}\n\nThis item has been retained as a draft pending a complete, topic-specific explanation, examples, practice and reviewed answer key. It must not be approved on the basis of this placeholder text.",
+        };
     }
 
     private function seedTests($L, $S, $T): void

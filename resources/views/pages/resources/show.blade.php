@@ -22,7 +22,7 @@
   @endauth
 
   <div class="prose-content mt-10">
-    {!! nl2br(e($resource->translated('content'))) !!}
+    {!! \Illuminate\Support\Str::markdown((string) $resource->translated('content')) !!}
   </div>
 
   @if($resource->tags->isNotEmpty())

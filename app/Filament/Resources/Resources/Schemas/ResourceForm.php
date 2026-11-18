@@ -58,6 +58,10 @@ class ResourceForm
                 ->schema([
                     Textarea::make('listeningResource.instructions')->label('Instructions')->rows(2)->columnSpanFull(),
                     Toggle::make('listeningResource.show_correct_answers')->label('Show correct answers after submission')->default(true),
+                    TextInput::make('listeningResource.media_source_url')->label('Original source URL')->url(),
+                    TextInput::make('listeningResource.media_license')->label('Licence / permission basis')->helperText('Record the exact licence and version, or state that this is an original recording.'),
+                    Textarea::make('listeningResource.media_attribution')->label('Attribution')->rows(2),
+                    Textarea::make('listeningResource.media_permission_reference')->label('Permission evidence / reference')->rows(2),
                     FileUpload::make('listeningResource.media_path')
                         ->label('Audio or video file')
                         ->disk('public')->directory('listening')
@@ -93,6 +97,13 @@ class ResourceForm
                     Textarea::make('writingResource.example_answer')->label('Example answer (optional)')->rows(6)->columnSpanFull(),
                 ])->columns(3)
                 ->visible(fn (callable $get) => $get('type') === 'writing'),
+
+            Section::make('Editorial review')->collapsed()->columns(2)->schema([
+                TextInput::make('editorial_status')->disabled()->dehydrated(false),
+                TextInput::make('editorialReviewer.name')->label('Reviewer')->disabled()->dehydrated(false),
+                TextInput::make('editorial_reviewed_at')->label('Reviewed at')->disabled()->dehydrated(false),
+                Textarea::make('editorial_notes')->label('Review notes')->rows(3)->disabled()->dehydrated(false)->columnSpanFull(),
+            ]),
 
             Section::make('SEO')->collapsed()->schema([
                 TextInput::make('seo_title'),

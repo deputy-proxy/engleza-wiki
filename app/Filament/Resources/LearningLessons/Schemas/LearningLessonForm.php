@@ -29,6 +29,12 @@ class LearningLessonForm
                 Select::make('skills')->relationship('skills', 'name')->multiple()->preload()->columnSpanFull(),
                 Select::make('topics')->relationship('topics', 'name')->multiple()->preload()->columnSpanFull(),
             ])->columns(2),
+            Section::make('Editorial review')->collapsed()->columns(2)->schema([
+                TextInput::make('editorial_status')->disabled()->dehydrated(false),
+                TextInput::make('editorialReviewer.name')->label('Reviewer')->disabled()->dehydrated(false),
+                TextInput::make('editorial_reviewed_at')->label('Reviewed at')->disabled()->dehydrated(false),
+                Textarea::make('editorial_notes')->label('Review notes')->rows(3)->disabled()->dehydrated(false)->columnSpanFull(),
+            ]),
         ]);
     }
 }

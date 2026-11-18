@@ -10,6 +10,11 @@ class TestFactory extends Factory
 {
     protected $model = Test::class;
 
+    public function configure(): static
+    {
+        return $this->afterMaking(fn ($test) => $test->forceFill(['editorial_status' => 'approved']));
+    }
+
     public function definition(): array
     {
         $title = 'Test '.$this->faker->unique()->numberBetween(1, 100000);

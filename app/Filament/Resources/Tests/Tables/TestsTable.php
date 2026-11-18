@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Tests\Tables;
 
+use App\Filament\Resources\EditorialReviewActions;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -20,6 +21,9 @@ class TestsTable
             TextColumn::make('level.name')->badge()->color('primary')->sortable(),
             TextColumn::make('skill.name')->badge()->color('success')->placeholder('—'),
             TextColumn::make('status')->badge()->colors(['gray' => 'draft', 'success' => 'published', 'danger' => 'archived']),
+            TextColumn::make('editorial_status')->label('Editorial review')->badge()->colors(['success' => 'approved', 'warning' => ['pending', 'revise'], 'danger' => ['unpublish', 'remove']])->sortable(),
+            TextColumn::make('editorialReviewer.name')->label('Reviewer')->placeholder('—')->toggleable(),
+            TextColumn::make('editorial_reviewed_at')->label('Reviewed')->dateTime()->placeholder('—')->toggleable(),
             TextColumn::make('access_type')->badge()->colors(['success' => 'free', 'warning' => 'registered', 'danger' => 'premium']),
             TextColumn::make('attempts_count')->counts('attempts')->label('Attempts')->sortable(),
             TextColumn::make('duration_minutes')->label('Time')->suffix(' min')->sortable()->toggleable(),
@@ -31,7 +35,7 @@ class TestsTable
                 SelectFilter::make('skill')->relationship('skill', 'name'),
             ])
             ->defaultSort('created_at', 'desc')
-            ->recordActions([EditAction::make(), DeleteAction::make()])
+            ->recordActions([EditAction::make(), EditorialReviewActions::approve(), EditorialReviewActions::decision('revise', 'Request revision', 'warning'), EditorialReviewActions::decision('unpublish', 'Unpublish', 'danger'), EditorialReviewActions::decision('remove', 'Archive', 'danger'), DeleteAction::make()])
             ->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
     }
 }

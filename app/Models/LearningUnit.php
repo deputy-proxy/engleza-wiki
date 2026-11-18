@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasTranslations;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/** @property-read Collection<int, LearningLesson> $lessons */
 class LearningUnit extends Model
 {
     use HasTranslations;

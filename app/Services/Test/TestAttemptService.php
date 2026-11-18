@@ -19,7 +19,7 @@ class TestAttemptService
 
     public function authorizeStart(Test $test, int|string|null $userId): void
     {
-        abort_unless($test->status === 'published' && $test->is_public, 404);
+        abort_unless($test->status === 'published' && $test->isEditorialVisible() && $test->is_public, 404);
         if ($test->access_type === 'registered') {
             abort_unless($userId !== null, 403);
         } else {

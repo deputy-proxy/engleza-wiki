@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Contracts\EditorialReviewable;
+use App\Models\Concerns\HasEditorialReview;
 use App\Models\Concerns\HasTranslations;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,9 +16,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read Skill|null $skill
  * @property-read Collection<int, TestSection> $sections
  * @property-read Collection<int, TestAttempt> $attempts
+ * @property string $editorial_status
+ * @property int|null $editorial_reviewed_by
  */
-class Test extends Model
+class Test extends Model implements EditorialReviewable
 {
+    use HasEditorialReview;
     use HasFactory;
     use HasTranslations;
 
@@ -56,7 +61,13 @@ class Test extends Model
 
     public function scopePublished($q)
     {
-        return $q->where('status', 'published');
+        return $q->where('status', 'published')->editorialVisible();
+    }
+
+    /** @return array<int, string> */
+    public function editorialReviewableFields(): array
+    {
+        return ['title', 'slug', 'description', 'instructions', 'level_id', 'skill_id', 'duration_minutes', 'passing_score', 'access_type', 'is_public', 'shuffle_questions', 'show_correct_answers', 'published_at'];
     }
 
     public function getRouteKeyName(): string

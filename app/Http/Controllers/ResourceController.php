@@ -36,7 +36,7 @@ class ResourceController extends Controller
 
     public function show(Resource $resource, LearningPathService $learning, VocabularyReviewService $reviews)
     {
-        abort_unless($resource->status === 'published', 404);
+        abort_unless($resource->status === 'published' && $resource->isEditorialVisible(), 404);
         $resource->load(['translations', 'level.translations', 'skills.translations', 'categories.translations', 'tags.translations', 'topics.translations', 'audiences.translations', 'media', 'author']);
         $related = Resource::published()->with(['translations', 'level.translations'])
             ->where('id', '!=', $resource->id)

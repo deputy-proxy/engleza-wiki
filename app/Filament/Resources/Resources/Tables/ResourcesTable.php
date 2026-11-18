@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Resources\Tables;
 
+use App\Filament\Resources\EditorialReviewActions;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -26,6 +27,9 @@ class ResourcesTable
             TextColumn::make('level.name')->badge()->color('primary')->placeholder('—')->sortable(),
             TextColumn::make('skills.name')->badge()->separator(', ')->limitList(3),
             TextColumn::make('status')->badge()->colors(['gray' => 'draft', 'success' => 'published', 'danger' => 'archived']),
+            TextColumn::make('editorial_status')->label('Editorial review')->badge()->colors(['success' => 'approved', 'warning' => ['pending', 'revise'], 'danger' => ['unpublish', 'remove'], 'gray' => 'noindex'])->sortable(),
+            TextColumn::make('editorialReviewer.name')->label('Reviewer')->placeholder('—')->toggleable(),
+            TextColumn::make('editorial_reviewed_at')->label('Reviewed')->dateTime()->placeholder('—')->toggleable(),
             IconColumn::make('featured')->boolean()->sortable(),
             TextColumn::make('published_at')->dateTime('M d, Y')->sortable()->toggleable(),
             TextColumn::make('author.name')->label('Author')->toggleable(isToggledHiddenByDefault: true),
@@ -41,7 +45,7 @@ class ResourcesTable
                 TernaryFilter::make('featured'),
             ])
             ->defaultSort('created_at', 'desc')
-            ->recordActions([EditAction::make(), DeleteAction::make()])
+            ->recordActions([EditAction::make(), EditorialReviewActions::approve(), EditorialReviewActions::decision('revise', 'Request revision', 'warning'), EditorialReviewActions::decision('unpublish', 'Unpublish', 'danger'), EditorialReviewActions::decision('noindex', 'Keep public, noindex'), EditorialReviewActions::decision('remove', 'Archive', 'danger'), DeleteAction::make()])
             ->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
     }
 }

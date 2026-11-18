@@ -21,7 +21,7 @@ class TestController extends Controller
 
     public function show(Test $test)
     {
-        abort_unless($test->status === 'published' && $test->is_public, 404);
+        abort_unless($test->status === 'published' && $test->isEditorialVisible() && $test->is_public, 404);
         $test->load(['translations', 'level.translations', 'skill.translations', 'sections.translations']);
         $test->loadCount('sections');
         $questionCount = $test->allQuestions()->count();

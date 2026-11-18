@@ -12,6 +12,11 @@ class ResourceFactory extends Factory
 {
     protected $model = Resource::class;
 
+    public function configure(): static
+    {
+        return $this->afterMaking(fn ($resource) => $resource->forceFill(['editorial_status' => 'approved']));
+    }
+
     public function definition(): array
     {
         $title = $this->faker->sentence(4);
