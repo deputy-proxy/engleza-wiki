@@ -72,7 +72,7 @@
             <div class="mt-4 space-y-3">
               @foreach($q['configuration']['gaps'] ?? [] as $key => $blank)
                 <label class="block text-sm font-medium text-navy-700">
-                  {{ str_replace('_', ' ', ucfirst($key)) }}
+                  {{ __(str_replace('_', ' ', ucfirst($key))) }}
                   <input type="text" value="{{ $answers[$q['id']][$key] ?? '' }}"
                     wire:input.debounce.300ms="setStructuredAnswer({{ $q['id'] }}, @js($key), $event.target.value)"
                     class="mt-2 w-full rounded-xl border border-navy-200 px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500">

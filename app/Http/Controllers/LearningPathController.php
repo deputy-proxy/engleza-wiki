@@ -102,7 +102,7 @@ class LearningPathController extends Controller
     {
         $userId = (int) $request->user()->id;
         $enrollments = $request->user()->learningPathEnrollments()
-            ->with(['path.level', 'path.units.lessons.progress', 'path.units.lessons.activities.resource', 'path.units.lessons.activities.test'])
+            ->with(['path.translations', 'path.level.translations', 'path.units.lessons.translations', 'path.units.lessons.progress', 'path.units.lessons.activities.translations', 'path.units.lessons.activities.resource.translations', 'path.units.lessons.activities.resource.level.translations', 'path.units.lessons.activities.test.translations', 'path.units.lessons.activities.test.level.translations', 'path.units.lessons.activities.test.skill.translations'])
             ->latest('activated_at')->get();
 
         foreach ($enrollments as $enrollment) {

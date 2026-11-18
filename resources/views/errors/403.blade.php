@@ -1,4 +1,4 @@
-<x-layout :title="__('You do not have permission to access this page.')">
+<x-layout :robots-index="false" :title="__('You do not have permission to access this page.')">
   <section class="mx-auto max-w-3xl px-6 py-24 text-center">
     <p class="text-sm font-bold uppercase tracking-widest text-brand-600">403</p>
     <h1 class="mt-4 text-3xl font-extrabold text-navy-900">{{ __('You do not have permission to access this page.') }}</h1>

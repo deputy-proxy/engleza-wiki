@@ -16,7 +16,7 @@
           <div class="mt-5 flex flex-wrap gap-2">
             @foreach($path->skills->take(3) as $skill)<span class="chip">{{ $skill->translated('name') }}</span>@endforeach
           </div>
-          <p class="mt-5 text-sm font-semibold text-brand-600">{{ $lessonCount }} lessons · View path →</p>
+          <p class="mt-5 text-sm font-semibold text-brand-600">{{ $lessonCount }} {{ __('lessons') }} · {{ __('View path →') }}</p>
         </a>
       @endforeach
     </div>

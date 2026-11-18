@@ -1,4 +1,4 @@
-<x-layout title="{{ __('Vocabulary review · engleza.wiki') }}" description="{{ __('Review vocabulary with a spaced repetition schedule.') }}">
+<x-layout :robots-index="false" title="{{ __('Vocabulary review · engleza.wiki') }}" description="{{ __('Review vocabulary with a spaced repetition schedule.') }}">
 <section class="mx-auto max-w-5xl px-6 py-12">
   <div class="flex flex-wrap items-end justify-between gap-4">
     <div>

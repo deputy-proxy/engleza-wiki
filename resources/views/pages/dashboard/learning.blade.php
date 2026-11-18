@@ -1,4 +1,4 @@
-<x-layout :title="__('My learning · engleza.wiki')" :description="__('Continue your enrolled learning paths.')">
+<x-layout :robots-index="false" :title="__('My learning · engleza.wiki')" :description="__('Continue your enrolled learning paths.')">
 <section class="mx-auto max-w-5xl px-6 py-12">
   <h1 class="text-3xl font-extrabold text-navy-900">{{ __('My learning') }}</h1>
   <p class="mt-2 text-navy-600">{{ __('Your learning paths, progress and next lessons.') }}</p>
@@ -17,7 +17,7 @@
               <h2 class="mt-2 text-xl font-bold text-navy-900">{{ $enrollment->path->translated('title') }}</h2>
               <p class="mt-1 text-sm text-navy-600">{{ $enrollment->path->translated('description') }}</p>
             </div>
-            <span class="chip">{{ __(ucfirst($enrollment->status)) }}</span>
+            <span class="chip">{{ __(str_replace('_', ' ', ucfirst($enrollment->status))) }}</span>
           </div>
           <div class="mt-5 flex items-center justify-between text-sm text-navy-600">
             <span>{{ __('Progress') }}</span>

@@ -1,4 +1,4 @@
-<x-layout :title="__('Page not found')">
+<x-layout :robots-index="false" :title="__('Page not found')">
   <section class="mx-auto max-w-3xl px-6 py-24 text-center">
     <p class="text-sm font-bold uppercase tracking-widest text-brand-600">404</p>
     <h1 class="mt-4 text-3xl font-extrabold text-navy-900">{{ __('Page not found') }}</h1>

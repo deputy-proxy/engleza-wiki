@@ -4,7 +4,7 @@
 @endforeach
 @foreach($resources as $resource)
     <url>
-        <loc>{{ route('resources.show', $resource->slug) }}</loc>
+        <loc>{{ $resource->canonical_url ?: route('resources.show', $resource->slug) }}</loc>
         @if($resource->updated_at)<lastmod>{{ $resource->updated_at->toAtomString() }}</lastmod>@endif
     </url>
 @endforeach

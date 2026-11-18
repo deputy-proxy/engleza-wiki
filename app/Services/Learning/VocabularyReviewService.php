@@ -22,7 +22,7 @@ class VocabularyReviewService
     public function encounterResource(User $user, Resource $resource, bool $forceVocabulary = false): int
     {
         abort_unless($resource->status === 'published', 404);
-        $resource->loadMissing(['skills', 'topics', 'cardResource.cards']);
+        $resource->loadMissing(['skills.translations', 'topics.translations', 'cardResource.translations', 'cardResource.cards']);
 
         $created = 0;
         if ($resource->type === 'card' && $resource->cardResource !== null) {
@@ -32,8 +32,8 @@ class VocabularyReviewService
         }
 
         if (($forceVocabulary || $this->isVocabularyResource($resource)) && in_array($resource->type, ['listening', 'reading'], true)) {
-            $relation = $resource->type === 'listening' ? 'listeningResource.questions.options' : 'readingResource.questions.options';
-            $resource->loadMissing($relation);
+            $relation = $resource->type === 'listening' ? 'listeningResource' : 'readingResource';
+            $resource->loadMissing([$relation.'.translations', $relation.'.questions.translations', $relation.'.questions.options']);
             $interactive = $resource->type === 'listening' ? $resource->listeningResource : $resource->readingResource;
             if ($interactive !== null) {
                 foreach ($interactive->questions as $question) {
@@ -52,10 +52,14 @@ class VocabularyReviewService
     public function encounterLesson(User $user, LearningLesson $lesson): int
     {
         $lesson->loadMissing([
-            'skills', 'topics',
-            'activities.resource.skills', 'activities.resource.topics', 'activities.resource.cardResource.cards',
-            'activities.resource.listeningResource.questions.options', 'activities.resource.readingResource.questions.options',
-            'activities.test.skill', 'activities.test.sections.questions.options',
+            'translations', 'skills.translations', 'topics.translations',
+            'activities.translations',
+            'activities.resource.translations', 'activities.resource.skills.translations', 'activities.resource.topics.translations',
+            'activities.resource.cardResource.translations', 'activities.resource.cardResource.cards',
+            'activities.resource.listeningResource.translations', 'activities.resource.listeningResource.questions.translations', 'activities.resource.listeningResource.questions.options',
+            'activities.resource.readingResource.translations', 'activities.resource.readingResource.questions.translations', 'activities.resource.readingResource.questions.options',
+            'activities.test.translations', 'activities.test.skill.translations', 'activities.test.sections.translations',
+            'activities.test.sections.questions.translations', 'activities.test.sections.questions.options',
         ]);
 
         $lessonIsVocabulary = $lesson->skills->contains('slug', 'vocabulary')
@@ -111,7 +115,7 @@ class VocabularyReviewService
     public function review(User $user, LearnerVocabularyItem $item, string $grade, ?int $responseTimeMs = null): LearnerVocabularyItem
     {
         if (! in_array($grade, ['again', 'hard', 'good', 'easy'], true)) {
-            throw ValidationException::withMessages(['grade' => 'Choose a valid review grade.']);
+            throw ValidationException::withMessages(['grade' => __('Choose a valid review grade.')]);
         }
 
         return DB::transaction(function () use ($user, $item, $grade, $responseTimeMs): LearnerVocabularyItem {

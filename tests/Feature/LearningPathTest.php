@@ -32,7 +32,7 @@ class LearningPathTest extends TestCase
 
         $this->post(route('learning.activities.complete', $activities[0]))->assertRedirect();
         $this->post(route('learning.lessons.complete', $lessons[0]))->assertRedirect(route('learning.lessons.show', $lessons[0]))
-            ->assertSessionHas('status', 'Lesson completed. You earned 20 XP.');
+            ->assertSessionHas('status', 'Lecția a fost finalizată. Ai câștigat 20 XP.');
         $this->assertDatabaseHas('lesson_progress', [
             'learning_lesson_id' => $lessons[0]->id, 'user_id' => $user->id, 'status' => 'completed',
         ]);

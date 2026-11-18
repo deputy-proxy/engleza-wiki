@@ -1,4 +1,4 @@
-<x-layout :title="__('Sign up')">
+<x-layout :robots-index="false" :title="__('Sign up')">
 <section class="mx-auto max-w-md px-6 py-16">
   <h1 class="text-3xl font-extrabold text-navy-900">{{ __('Create your free account') }}</h1>
   <form method="POST" action="{{ route('register') }}" class="mt-8 space-y-4 card p-6">

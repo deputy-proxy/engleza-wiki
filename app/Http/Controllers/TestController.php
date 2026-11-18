@@ -14,7 +14,7 @@ class TestController extends Controller
 {
     public function index()
     {
-        $tests = Test::published()->where('is_public', true)->with(['level', 'skill'])->latest('published_at')->get();
+        $tests = Test::published()->where('is_public', true)->with(['translations', 'level.translations', 'skill.translations'])->latest('published_at')->get();
 
         return view('pages.tests.index', compact('tests'));
     }
@@ -22,6 +22,7 @@ class TestController extends Controller
     public function show(Test $test)
     {
         abort_unless($test->status === 'published' && $test->is_public, 404);
+        $test->load(['translations', 'level.translations', 'skill.translations', 'sections.translations']);
         $test->loadCount('sections');
         $questionCount = $test->allQuestions()->count();
 
@@ -73,14 +74,14 @@ class TestController extends Controller
         abort_unless($attempt->test_id === $test->id, 404);
         $this->authorizeAttempt($attempt);
         abort_unless(in_array($attempt->status, ['completed', 'expired'], true), 404);
-        $attempt->load(['result', 'test', 'answers.question.options', 'answers.option']);
+        $attempt->load(['result', 'test.translations', 'test.level.translations', 'answers.question.translations', 'answers.question.options', 'answers.option']);
         $questions = $attempts->questionPayload($attempt, revealAnswers: true);
         $recIds = [];
         if ($attempt->result && $attempt->result->recommendation) {
             $data = json_decode($attempt->result->recommendation, true) ?: [];
             $recIds = $data['resource_ids'] ?? [];
         }
-        $recommendations = Resource::published()->whereIn('id', $recIds)->get();
+        $recommendations = Resource::published()->with(['translations', 'level.translations'])->whereIn('id', $recIds)->get();
 
         return view('pages.tests.result', compact('test', 'attempt', 'recommendations', 'questions'));
     }

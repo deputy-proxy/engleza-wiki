@@ -16,10 +16,10 @@ class SitemapController extends Controller
             'staticUrls' => [
                 '/', '/resources', '/learning', '/tests', '/about',
             ],
-            'resources' => Resource::query()->where('status', 'published')->orderBy('id')->get(),
-            'tests' => Test::query()->where('status', 'published')->where('is_public', true)->orderBy('id')->get(),
+            'resources' => Resource::published()->where('robots_index', true)->orderBy('id')->get(),
+            'tests' => Test::published()->where('is_public', true)->orderBy('id')->get(),
             'categories' => Category::query()->where('is_active', true)->orderBy('id')->get(),
-            'learningPaths' => LearningPath::query()->where('status', 'published')->orderBy('id')->get(),
+            'learningPaths' => LearningPath::published()->orderBy('id')->get(),
         ], 200, ['Content-Type' => 'application/xml; charset=UTF-8']);
     }
 }

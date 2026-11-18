@@ -15,8 +15,8 @@ class CertificateController extends Controller
         abort_unless($attempt->status === 'completed', 404);
         $attempts->authorize($attempt, auth()->id(), session('anon_session'));
 
-        $attempt->load('result', 'user', 'test.level');
-        $name = $attempt->user?->name ?: 'Anonymous learner';
+        $attempt->load(['result', 'user', 'test.translations', 'test.level.translations']);
+        $name = $attempt->user?->name ?: __('Anonymous learner');
         $data = [
             'attempt' => $attempt,
             'result' => $attempt->result,

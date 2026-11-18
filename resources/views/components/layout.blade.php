@@ -1,4 +1,4 @@
-@props(['title' => config('app.name'), 'description' => 'Resurse, teste și lecții gratuite de limba engleză pentru cursanți și profesori.', 'resource' => null])
+@props(['title' => config('app.name'), 'description' => 'Resurse, teste și lecții gratuite de limba engleză pentru cursanți și profesori.', 'resource' => null, 'robotsIndex' => null])
 
 @php
     $metaTitle = $resource?->translated('seo_title') ?: $title;
@@ -6,25 +6,32 @@
     $ogTitle = $resource?->translated('og_title') ?: $metaTitle;
     $ogDescription = $resource?->translated('og_description') ?: $metaDescription;
     $canonicalUrl = $resource?->canonical_url ?: url()->current();
+    $locale = app()->getLocale();
+    $hreflang = $locale === 'ro' ? 'ro-RO' : $locale;
+    $ogLocale = $locale === 'ro' ? 'ro_RO' : 'en_US';
+    $shouldIndex = $robotsIndex ?? ($resource?->robots_index ?? true);
 @endphp
 <!DOCTYPE html>
-<html lang="ro" class="antialiased">
+<html lang="{{ str_replace('_', '-', $locale) }}" class="antialiased">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <title>{{ $metaTitle }}</title>
 <meta name="description" content="{{ $metaDescription }}">
+<meta name="robots" content="{{ $shouldIndex ? 'index,follow' : 'noindex,nofollow' }}">
 <link rel="canonical" href="{{ $canonicalUrl }}">
-<link rel="alternate" hreflang="ro" href="{{ $canonicalUrl }}">
+<link rel="alternate" hreflang="{{ $hreflang }}" href="{{ $canonicalUrl }}">
 <link rel="alternate" hreflang="x-default" href="{{ $canonicalUrl }}">
 <meta property="og:site_name" content="engleza.wiki">
-<meta property="og:locale" content="ro_RO">
+<meta property="og:locale" content="{{ $ogLocale }}">
 <meta property="og:title" content="{{ $ogTitle }}">
 <meta property="og:description" content="{{ $ogDescription }}">
 <meta property="og:type" content="website">
 <meta property="og:url" content="{{ $canonicalUrl }}">
-<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="{{ $ogTitle }}">
+<meta name="twitter:description" content="{{ $ogDescription }}">
 <link rel="preconnect" href="https://fonts.bunny.net">
 <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700,800&display=swap" rel="stylesheet">
 @vite(['resources/css/app.css','resources/js/app.js'])

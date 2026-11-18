@@ -38,7 +38,7 @@ class LearnerProgressService
             ->where('user_id', $user->id)
             ->where('status', 'completed')
             ->whereNotNull('completed_at')
-            ->with(['test.level', 'test.skill', 'answers.question.topics'])
+            ->with(['test.translations', 'test.level.translations', 'test.skill.translations', 'answers.question.translations', 'answers.question.topics.translations'])
             ->orderByDesc('completed_at')
             ->get();
 
@@ -47,12 +47,20 @@ class LearnerProgressService
             ->where('status', 'completed')
             ->whereNotNull('completed_at')
             ->with([
-                'answers.question.topics',
-                'answers.question.section.test.skill',
-                'answers.question.readingResource.resource.skills',
-                'answers.question.readingResource.resource.topics',
-                'answers.question.listeningResource.resource.skills',
-                'answers.question.listeningResource.resource.topics',
+                'answers.question.translations',
+                'answers.question.topics.translations',
+                'answers.question.section.translations',
+                'answers.question.section.test.translations',
+                'answers.question.section.test.level.translations',
+                'answers.question.section.test.skill.translations',
+                'answers.question.readingResource.translations',
+                'answers.question.readingResource.resource.translations',
+                'answers.question.readingResource.resource.skills.translations',
+                'answers.question.readingResource.resource.topics.translations',
+                'answers.question.listeningResource.translations',
+                'answers.question.listeningResource.resource.translations',
+                'answers.question.listeningResource.resource.skills.translations',
+                'answers.question.listeningResource.resource.topics.translations',
             ])
             ->orderByDesc('completed_at')
             ->get();
@@ -61,7 +69,7 @@ class LearnerProgressService
             ->where('user_id', $user->id)
             ->where('status', 'completed')
             ->whereNotNull('completed_at')
-            ->with(['resource.level', 'resource.skills', 'resource.topics', 'answers.question.topics'])
+            ->with(['resource.translations', 'resource.level.translations', 'resource.skills.translations', 'resource.topics.translations', 'answers.question.translations', 'answers.question.topics.translations'])
             ->orderByDesc('completed_at')
             ->get();
 
@@ -182,7 +190,7 @@ class LearnerProgressService
             ->where('class_group_id', $group->id)
             ->whereNotNull('user_id')
             ->where('status', 'completed')
-            ->with(['user', 'test.skill', 'answers.question.topics'])
+            ->with(['user', 'test.translations', 'test.skill.translations', 'answers.question.translations', 'answers.question.topics.translations'])
             ->orderBy('completed_at')
             ->get()
             ->groupBy('user_id');
@@ -409,7 +417,7 @@ class LearnerProgressService
             ]);
         }
 
-        $lessonProgress = $user->lessonProgress()->with('lesson')->latest('updated_at')->limit(5)->get();
+        $lessonProgress = $user->lessonProgress()->with('lesson.translations')->latest('updated_at')->limit(5)->get();
         foreach ($lessonProgress as $progress) {
             $activity->push([
                 'type' => 'lesson',
@@ -431,10 +439,18 @@ class LearnerProgressService
         $enrollments = LearningPathEnrollment::query()
             ->where('user_id', $user->id)
             ->with([
-                'path.level',
-                'path.units.lessons.unit.path',
-                'path.units.lessons.activities.resource',
-                'path.units.lessons.activities.test',
+                'path.translations',
+                'path.level.translations',
+                'path.skills.translations',
+                'path.topics.translations',
+                'path.units.lessons.translations',
+                'path.units.lessons.unit.path.translations',
+                'path.units.lessons.activities.translations',
+                'path.units.lessons.activities.resource.translations',
+                'path.units.lessons.activities.resource.level.translations',
+                'path.units.lessons.activities.test.translations',
+                'path.units.lessons.activities.test.level.translations',
+                'path.units.lessons.activities.test.skill.translations',
                 'path.units.lessons.progress' => fn ($query) => $query->where('user_id', $user->id),
             ])
             ->latest('activated_at')
@@ -496,7 +512,7 @@ class LearnerProgressService
             $resource = Resource::query()->published()
                 ->whereHas('topics', fn ($query) => $query->whereKey($topic['id']))
                 ->whereNotIn('id', $recentResourceIds)
-                ->with('level')
+                ->with(['translations', 'level.translations'])
                 ->orderBy('id')
                 ->first();
 

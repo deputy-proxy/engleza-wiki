@@ -72,7 +72,7 @@ class AdaptivePracticeService
         })->sortBy('priority')->take(self::QUESTION_LIMIT)->values();
 
         $questionOrder = $ranked->pluck('question.id')->map(fn ($id): int => (int) $id)->all();
-        abort_if($questionOrder === [], 422, 'There are no published practice questions available right now.');
+        abort_if($questionOrder === [], 422, __('There are no published practice questions available right now.'));
 
         return AdaptivePracticeSession::query()->create([
             'user_id' => $user->id,
@@ -88,7 +88,7 @@ class AdaptivePracticeService
     {
         abort_unless($session->user_id === $user->id, 404);
 
-        return $session->load(['answers.question']);
+        return $session->load(['answers.question.translations']);
     }
 
     public function recordResponse(AdaptivePracticeSession $session, User $user, int $questionId, mixed $response): bool
@@ -202,7 +202,7 @@ class AdaptivePracticeService
                     ->orWhereHas('listeningResource.resource', fn ($resource) => $resource->published());
             })
             ->when($recentQuestionIds !== [], fn ($query) => $query->whereNotIn('questions.id', $recentQuestionIds))
-            ->with(['options', 'topics', 'section.test', 'readingResource.resource', 'listeningResource.resource'])
+            ->with(['translations', 'options', 'topics.translations', 'section.translations', 'section.test.translations', 'readingResource.translations', 'readingResource.resource.translations', 'listeningResource.translations', 'listeningResource.resource.translations'])
             ->orderBy('questions.id')
             ->get()
             ->filter(fn (Question $question): bool => $this->responses->definitionIssues($question) === [])
@@ -217,7 +217,7 @@ class AdaptivePracticeService
         /** @var array<int, int> $order */
         $order = $session->questionIds();
         $byId = Question::query()->whereIn('id', $order)
-            ->with(['options', 'topics', 'section.test', 'readingResource.resource', 'listeningResource.resource'])
+            ->with(['translations', 'options', 'topics.translations', 'section.translations', 'section.test.translations', 'readingResource.translations', 'readingResource.resource.translations', 'listeningResource.translations', 'listeningResource.resource.translations'])
             ->get()->keyBy('id');
 
         return collect($order)->map(fn ($id) => $byId->get($id))

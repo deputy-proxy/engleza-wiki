@@ -1,4 +1,4 @@
-<x-layout :title="__('My tests')">
+<x-layout :robots-index="false" :title="__('My tests')">
 <section class="mx-auto max-w-6xl px-6 py-12">
   <h1 class="text-3xl font-extrabold text-navy-900">{{ __(__('My tests')) }}</h1>
   <div class="mt-6 space-y-3">

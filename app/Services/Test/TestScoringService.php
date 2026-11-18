@@ -25,7 +25,7 @@ class TestScoringService
                 return $existing;
             }
             if (in_array($locked->status, ['completed', 'expired'], true) && $locked->question_order === null) {
-                abort(409, 'This historical attempt cannot be rescored because its original question set was not recorded.');
+                abort(409, __('This historical attempt cannot be rescored because its original question set was not recorded.'));
             }
             abort_unless(in_array($locked->status, ['started', 'completed', 'expired'], true), 410);
             $order = $this->questionOrder->forAttempt($locked);

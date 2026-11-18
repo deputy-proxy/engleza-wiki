@@ -23,7 +23,7 @@
       @else
         <audio controls preload="metadata" class="w-full" data-testid="listening-audio"><source src="{{ $lr->mediaUrl() }}" type="{{ $lr->mime_type ?? 'audio/mpeg' }}"></audio>
       @endif
-      <div class="mt-3 text-xs text-navy-500">{{ $lr->original_filename }} · {{ $lr->file_size ? number_format($lr->file_size/1024,0).' KB' : '' }}</div>
+      <div class="mt-3 text-xs text-navy-500">{{ $lr->original_filename }} · {{ $lr->file_size ? \Illuminate\Support\Number::format($lr->file_size / 1024, 0).' KB' : '' }}</div>
     @else
       <div class="text-navy-600 text-sm" data-testid="listening-no-media">{{ __('Media file will be added by the administrator. Practice the questions below.') }}</div>
     @endif

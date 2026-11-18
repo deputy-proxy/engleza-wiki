@@ -7,6 +7,7 @@ use App\Models\Resource;
 use App\Models\Test as EnglishTest;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Tests\TestCase;
 
@@ -27,7 +28,7 @@ class LocalizationTest extends TestCase
             ->assertSee('<html lang="ro"', false)
             ->assertSee('og:locale" content="ro_RO"', false)
             ->assertSee('rel="canonical"', false)
-            ->assertSee('hreflang="ro"', false)
+            ->assertSee('hreflang="ro-RO"', false)
             ->assertSee('Acasă')
             ->assertSee('Explorează resursele');
     }
@@ -50,7 +51,7 @@ class LocalizationTest extends TestCase
         $response = $this->get(route('resources.show', $resource));
         $response->assertOk()
             ->assertSee($translatedTitle)
-            ->assertSee('property="og:title" content="'.$resource->translated('og_title').'"', false)
+            ->assertSee('property="og:title" content="'.$resource->translated('seo_title').'"', false)
             ->assertSee('name="description" content="'.$resource->translated('seo_description').'"', false);
     }
 
@@ -81,6 +82,22 @@ class LocalizationTest extends TestCase
             ->assertSee($sourcePassage);
     }
 
+    public function test_writing_prompts_are_romanian_while_sample_english_material_is_preserved(): void
+    {
+        $resource = Resource::query()->where('type', 'writing')->where('status', 'published')->firstOrFail();
+        $writing = $resource->writingResource;
+        $sourcePrompt = $writing->prompt;
+        $translatedPrompt = $writing->translated('prompt', 'ro');
+
+        $this->assertNotSame($sourcePrompt, $translatedPrompt);
+        $this->assertSame($sourcePrompt, $writing->prompt);
+
+        $this->get(route('resources.show', $resource))
+            ->assertOk()
+            ->assertSee($translatedPrompt)
+            ->assertDontSee($sourcePrompt);
+    }
+
     public function test_test_questions_and_answer_options_remain_unchanged_learning_material(): void
     {
         $test = EnglishTest::query()->where('status', 'published')->firstOrFail();
@@ -93,11 +110,78 @@ class LocalizationTest extends TestCase
         $this->assertNotSame($test->title, $test->translated('title', 'ro'));
     }
 
+    public function test_source_changes_invalidate_reviewed_content_translations_and_appear_in_the_audit(): void
+    {
+        $resource = Resource::query()->firstOrFail();
+        $translation = ContentTranslation::query()
+            ->where('translatable_type', $resource->getMorphClass())
+            ->where('translatable_id', $resource->getKey())
+            ->where('locale', 'ro')
+            ->where('field', 'title')
+            ->firstOrFail();
+
+        self::assertSame(hash('sha256', $resource->title), $translation->source_hash);
+
+        $resource->update(['title' => 'A changed English source title']);
+        $resource->refresh();
+
+        self::assertSame('A changed English source title', $resource->translated('title', 'ro'));
+        self::assertSame('stale', $resource->translationStatus('title', 'ro'));
+        $this->artisan('translations:audit')->assertExitCode(1);
+    }
+
+    public function test_every_literal_translation_call_in_public_code_has_a_romanian_json_entry(): void
+    {
+        $translations = json_decode(file_get_contents(lang_path('ro.json')), true, flags: JSON_THROW_ON_ERROR);
+        $roots = [resource_path('views'), app_path('Http/Controllers'), app_path('Livewire'), app_path('Services')];
+        $patterns = [
+            "~__\\(\\s*'((?:\\\\.|[^'\\\\])*)'(?=\\s*[,\\)])~s",
+            '~__\\(\\s*"((?:\\\\.|[^"\\\\])*)"(?=\\s*[,\\)])~s',
+            "~@lang\\(\\s*'((?:\\\\.|[^'\\\\])*)'(?=\\s*[,\\)])~s",
+            '~@lang\\(\\s*"((?:\\\\.|[^"\\\\])*)"(?=\\s*[,\\)])~s',
+            "~trans_choice\\(\\s*'((?:\\\\.|[^'\\\\])*)'(?=\\s*[,\\)])~s",
+        ];
+
+        foreach ($roots as $root) {
+            foreach (File::allFiles($root) as $file) {
+                if (str_contains($file->getPathname(), DIRECTORY_SEPARATOR.'Filament'.DIRECTORY_SEPARATOR)) {
+                    continue;
+                }
+
+                $contents = $file->getContents();
+                foreach ($patterns as $pattern) {
+                    preg_match_all($pattern, $contents, $matches);
+                    foreach ($matches[1] as $key) {
+                        $key = stripcslashes($key);
+                        if (str_starts_with($key, 'validation.') || str_starts_with($key, 'auth.') || str_starts_with($key, 'passwords.') || str_starts_with($key, 'pagination.')) {
+                            continue;
+                        }
+                        self::assertArrayHasKey($key, $translations, $file->getRelativePathname().' is missing a Romanian translation for: '.$key);
+                    }
+                }
+            }
+        }
+    }
+
     public function test_translation_audit_passes_for_all_published_content(): void
     {
         $this->artisan('translations:audit', ['--locale' => 'ro'])
             ->expectsOutput('All published ro content fields have reviewed translations.')
             ->assertExitCode(0);
+    }
+
+    public function test_non_indexable_resources_are_noindex_and_excluded_from_the_sitemap(): void
+    {
+        $resource = Resource::query()->where('status', 'published')->firstOrFail();
+        $resource->update(['robots_index' => false]);
+
+        $this->get(route('resources.show', $resource))
+            ->assertOk()
+            ->assertSee('name="robots" content="noindex,nofollow"', false);
+
+        $this->get(route('sitemap'))
+            ->assertOk()
+            ->assertDontSee(route('resources.show', $resource), false);
     }
 
     public function test_sitemap_lists_public_content_without_admin_routes(): void

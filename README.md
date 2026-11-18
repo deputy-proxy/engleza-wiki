@@ -200,7 +200,7 @@ The public site and learner-facing experience use Romanian by default (`APP_LOCA
 
 Published content translations are stored separately from the original English learning material in the polymorphic `content_translations` table. Models using `HasTranslations` expose `translated($field, $locale)` and `translationStatus($field, $locale)`. Only translations marked `reviewed` are served; missing or draft translations fall back to the source field. The Romanian content seeder is idempotent and runs during deployment migrations as well as database seeding.
 
-English remains intentional in the material learners are expected to practise: reading passages, listening transcripts, vocabulary items, flashcard fronts and backs, question prompts and answer options, writing prompts and example answers. The surrounding instructions, resource metadata, taxonomy and explanations are localized.
+English remains intentional in the material learners are expected to practise: reading passages, listening transcripts, vocabulary items, flashcard fronts and backs, question prompts and answer options, and sample writing answers. Writing prompts and the surrounding instructions are localized so learners can understand the task without translating it first.
 
 Run the publication audit before releasing content:
 
@@ -208,4 +208,4 @@ Run the publication audit before releasing content:
 php artisan translations:audit --locale=ro
 ```
 
-The command exits non-zero when a published content field has no reviewed Romanian translation. Public search includes reviewed Romanian translations. The public layout emits Romanian language and social metadata, canonical and `hreflang` links; `/sitemap.xml` lists public content and is referenced by `robots.txt`.
+The command exits non-zero when a published content field is missing a reviewed Romanian translation or its source has changed since review. Public search includes reviewed Romanian translations. The public layout emits Romanian language and social metadata, canonical and `hreflang` links; `/sitemap.xml` lists public content and is referenced by `robots.txt`.

@@ -21,9 +21,10 @@ class SetPublicLocale
             return $next($request);
         }
 
-        App::setLocale('ro');
-        Date::setLocale('ro');
-        Number::useLocale('ro');
+        $locale = (string) config('app.locale', 'ro');
+        App::setLocale($locale);
+        Date::setLocale($locale);
+        Number::useLocale($locale);
 
         return $next($request);
     }

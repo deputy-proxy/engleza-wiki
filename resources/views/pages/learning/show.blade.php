@@ -9,7 +9,7 @@
   <p class="mt-4 max-w-3xl text-lg text-navy-600">{{ $path->translated('description') }}</p>
   @if($enrollment)
     <div class="mt-6 flex flex-wrap items-center gap-4">
-      <span class="chip bg-emerald-50 text-emerald-700">{{ __('Enrolled') }} · {{ __(ucfirst($enrollment->status)) }}</span>
+      <span class="chip bg-emerald-50 text-emerald-700">{{ __('Enrolled') }} · {{ __(str_replace('_', ' ', ucfirst($enrollment->status))) }}</span>
       <a href="{{ route('dashboard.learning') }}" class="btn-outline">{{ __('My learning') }}</a>
     </div>
   @elseif(auth()->check())

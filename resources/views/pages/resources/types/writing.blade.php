@@ -16,7 +16,7 @@
   @php $wr = $resource->writingResource; @endphp
   <div class="mt-8 card p-8 bg-sky-50/60 border-sky-100" data-testid="writing-task">
     <div class="text-xs uppercase tracking-widest text-sky-700 font-semibold">{{ __('Task') }}</div>
-    <p class="mt-3 text-lg text-navy-900 font-semibold">{{ $wr?->prompt }}</p>
+    <p class="mt-3 text-lg text-navy-900 font-semibold">{{ $wr?->translated('prompt') }}</p>
     @if($wr?->instructions)<p class="mt-3 text-navy-700">{{ $wr->translated('instructions') }}</p>@endif
     <div class="mt-4 flex flex-wrap gap-4 text-sm text-navy-600">
       @if($wr?->minimum_words)<div>{{ __('Min ') }}<strong>{{ $wr->minimum_words }}</strong> {{ __('words') }}</div>@endif

@@ -1,4 +1,4 @@
-<x-layout :title="__('Log in')">
+<x-layout :robots-index="false" :title="__('Log in')">
 <section class="mx-auto max-w-md px-6 py-16">
   <h1 class="text-3xl font-extrabold text-navy-900">{{ __('Welcome back') }}</h1>
   <p class="text-navy-600 mt-1">{{ __('Log in to track your progress.') }}</p>

@@ -47,7 +47,7 @@ class AdaptivePracticeController extends Controller
 
                 if (! $practice->recordResponse($session, auth()->user(), (int) $questionId, $response)) {
                     throw ValidationException::withMessages([
-                        'answers.'.$questionId => 'This answer could not be validated. Check its format and try again.',
+                        'answers.'.$questionId => __('This answer could not be validated. Check its format and try again.'),
                     ]);
                 }
             }

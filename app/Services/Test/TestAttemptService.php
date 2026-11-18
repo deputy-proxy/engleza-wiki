@@ -26,7 +26,7 @@ class TestAttemptService
             abort_unless($test->access_type === 'free', 403);
         }
 
-        $questions = $test->sections()->with('questions.options')->get()->flatMap(fn ($section) => $section->questions);
+        $questions = $test->sections()->with(['translations', 'questions.translations', 'questions.options', 'questions.topics.translations'])->get()->flatMap(fn ($section) => $section->questions);
         foreach ($questions as $question) {
             abort_if($this->responses->definitionIssues($question) !== [], 422, __('This test contains an invalid question configuration.'));
         }
@@ -79,7 +79,7 @@ class TestAttemptService
                 || ! Question::query()->whereKey($questionId)->whereIn('test_section_id', $locked->test->sections()->select('id'))->exists()) {
                 return false;
             }
-            $question = Question::query()->with('options')->find($questionId);
+            $question = Question::query()->with(['translations', 'options', 'topics.translations', 'section.translations'])->find($questionId);
             if (! $question) {
                 return false;
             }
@@ -127,7 +127,7 @@ class TestAttemptService
         $questionsById = Question::query()
             ->whereIn('id', $order)
             ->whereIn('test_section_id', $attempt->test->sections()->select('id'))
-            ->with(['section', 'options'])
+            ->with(['translations', 'section.translations', 'options', 'topics.translations'])
             ->get()
             ->keyBy('id');
 

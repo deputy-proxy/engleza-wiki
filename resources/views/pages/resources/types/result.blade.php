@@ -1,15 +1,15 @@
-<x-layout :resource="$resource" :title="__('Your result – ').$resource->translated('title')">
+<x-layout :robots-index="false" :resource="$resource" :title="__('Your result – ').$resource->translated('title')">
 <section class="mx-auto max-w-3xl px-6 py-12">
   <div class="card p-8 text-center" data-testid="learning-result">
     <div class="text-sm font-semibold uppercase text-brand-600 tracking-widest">{{ __('Exercise completed') }}</div>
     <div class="mt-3 text-5xl font-extrabold text-navy-900" data-testid="learning-result-score">
       @if($attempt->total_points !== null)
-        {{ $attempt->score }} / {{ $attempt->total_points }}
+        {{ \Illuminate\Support\Number::format((float) $attempt->score, 2) }} / {{ \Illuminate\Support\Number::format((float) $attempt->total_points, 2) }}
       @else
-        {{ $attempt->score }} {{ __('points') }}
+        {{ \Illuminate\Support\Number::format((float) $attempt->score, 2) }} {{ __('points') }}
       @endif
     </div>
-    <div class="mt-2 text-xl text-navy-600" data-testid="learning-result-percentage">{{ $attempt->percentage }}%</div>
+    <div class="mt-2 text-xl text-navy-600" data-testid="learning-result-percentage">{{ \Illuminate\Support\Number::format((float) $attempt->percentage, 1) }}%</div>
   </div>
 
   @if(!empty($attempt->breakdown['topics']))
@@ -19,7 +19,7 @@
         <div class="card p-4">
           <div class="flex justify-between text-sm mb-1">
             <span class="font-semibold text-navy-900">{{ $topic['name'] }}</span>
-            <span class="text-navy-600">{{ $topic['percentage'] }}% · {{ $topic['earned_points'] }} / {{ $topic['total_points'] }} {{ __('points') }}</span>
+            <span class="text-navy-600">{{ \Illuminate\Support\Number::format((float) $topic['percentage'], 1) }}% · {{ \Illuminate\Support\Number::format((float) $topic['earned_points'], 2) }} / {{ \Illuminate\Support\Number::format((float) $topic['total_points'], 2) }} {{ __('points') }}</span>
           </div>
           <div class="h-2.5 w-full rounded-full bg-navy-100 overflow-hidden"><div class="h-full bg-brand-500" style="width: {{ $topic['percentage'] }}%"></div></div>
         </div>

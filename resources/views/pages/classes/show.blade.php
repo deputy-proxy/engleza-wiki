@@ -1,4 +1,4 @@
-<x-layout :title="$group->name.' — engleza.wiki'">
+<x-layout :robots-index="false" :title="$group->name.' — engleza.wiki'">
 <section class="mx-auto max-w-3xl px-6 py-12">
   <div class="text-xs font-semibold uppercase tracking-widest text-brand-600">{{ __('Class join code') }}</div>
   <div class="mt-2 text-4xl font-mono font-extrabold tracking-widest text-navy-900" data-testid="class-code">{{ $group->join_code }}</div>

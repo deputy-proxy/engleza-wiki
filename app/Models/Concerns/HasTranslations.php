@@ -4,6 +4,7 @@ namespace App\Models\Concerns;
 
 use App\Models\ContentTranslation;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
 
 trait HasTranslations
@@ -27,12 +28,10 @@ trait HasTranslations
         $sourceHash = $this->translationSourceHash($source);
         $translations = $this->getRelationValue('localizedFields');
 
-        if (! $translations instanceof \Illuminate\Support\Collection) {
-            $translations = $this->translations()
-                ->where('locale', $locale)
-                ->where('status', 'reviewed')
-                ->get()
-                ->keyBy('field');
+        if (! $translations instanceof Collection) {
+            $translations = $this->relationLoaded('translations')
+                ? $this->getRelation('translations')->where('locale', $locale)->where('status', 'reviewed')->keyBy('field')
+                : $this->translations()->where('locale', $locale)->where('status', 'reviewed')->get()->keyBy('field');
             $this->setRelation('localizedFields', $translations);
         }
 

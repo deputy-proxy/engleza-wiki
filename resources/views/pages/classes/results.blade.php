@@ -1,4 +1,4 @@
-<x-layout :title="__('Class results — ').$group->name">
+<x-layout :robots-index="false" :title="__('Class results — ').$group->name">
 <section class="mx-auto max-w-6xl px-6 py-12">
   <div class="flex flex-wrap items-center justify-between gap-6">
     <div>
@@ -37,13 +37,13 @@
             <h3 class="font-bold text-navy-900">{{ $learner['user']?->name ?? __('Learner') }}</h3>
             <p class="text-sm text-navy-500">{{ $learner['attempt_count'] }} {{ __('completed attempt(s)') }} · {{ $learner['question_count'] }} {{ __('distinct question(s)') }}</p>
           </div>
-          <strong class="text-xl text-navy-900">{{ $learner['percentage'] === null ? '—' : number_format($learner['percentage'], 1).'%' }}</strong>
+          <strong class="text-xl text-navy-900">{{ $learner['percentage'] === null ? '—' : \Illuminate\Support\Number::format($learner['percentage'], 1).'%' }}</strong>
         </div>
         @if($learner['skills'])
           <h4 class="mt-4 text-xs font-semibold uppercase tracking-wide text-navy-500">{{ __('Skills') }}</h4>
           <div class="mt-2 flex flex-wrap gap-2">
             @foreach($learner['skills'] as $skill)
-              <span class="chip">{{ $skill['name'] }} · {{ number_format($skill['percentage'], 1) }}%</span>
+              <span class="chip">{{ $skill['name'] }} · {{ \Illuminate\Support\Number::format($skill['percentage'], 1) }}%</span>
             @endforeach
           </div>
         @endif
@@ -51,7 +51,7 @@
           <h4 class="mt-4 text-xs font-semibold uppercase tracking-wide text-navy-500">{{ __('Topics') }}</h4>
           <div class="mt-2 flex flex-wrap gap-2">
             @foreach($learner['topics'] as $topic)
-              <span class="chip">{{ $topic['name'] }} · {{ number_format($topic['percentage'], 1) }}%</span>
+              <span class="chip">{{ $topic['name'] }} · {{ \Illuminate\Support\Number::format($topic['percentage'], 1) }}%</span>
             @endforeach
           </div>
         @endif
@@ -74,7 +74,7 @@
             <td class="px-4 py-3">{{ $a->test->translated('title') }}</td>
             <td class="px-4 py-3">
               @if($a->status==='completed')<span class="chip bg-emerald-50 text-emerald-700">{{ __('Completed') }}</span>
-              @else<span class="chip">{{ __(ucfirst($a->status)) }}</span>@endif
+              @else<span class="chip">{{ __(str_replace('_', ' ', ucfirst($a->status))) }}</span>@endif
             </td>
             <td class="px-4 py-3">{{ $a->percentage ? $a->percentage.'%' : '—' }}</td>
             <td class="px-4 py-3">{{ $a->level_result ?? '—' }}</td>

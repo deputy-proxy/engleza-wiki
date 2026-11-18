@@ -1,11 +1,11 @@
-<x-layout :title="$test->translated('title').' · '.__('Result')" description="{{ __('Your assessment result and question review.') }}">
+<x-layout :robots-index="false" :title="$test->translated('title').' · '.__('Result')" description="{{ __('Your assessment result and question review.') }}">
 <div class="mx-auto max-w-4xl px-4 py-12">
   <a href="{{ route('tests.show', $test->slug) }}" class="text-sm font-semibold text-brand-600 hover:underline">{{ __('← Back to test') }}</a>
   <div class="mt-6 card p-8 text-center">
     <p class="text-sm font-semibold uppercase tracking-widest text-navy-500">{{ __('Assessment result') }}</p>
     <h1 class="mt-2 text-3xl font-extrabold text-navy-900">{{ $test->translated('title') }}</h1>
-    <div class="mt-6 text-5xl font-extrabold text-navy-900">{{ number_format((float) ($attempt->percentage ?? 0), 1) }}%</div>
-    <p class="mt-2 text-navy-600">{{ number_format((float) ($attempt->score ?? 0), 2) }} / {{ number_format((float) ($attempt->total_points ?? 0), 2) }} {{ __('points') }}</p>
+    <div class="mt-6 text-5xl font-extrabold text-navy-900">{{ \Illuminate\Support\Number::format((float) ($attempt->percentage ?? 0), 1) }}%</div>
+    <p class="mt-2 text-navy-600">{{ \Illuminate\Support\Number::format((float) ($attempt->score ?? 0), 2) }} / {{ \Illuminate\Support\Number::format((float) ($attempt->total_points ?? 0), 2) }} {{ __('points') }}</p>
     @if($attempt->status === 'expired')
       <p class="mt-4 text-sm font-semibold text-amber-700">{{ __('Time expired. This attempt expired, and answers saved before the deadline were scored.') }}</p>
     @elseif($attempt->result?->passed)

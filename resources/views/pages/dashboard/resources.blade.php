@@ -1,4 +1,4 @@
-<x-layout :title="__('Saved resources')">
+<x-layout :robots-index="false" :title="__('Saved resources')">
 <section class="mx-auto max-w-6xl px-6 py-12">
   <h1 class="text-3xl font-extrabold text-navy-900">{{ __('Saved resources') }}</h1>
   <div class="mt-6 grid md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -8,7 +8,7 @@
   <div class="mt-6 flex flex-wrap gap-2">
     @if($resource->level)<span class="chip">{{ $resource->level->translated('name') }}</span>@endif
     @foreach($resource->skills as $s)<span class="chip bg-emerald-50 text-emerald-700">{{ $s->translated('name') }}</span>@endforeach
-    <span class="chip bg-brand-50 text-brand-700">{{ ucfirst(str_replace('_',' ',$resource->type)) }}</span>
+    <span class="chip bg-brand-50 text-brand-700">{{ __(ucfirst(str_replace('_',' ',$resource->type))) }}</span>
   </div>
   <h1 class="mt-4 text-4xl md:text-5xl font-extrabold text-navy-900" data-testid="resource-title">{{ $resource->translated('title') }}</h1>
   <p class="mt-3 text-lg text-navy-600">{{ $resource->translated('excerpt') }}</p>
@@ -36,7 +36,7 @@
     <div class="mt-6 grid md:grid-cols-2 gap-6">
       @foreach($related as $r)
         <a href="{{ route('resources.show',$r->slug) }}" class="card p-5 hover:shadow-lg transition" data-testid="related-card-{{ $r->slug }}">
-          <div class="text-xs text-brand-600 font-semibold">{{ ucfirst(str_replace('_',' ',$r->type)) }}</div>
+          <div class="text-xs text-brand-600 font-semibold">{{ __(ucfirst(str_replace('_',' ',$r->type))) }}</div>
           <div class="mt-2 font-bold text-navy-900">{{ $r->translated('title') }}</div>
           <div class="mt-1 text-sm text-navy-600 line-clamp-2">{{ $r->translated('excerpt') }}</div>
         </a>

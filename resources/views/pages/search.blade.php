@@ -1,4 +1,4 @@
-<x-layout :title="__('Search – engleza.wiki')">
+<x-layout :robots-index="false" :title="__('Search – engleza.wiki')">
 <section class="mx-auto max-w-7xl px-6 py-12">
   <h1 class="text-4xl font-extrabold text-navy-900">{{ __('Search') }}</h1>
   <form method="GET" class="mt-6 flex gap-2 max-w-2xl">

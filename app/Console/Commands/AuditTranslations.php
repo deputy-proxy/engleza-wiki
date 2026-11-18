@@ -30,7 +30,7 @@ class AuditTranslations extends Command
 
     protected $description = 'List published content fields with missing or unreviewed translations.';
 
-    /** @var array<int, array{type: string, id: int|string, title: string, field: string, status: string}> */
+    /** @var array<int, array{type: string, id: int|string, title: string, field: string, status: string, source: string, translation: string}> */
     private array $issues = [];
 
     public function handle(): int
@@ -67,8 +67,8 @@ class AuditTranslations extends Command
             return self::SUCCESS;
         }
 
-        $this->table(['Type', 'ID', 'Record', 'Field', 'Status'], array_map(
-            fn (array $issue): array => [$issue['type'], $issue['id'], $issue['title'], $issue['field'], $issue['status']],
+        $this->table(['Type', 'ID', 'Record', 'Field', 'Status', 'Source text', 'Romanian text'], array_map(
+            fn (array $issue): array => [$issue['type'], $issue['id'], $issue['title'], $issue['field'], $issue['status'], $issue['source'], $issue['translation']],
             $this->issues,
         ));
         $this->error(count($this->issues).' published content translation(s) are missing or not reviewed.');
@@ -93,13 +93,13 @@ class AuditTranslations extends Command
                     ->where('translatable_id', $model->getKey())
                     ->where('locale', $locale)
                     ->where('field', $field)
-                    ->first(['status', 'source_hash']);
+                    ->first(['status', 'source_hash', 'value']);
                 $source = $model->getAttribute($field);
                 $sourceValue = is_array($source)
                     ? json_encode($source, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)
                     : (string) $source;
                 $sourceHash = hash('sha256', $sourceValue);
-                $status = $translation?->status ?? 'missing';
+                $status = $translation->status ?? 'missing';
                 if ($status === 'reviewed' && ! hash_equals((string) $translation->source_hash, $sourceHash)) {
                     $status = 'stale';
                 }
@@ -110,7 +110,9 @@ class AuditTranslations extends Command
                         'id' => $model->getKey(),
                         'title' => (string) ($model->getAttribute('title') ?? $model->getAttribute('name') ?? $model->getAttribute('slug') ?? ''),
                         'field' => $field,
-                        'status' => $status ?? 'missing',
+                        'status' => $status,
+                        'source' => mb_strimwidth(strip_tags($sourceValue), 0, 120, '…'),
+                        'translation' => mb_strimwidth(strip_tags((string) ($translation->value ?? '')), 0, 120, '…'),
                     ];
                 }
             }

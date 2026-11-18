@@ -1,4 +1,4 @@
-<x-layout title="{{ __('Adaptive practice · engleza.wiki') }}" description="{{ __('Personalised practice based on your learning evidence.') }}">
+<x-layout :robots-index="false" title="{{ __('Adaptive practice · engleza.wiki') }}" description="{{ __('Personalised practice based on your learning evidence.') }}">
 <section class="mx-auto max-w-4xl px-6 py-12">
   <div class="flex flex-wrap items-start justify-between gap-4">
     <div>
@@ -14,7 +14,7 @@
   @if($session->status === 'completed')
     <div class="card mt-6 p-6">
       <p class="text-sm text-navy-500">{{ __('Session complete') }}</p>
-      <p class="mt-1 text-3xl font-extrabold text-navy-900">{{ number_format((float) $session->percentage, 1) }}%</p>
+      <p class="mt-1 text-3xl font-extrabold text-navy-900">{{ \Illuminate\Support\Number::format((float) $session->percentage, 1) }}%</p>
       <p class="mt-1 text-sm text-navy-600">{{ $session->earned_points }} {{ __('of') }} {{ $session->total_points }} {{ __('points') }}</p>
       @if($xpAwarded > 0)
         <p class="mt-2 text-sm font-semibold text-brand-700">{{ __('You earned :points XP for this session.', ['points' => $xpAwarded]) }}</p>

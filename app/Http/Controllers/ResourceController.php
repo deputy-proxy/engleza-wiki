@@ -13,7 +13,7 @@ class ResourceController extends Controller
 {
     public function index(Request $r)
     {
-        $q = Resource::published()->with(['level', 'skills', 'categories']);
+        $q = Resource::published()->with(['translations', 'level.translations', 'skills.translations', 'categories.translations']);
         if ($r->filled('type')) {
             $q->where('type', $r->type);
         }
@@ -27,8 +27,8 @@ class ResourceController extends Controller
             $q->whereHas('audiences', fn ($x) => $x->where('slug', $r->audience));
         }
         $resources = $q->latest('published_at')->paginate(12)->withQueryString();
-        $levels = Level::orderBy('sort_order')->get();
-        $skills = Skill::orderBy('name')->get();
+        $levels = Level::with('translations')->orderBy('sort_order')->get();
+        $skills = Skill::with('translations')->orderBy('name')->get();
         $types = ['article' => 'Articles', 'grammar' => 'Grammar', 'vocabulary' => 'Vocabulary', 'worksheet' => 'Worksheets', 'lesson_plan' => 'Lesson Plans', 'activity' => 'Activities', 'guide' => 'Guides', 'exercise' => 'Exercises', 'card' => 'Cards', 'listening' => 'Listening', 'reading' => 'Reading', 'writing' => 'Writing'];
 
         return view('pages.resources.index', compact('resources', 'levels', 'skills', 'types'));
@@ -37,8 +37,8 @@ class ResourceController extends Controller
     public function show(Resource $resource, LearningPathService $learning, VocabularyReviewService $reviews)
     {
         abort_unless($resource->status === 'published', 404);
-        $resource->load(['level', 'skills', 'categories', 'tags', 'topics', 'audiences', 'media', 'author']);
-        $related = Resource::published()
+        $resource->load(['translations', 'level.translations', 'skills.translations', 'categories.translations', 'tags.translations', 'topics.translations', 'audiences.translations', 'media', 'author']);
+        $related = Resource::published()->with(['translations', 'level.translations'])
             ->where('id', '!=', $resource->id)
             ->whereHas('topics', fn ($q) => $q->whereIn('topics.id', $resource->topics->pluck('id')))
             ->limit(4)->get();
@@ -51,25 +51,25 @@ class ResourceController extends Controller
         };
         // Eager-load type-specific children
         if ($resource->type === 'card') {
-            $resource->load('cardResource.cards');
+            $resource->load(['cardResource.translations', 'cardResource.cards']);
             if (auth()->check()) {
                 $reviews->encounterResource(auth()->user(), $resource);
             }
         }
         if ($resource->type === 'listening') {
-            $resource->load('listeningResource.questions.options');
+            $resource->load(['listeningResource.translations', 'listeningResource.questions.translations', 'listeningResource.questions.options']);
         }
         if ($resource->type === 'reading') {
-            $resource->load('readingResource.questions.options');
+            $resource->load(['readingResource.translations', 'readingResource.questions.translations', 'readingResource.questions.options']);
         }
         if (auth()->check() && in_array($resource->type, ['listening', 'reading'], true)) {
             $reviews->encounterResource(auth()->user(), $resource);
         }
         if ($resource->type === 'writing') {
-            $resource->load('writingResource');
+            $resource->load('writingResource.translations');
         }
 
-        $learningActivities = $resource->lessonActivities()->with('lesson.unit.path')->get()
+        $learningActivities = $resource->lessonActivities()->with(['lesson.translations', 'lesson.unit.path.translations'])->get()
             ->filter(fn ($activity): bool => $learning->isLessonAvailable($activity->lesson));
 
         return view($view, compact('resource', 'related', 'learningActivities'));

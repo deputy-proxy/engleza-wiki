@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property string $value
  * @property string $status
  * @property string|null $source_hash
- * @property \Illuminate\Support\Carbon|null $reviewed_at
+ * @property Carbon|null $reviewed_at
  */
 class ContentTranslation extends Model
 {
