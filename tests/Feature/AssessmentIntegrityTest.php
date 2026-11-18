@@ -475,7 +475,9 @@ class AssessmentIntegrityTest extends TestCase
             'is_active' => true,
         ]);
         $this->actingAs($learner)->get(route('classes.results', $group->join_code))->assertForbidden();
+        session()->forget('password_hash_web');
         $this->actingAs($teacher)->get(route('classes.results', $group->join_code))->assertOk();
+        session()->forget('password_hash_web');
         $admin = User::where('role', 'admin')->firstOrFail();
         $this->actingAs($admin)->get(route('classes.results', $group->join_code))->assertOk();
     }
