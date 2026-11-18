@@ -20,6 +20,7 @@ class PublicFlowTest extends TestCase
     {
         parent::setUp();
         $this->seed(DatabaseSeeder::class);
+        $this->approveSeededContent();
     }
 
     public function test_homepage_loads(): void
@@ -106,6 +107,7 @@ class PublicFlowTest extends TestCase
             'assessment-results',
             'audiences',
             'categories',
+            'content-translations',
             'class-groups',
             'learning-attempts',
             'levels',

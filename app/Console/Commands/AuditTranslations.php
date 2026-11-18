@@ -93,7 +93,7 @@ class AuditTranslations extends Command
                     ->where('translatable_id', $model->getKey())
                     ->where('locale', $locale)
                     ->where('field', $field)
-                    ->first(['status', 'source_hash', 'value']);
+                    ->first(['status', 'source_hash', 'value', 'editorial_status']);
                 $source = $model->getAttribute($field);
                 $sourceValue = is_array($source)
                     ? json_encode($source, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)
@@ -102,6 +102,8 @@ class AuditTranslations extends Command
                 $status = $translation->status ?? 'missing';
                 if ($status === 'reviewed' && ! hash_equals((string) $translation->source_hash, $sourceHash)) {
                     $status = 'stale';
+                } elseif ($status === 'reviewed' && $translation->editorial_status !== 'approved') {
+                    $status = 'editorial_pending';
                 }
 
                 if ($status !== 'reviewed') {

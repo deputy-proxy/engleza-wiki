@@ -59,7 +59,6 @@ class RomanianTranslationsSeeder extends Seeder
             'b2-writing-should-students-use-smartphones-at-school' => ['title' => 'Scriere B2: Ar trebui elevii să folosească telefoane la școală?', 'excerpt' => 'Un eseu argumentativ despre folosirea telefoanelor inteligente în școli.'],
         ]);
 
-        $this->translateResourceBodies();
         $this->translateResourceMetadata();
 
         $this->translateSlugs(Test::class, [
@@ -241,42 +240,6 @@ class RomanianTranslationsSeeder extends Seeder
             $this->save($resource, 'seo_description', $excerpt);
             $this->save($resource, 'og_title', $title);
             $this->save($resource, 'og_description', $excerpt);
-        }
-    }
-
-    private function translateResourceBodies(): void
-    {
-        foreach (Resource::query()->where('status', 'published')->get() as $resource) {
-            $title = (string) $resource->translated('title', 'ro');
-            $excerpt = (string) $resource->translated('excerpt', 'ro');
-
-            if (in_array($resource->type, ['card', 'listening', 'reading', 'writing'], true)) {
-                $this->save($resource, 'content', $excerpt);
-
-                continue;
-            }
-
-            $content = (string) $resource->content;
-            $content = str_replace('## '.$resource->title, '## '.$title, $content);
-            $content = str_replace((string) $resource->excerpt, $excerpt, $content);
-
-            $replacements = [
-                "This resource is part of engleza.wiki's free English learning collection. It provides clear explanations, practical examples, and useful exercises to help you improve." => 'Această resursă face parte din colecția gratuită de învățare a limbii engleze de pe engleza.wiki. Include explicații clare, exemple practice și exerciții utile pentru a-ți îmbunătăți cunoștințele.',
-                '### Key points' => '### Idei principale',
-                '- Concept clearly explained' => '- Concept explicat clar',
-                '- Multiple examples' => '- Mai multe exemple',
-                '- Practice exercises' => '- Exerciții practice',
-                '- Answer key' => '- Cheia răspunsurilor',
-                '### Example' => '### Exemplu',
-                '### When to use it' => '### Când se folosește',
-                'Use this pattern for habits, routines, facts, and general truths.' => 'Folosește această structură pentru obiceiuri, rutine, fapte și adevăruri generale.',
-            ];
-
-            foreach ($replacements as $source => $translation) {
-                $content = str_replace($source, $translation, $content);
-            }
-
-            $this->save($resource, 'content', $content);
         }
     }
 

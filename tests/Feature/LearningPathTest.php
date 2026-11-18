@@ -112,6 +112,8 @@ class LearningPathTest extends TestCase
         $question->update(['metadata' => ['pairs' => [
             ['left' => 'cat', 'right' => 'gato'], ['left' => 'dog', 'right' => 'perro'],
         ]]]);
+        $resource->refresh()->approveEditorialReview(User::factory()->create(['role' => 'admin']));
+        $lesson->approveEditorialReview(User::factory()->create(['role' => 'admin']));
         $lesson->update(['status' => 'published']);
         $path->update(['status' => 'published']);
         $this->assertDatabaseHas('learning_lessons', ['id' => $lesson->id, 'status' => 'published']);
@@ -130,8 +132,10 @@ class LearningPathTest extends TestCase
             self::assertArrayHasKey('learning_lesson_id', $exception->errors());
         }
 
+        $reviewer = User::factory()->create(['role' => 'admin']);
         $lesson->update(['status' => 'draft']);
         $activity->update(['sort_order' => 2]);
+        $lesson->approveEditorialReview($reviewer);
         $lesson->update(['status' => 'published']);
         $this->assertDatabaseHas('lesson_activities', ['id' => $activity->id, 'sort_order' => 2]);
     }
@@ -171,6 +175,7 @@ class LearningPathTest extends TestCase
                 'learning_lesson_id' => $lesson->id, 'type' => 'resource', 'resource_id' => $resource->id,
                 'title' => 'Read article '.$i, 'sort_order' => 1, 'is_required' => true,
             ]);
+            $lesson->approveEditorialReview(User::factory()->create(['role' => 'admin']));
             $lesson->update(['status' => 'published']);
             $lessons[] = $lesson;
             $activities[] = $activity;

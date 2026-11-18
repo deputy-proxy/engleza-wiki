@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Contracts\EditorialReviewable;
+use App\Models\Concerns\HasEditorialReview;
 use App\Models\Concerns\HasTranslations;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,10 +20,17 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property-read Level|null $level
  * @property-read Collection<int, Skill> $skills
  * @property-read Collection<int, Topic> $topics
+ * @property-read Collection<int, Media> $media
+ * @property-read Collection<int, Category> $categories
+ * @property-read Collection<int, Tag> $tags
+ * @property-read Collection<int, Audience> $audiences
+ * @property string $editorial_status
+ * @property int|null $editorial_reviewed_by
  * @property-read CardResource|null $cardResource
  */
-class Resource extends Model
+class Resource extends Model implements EditorialReviewable
 {
+    use HasEditorialReview;
     use HasFactory;
     use HasTranslations;
 
@@ -40,11 +49,13 @@ class Resource extends Model
         return $this->belongsTo(Level::class);
     }
 
+    /** @return BelongsToMany<Category, $this> */
     public function categories()
     {
         return $this->belongsToMany(Category::class);
     }
 
+    /** @return BelongsToMany<Tag, $this> */
     public function tags()
     {
         return $this->belongsToMany(Tag::class);
@@ -56,6 +67,7 @@ class Resource extends Model
         return $this->belongsToMany(Skill::class);
     }
 
+    /** @return BelongsToMany<Audience, $this> */
     public function audiences()
     {
         return $this->belongsToMany(Audience::class);
@@ -67,6 +79,7 @@ class Resource extends Model
         return $this->belongsToMany(Topic::class);
     }
 
+    /** @return HasMany<Media, $this> */
     public function media()
     {
         return $this->hasMany(Media::class);
@@ -115,7 +128,13 @@ class Resource extends Model
 
     public function scopePublished($q)
     {
-        return $q->where('status', 'published')->where('published_at', '<=', now());
+        return $q->where('status', 'published')->where('published_at', '<=', now())->editorialVisible();
+    }
+
+    /** @return array<int, string> */
+    public function editorialReviewableFields(): array
+    {
+        return ['title', 'slug', 'excerpt', 'content', 'type', 'level_id', 'published_at', 'seo_title', 'seo_description', 'canonical_url', 'robots_index', 'og_title', 'og_description', 'og_image'];
     }
 
     public function getRouteKeyName(): string

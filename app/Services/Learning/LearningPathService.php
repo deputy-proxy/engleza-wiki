@@ -135,9 +135,10 @@ class LearningPathService
 
     public function isLessonAvailable(LearningLesson $lesson): bool
     {
+        $lesson->load('unit.path', 'activities.resource', 'activities.test');
         $unit = $lesson->unit;
         $path = $unit?->path;
-        if (! $unit || ! $unit->is_published || ! $path || $path->status !== 'published'
+        if (! $unit || ! $unit->is_published || ! $path || $path->status !== 'published' || $lesson->editorial_status !== 'approved'
             || $path->published_at === null || $path->published_at->gt(now())
             || $lesson->status !== 'published' || $lesson->published_at === null || $lesson->published_at->gt(now())) {
             return false;
@@ -151,14 +152,14 @@ class LearningPathService
         foreach ($activities as $activity) {
             if ($activity->type === 'resource') {
                 $resource = $activity->resource;
-                if ($resource === null || $resource->status !== 'published'
+                if ($resource === null || $resource->status !== 'published' || ! $resource->isEditorialVisible()
                     || ($resource->published_at !== null && $resource->published_at->gt(now()))
                     || ! $this->hasValidQuestionsForActivity($activity)) {
                     return false;
                 }
             } elseif ($activity->type === 'test') {
                 $test = $activity->test;
-                if ($test === null || $test->status !== 'published' || ! $test->is_public
+                if ($test === null || $test->status !== 'published' || ! $test->isEditorialVisible() || ! $test->is_public
                     || ! in_array($test->access_type, ['free', 'registered'], true)
                     || ($test->published_at !== null && $test->published_at->gt(now()))
                     || ! $this->hasValidQuestionsForActivity($activity)) {

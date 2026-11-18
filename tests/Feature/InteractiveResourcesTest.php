@@ -21,6 +21,7 @@ class InteractiveResourcesTest extends TestCase
     {
         parent::setUp();
         $this->seed(DatabaseSeeder::class);
+        $this->approveSeededContent();
     }
 
     public function test_card_resource_page_renders(): void

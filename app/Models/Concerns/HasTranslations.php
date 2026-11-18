@@ -30,8 +30,8 @@ trait HasTranslations
 
         if (! $translations instanceof Collection) {
             $translations = $this->relationLoaded('translations')
-                ? $this->getRelation('translations')->where('locale', $locale)->where('status', 'reviewed')->keyBy('field')
-                : $this->translations()->where('locale', $locale)->where('status', 'reviewed')->get()->keyBy('field');
+                ? $this->getRelation('translations')->where('locale', $locale)->where('status', 'reviewed')->where('editorial_status', 'approved')->keyBy('field')
+                : $this->translations()->where('locale', $locale)->where('status', 'reviewed')->where('editorial_status', 'approved')->get()->keyBy('field');
             $this->setRelation('localizedFields', $translations);
         }
 
@@ -62,11 +62,15 @@ trait HasTranslations
             return 'missing';
         }
 
-        if ($translation->status === 'reviewed' && hash_equals((string) $translation->source_hash, $this->translationSourceHash($source))) {
-            return 'reviewed';
+        if ($translation->status === 'reviewed' && ! hash_equals((string) $translation->source_hash, $this->translationSourceHash($source))) {
+            return 'stale';
         }
 
-        return $translation->status === 'reviewed' ? 'stale' : $translation->status;
+        if ($translation->editorial_status !== 'approved') {
+            return 'editorial_'.$translation->editorial_status;
+        }
+
+        return $translation->status;
     }
 
     private function translationSourceHash(mixed $source): string

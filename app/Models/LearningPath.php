@@ -4,13 +4,17 @@ namespace App\Models;
 
 use App\Models\Concerns\HasTranslations;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Validation\ValidationException;
 
-/** @property-read Level|null $level */
+/**
+ * @property-read Level|null $level
+ * @property-read Collection<int, LearningUnit> $units
+ */
 class LearningPath extends Model
 {
     use HasTranslations;
@@ -32,7 +36,7 @@ class LearningPath extends Model
             $units = $path->units()->where('is_published', true)
                 ->with(['lessons.activities.resource', 'lessons.activities.test'])->get();
             $hasPublishedLesson = $units->flatMap(fn (LearningUnit $unit) => $unit->lessons)
-                ->contains(fn (LearningLesson $lesson): bool => $lesson->status === 'published' && $lesson->publicationIssues() === []);
+                ->contains(fn (LearningLesson $lesson): bool => $lesson->status === 'published' && $lesson->editorial_status === 'approved' && $lesson->publicationIssues() === []);
 
             if (! $hasPublishedLesson) {
                 throw ValidationException::withMessages(['status' => 'Publish at least one unit containing a published lesson with valid activities before publishing this path.']);
@@ -69,7 +73,8 @@ class LearningPath extends Model
      */
     public function scopePublished(Builder $query): Builder
     {
-        return $query->where('status', 'published')->whereNotNull('published_at')->where('published_at', '<=', now());
+        return $query->where('status', 'published')->whereNotNull('published_at')->where('published_at', '<=', now())
+            ->whereHas('units.lessons', fn (Builder $lessons) => $lessons->where('status', 'published')->where('editorial_status', 'approved'));
     }
 
     public function getRouteKeyName(): string

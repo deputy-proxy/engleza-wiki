@@ -17,8 +17,8 @@ class StatsOverview extends BaseWidget
         $avg = (clone $completed)->avg('percentage');
 
         return [
-            Stat::make('Published Resources', Resource::where('status', 'published')->count())->color('success'),
-            Stat::make('Published Tests', Test::where('status', 'published')->count())->color('primary'),
+            Stat::make('Published Resources', Resource::query()->published()->count())->color('success'),
+            Stat::make('Published Tests', Test::query()->published()->count())->color('primary'),
             Stat::make('Registered Users', User::count())->color('info'),
             Stat::make('Test Attempts', TestAttempt::count())->description('Completed: '.$completed->count()),
             Stat::make('Average Test Score', $avg ? round($avg, 1).'%' : '—')->color('warning'),

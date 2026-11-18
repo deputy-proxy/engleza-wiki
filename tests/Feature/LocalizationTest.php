@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\ContentTranslation;
 use App\Models\Resource;
 use App\Models\Test as EnglishTest;
+use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\File;
@@ -19,6 +20,7 @@ class LocalizationTest extends TestCase
     {
         parent::setUp();
         $this->seed(DatabaseSeeder::class);
+        $this->approveSeededContent();
     }
 
     public function test_public_pages_use_romanian_locale_and_localized_seo_metadata(): void
@@ -44,8 +46,8 @@ class LocalizationTest extends TestCase
         $this->assertNotSame($sourceTitle, $translatedTitle);
         $this->assertSame($sourceTitle, $resource->translated('title', 'en'));
         $this->assertSame($sourceContent, $resource->content);
-        $this->assertNotSame($sourceContent, $translatedContent);
-        $this->assertStringContainsString('She **works** in a hospital.', $translatedContent);
+        $this->assertSame($sourceContent, $translatedContent);
+        $this->assertSame('missing', $resource->translationStatus('content', 'ro'));
         $this->assertSame('reviewed', $resource->translationStatus('title', 'ro'));
 
         $response = $this->get(route('resources.show', $resource));
@@ -163,17 +165,16 @@ class LocalizationTest extends TestCase
         }
     }
 
-    public function test_translation_audit_passes_for_all_published_content(): void
+    public function test_translation_audit_flags_untranslated_long_form_content_until_it_is_reviewed(): void
     {
-        $this->artisan('translations:audit', ['--locale' => 'ro'])
-            ->expectsOutput('All published ro content fields have reviewed translations.')
-            ->assertExitCode(0);
+        $this->artisan('translations:audit', ['--locale' => 'ro'])->assertExitCode(1);
     }
 
     public function test_non_indexable_resources_are_noindex_and_excluded_from_the_sitemap(): void
     {
         $resource = Resource::query()->where('status', 'published')->firstOrFail();
         $resource->update(['robots_index' => false]);
+        $resource->approveEditorialReview(User::query()->where('role', 'admin')->firstOrFail());
 
         $this->get(route('resources.show', $resource))
             ->assertOk()

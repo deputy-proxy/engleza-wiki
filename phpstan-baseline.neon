@@ -37,12 +37,6 @@ parameters:
 			path: app/Filament/Resources/Resources/Pages/EditResource.php
 
 		-
-			message: '#^Parameter \#1 \$record of static method App\\Filament\\Resources\\Resources\\Support\\NestedTypeContent\:\:persist\(\) expects App\\Models\\Resource, Illuminate\\Database\\Eloquent\\Model\|int\|string\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Filament/Resources/Resources/Pages/EditResource.php
-
-		-
 			message: '#^Property App\\Filament\\Resources\\Resources\\Pages\\EditResource\:\:\$nested type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -169,12 +163,6 @@ parameters:
 			path: app/Http/Controllers/CategoryController.php
 
 		-
-			message: '#^Relation ''categories'' is not found in App\\Models\\Resource model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Http/Controllers/CategoryController.php
-
-		-
 			message: '#^Method App\\Http\\Controllers\\CertificateController\:\:download\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -289,31 +277,7 @@ parameters:
 			path: app/Http/Controllers/ResourceController.php
 
 		-
-			message: '#^Relation ''audiences'' is not found in App\\Models\\Resource model\.$#'
-			identifier: larastan.relationExistence
-			count: 2
-			path: app/Http/Controllers/ResourceController.php
-
-		-
 			message: '#^Relation ''author'' is not found in App\\Models\\Resource model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Http/Controllers/ResourceController.php
-
-		-
-			message: '#^Relation ''categories'' is not found in App\\Models\\Resource model\.$#'
-			identifier: larastan.relationExistence
-			count: 2
-			path: app/Http/Controllers/ResourceController.php
-
-		-
-			message: '#^Relation ''media'' is not found in App\\Models\\Resource model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Http/Controllers/ResourceController.php
-
-		-
-			message: '#^Relation ''tags'' is not found in App\\Models\\Resource model\.$#'
 			identifier: larastan.relationExistence
 			count: 1
 			path: app/Http/Controllers/ResourceController.php
@@ -505,12 +469,6 @@ parameters:
 			path: app/Models/Resource.php
 
 		-
-			message: '#^Method App\\Models\\Resource\:\:audiences\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Resource.php
-
-		-
 			message: '#^Method App\\Models\\Resource\:\:author\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -518,18 +476,6 @@ parameters:
 
 		-
 			message: '#^Method App\\Models\\Resource\:\:cards\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Resource.php
-
-		-
-			message: '#^Method App\\Models\\Resource\:\:categories\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Resource.php
-
-		-
-			message: '#^Method App\\Models\\Resource\:\:media\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
 			path: app/Models/Resource.php
@@ -543,12 +489,6 @@ parameters:
 		-
 			message: '#^Method App\\Models\\Resource\:\:scopePublished\(\) has parameter \$q with no type specified\.$#'
 			identifier: missingType.parameter
-			count: 1
-			path: app/Models/Resource.php
-
-		-
-			message: '#^Method App\\Models\\Resource\:\:tags\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: app/Models/Resource.php
 

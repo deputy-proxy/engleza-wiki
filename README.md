@@ -60,6 +60,21 @@ Open <http://localhost:3000>.
 
 Only `admin` and `editor` roles can access `/admin`. User management is admin-only; account deletion is blocked when it would remove the last administrator or cascade-delete learner/class history. See [Admin panel security](docs/admin-security.md) for the role matrix and recovery procedure. See [Account lifecycle](docs/account-lifecycle.md) for registration, verification, password recovery and session security.
 
+## Editorial quality and publication review
+
+Published resources, tests and learning lessons require explicit editorial approval before they are served publicly. New content starts as `pending`; edits to source content, answer keys, interactive child records or translations invalidate the affected review. Pending/revision content is excluded from public listings, direct routes, adaptive practice, search and the sitemap. `noindex` content may remain accessible but is excluded from the sitemap and receives a noindex directive.
+
+Editors manage decisions in the existing Filament Content area. The Translations resource supports Romanian translation editing and approval. A translation is displayed only when its translation status is `reviewed`, its editorial status is `approved`, and its source hash is current. Otherwise the original English source is used as the fallback.
+
+The rubric, CEFR content standards, publication workflow and reviewer responsibilities are documented in `docs/editorial/`. Generate the current inventory from the target database before a content release:
+
+```bash
+php artisan content:editorial-audit --output=docs/editorial/audit-register.csv
+php artisan translations:audit --locale=ro
+```
+
+The committed `docs/editorial/audit-register.csv` is a point-in-time snapshot from the repository's seeded development dataset, not a production export. Regenerate it against the deployment database for operational review. Automated checks identify structural and completeness issues; qualified English-language teachers must validate core grammar, CEFR placement and assessment answer keys before approval. High-impact grammar/CEFR material requires a second independent review.
+
 ## Assessment and learning attempts
 
 Anonymous visitors can take free tests without registering. Attempts are owned by the authenticated learner or the originating anonymous session. Test and learning attempts persist their assigned question IDs at start, so questions added later cannot silently join an in-progress attempt and shuffled navigation remains stable. An interrupted started attempt can be reopened through its existing attempt URL; its saved answers and question order are restored.
@@ -200,7 +215,7 @@ Global and class leaderboards are intentionally not enabled. The platform does n
 php artisan test
 ```
 
-Covers public resources, anonymous and authenticated tests, all eight question types in both test and learning runners, structured answer validation and partial credit, weighted and unanswered scoring, empty assessments, rounding, question-order snapshots, expiry, idempotent completion, cross-attempt answer rejection, access and answer-disclosure settings, guest ownership, learning-path enrolment and sequential progression, publication readiness, resource availability, admin relation managers, learning answer disclosure, certificates, learner mastery thresholds and confidence, spaced-repetition scheduling and deduplication, adaptive-practice isolation and answer disclosure, and class-group-scoped teacher progress summaries.
+Covers public resources, anonymous and authenticated tests, all eight question types in both test and learning runners, structured answer validation and partial credit, weighted and unanswered scoring, empty assessments, rounding, question-order snapshots, expiry, idempotent completion, cross-attempt answer rejection, access and answer-disclosure settings, guest ownership, learning-path enrolment and sequential progression, publication readiness, editorial approval and invalidation, translation fallback and review, media-rights metadata, resource availability, admin relation managers, learning answer disclosure, certificates, learner mastery thresholds and confidence, spaced-repetition scheduling and deduplication, adaptive-practice isolation and answer disclosure, and class-group-scoped teacher progress summaries.
 
 ## License
 
@@ -210,11 +225,11 @@ Content and code are shared for free public educational use. See project spec fo
 
 The public site and learner-facing experience use Romanian by default (`APP_LOCALE=ro`) and retain English as the fallback locale (`APP_FALLBACK_LOCALE=en`). Interface strings live in `lang/ro.json`; Laravel validation, authentication, password-reset and pagination messages live in `lang/ro/`.
 
-Published content translations are stored separately from the original English learning material in the polymorphic `content_translations` table. Models using `HasTranslations` expose `translated($field, $locale)` and `translationStatus($field, $locale)`. Only translations marked `reviewed` are served; missing or draft translations fall back to the source field. The Romanian content seeder is idempotent and runs during deployment migrations as well as database seeding.
+Published content translations are stored separately from the original English learning material in the polymorphic `content_translations` table. Models using `HasTranslations` expose `translated($field, $locale)` and `translationStatus($field, $locale)`. Only translations marked `reviewed` and editorially `approved`, with a current source hash, are served; missing, pending or stale translations fall back to the source field. The Romanian content seeder is idempotent and runs during deployment migrations as well as database seeding.
 
 English remains intentional in the material learners are expected to practise: reading passages, listening transcripts, vocabulary items, flashcard fronts and backs, question prompts and answer options, and sample writing answers. Writing prompts and the surrounding instructions are localized so learners can understand the task without translating it first.
 
-Run the publication audit before releasing content:
+Run the translation audit before releasing content:
 
 ```bash
 php artisan translations:audit --locale=ro

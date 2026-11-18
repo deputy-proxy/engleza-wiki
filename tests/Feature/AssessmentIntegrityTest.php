@@ -32,6 +32,7 @@ class AssessmentIntegrityTest extends TestCase
     {
         parent::setUp();
         $this->seed(DatabaseSeeder::class);
+        $this->approveSeededContent();
     }
 
     public function test_test_scoring_includes_unanswered_weighted_questions_in_every_denominator(): void
@@ -619,6 +620,8 @@ class AssessmentIntegrityTest extends TestCase
             $questions[] = $question->load('options');
         }
 
+        $test->refresh()->approveEditorialReview(User::factory()->create(['role' => 'admin']));
+
         return [$test, $questions, $topics];
     }
 
@@ -653,6 +656,8 @@ class AssessmentIntegrityTest extends TestCase
             $question->topics()->sync([$topic->id]);
             $questions[] = $question->load('options');
         }
+
+        $resource->refresh()->approveEditorialReview(User::factory()->create(['role' => 'admin']));
 
         return [$resource, $questions, $topic];
     }
