@@ -18,7 +18,7 @@ class LearningController extends Controller
         if (! session()->has('anon_session') && ! auth()->check()) {
             session(['anon_session' => (string) Str::uuid()]);
         }
-        $attempt = $attempts->start($resource, auth()->id(), session('anon_session'), $r->ip(), $r->userAgent());
+        $attempt = $attempts->start($resource, auth()->id(), session('anon_session'));
         session()->put('active_learning_attempts.'.$resource->id, $attempt->id);
 
         return redirect()->route('resources.show', $resource->slug);

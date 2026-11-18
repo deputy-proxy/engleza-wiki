@@ -7,6 +7,7 @@ use App\Filament\Resources\AssessmentResults\Pages\EditAssessmentResult;
 use App\Filament\Resources\AssessmentResults\Pages\ListAssessmentResults;
 use App\Filament\Resources\AssessmentResults\Schemas\AssessmentResultForm;
 use App\Filament\Resources\AssessmentResults\Tables\AssessmentResultsTable;
+use App\Filament\Resources\Concerns\AdminOnlyLearnerData;
 use App\Models\AssessmentResult;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -16,6 +17,8 @@ use Filament\Tables\Table;
 
 class AssessmentResultResource extends Resource
 {
+    use AdminOnlyLearnerData;
+
     protected static ?string $model = AssessmentResult::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChartPie;

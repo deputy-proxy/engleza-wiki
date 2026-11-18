@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\LearningAttempts;
 
+use App\Filament\Resources\Concerns\AdminOnlyLearnerData;
 use App\Filament\Resources\LearningAttempts\Pages\CreateLearningAttempt;
 use App\Filament\Resources\LearningAttempts\Pages\EditLearningAttempt;
 use App\Filament\Resources\LearningAttempts\Pages\ListLearningAttempts;
@@ -17,6 +18,8 @@ use Filament\Tables\Table;
 
 class LearningAttemptResource extends Resource
 {
+    use AdminOnlyLearnerData;
+
     protected static ?string $model = LearningAttempt::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAcademicCap;

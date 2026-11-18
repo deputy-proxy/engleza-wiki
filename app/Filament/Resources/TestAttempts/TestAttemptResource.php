@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\TestAttempts;
 
+use App\Filament\Resources\Concerns\AdminOnlyLearnerData;
 use App\Filament\Resources\TestAttempts\Pages\CreateTestAttempt;
 use App\Filament\Resources\TestAttempts\Pages\EditTestAttempt;
 use App\Filament\Resources\TestAttempts\Pages\ListTestAttempts;
@@ -17,6 +18,8 @@ use Filament\Tables\Table;
 
 class TestAttemptResource extends Resource
 {
+    use AdminOnlyLearnerData;
+
     protected static ?string $model = TestAttempt::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPlay;

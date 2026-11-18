@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\WritingSubmissions;
 
+use App\Filament\Resources\Concerns\AdminOnlyLearnerData;
 use App\Filament\Resources\WritingSubmissions\Pages\CreateWritingSubmission;
 use App\Filament\Resources\WritingSubmissions\Pages\EditWritingSubmission;
 use App\Filament\Resources\WritingSubmissions\Pages\ListWritingSubmissions;
@@ -16,6 +17,8 @@ use Filament\Tables\Table;
 
 class WritingSubmissionResource extends Resource
 {
+    use AdminOnlyLearnerData;
+
     protected static ?string $model = WritingSubmission::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPencilSquare;

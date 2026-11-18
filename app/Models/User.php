@@ -54,8 +54,30 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmailContr
                     'user' => 'This account has learning history or class records. Preserve or transfer those records before deleting the account.',
                 ]);
             }
+
+            $user->privacyRequestIdsToAnonymise = PrivacyDataRequest::query()
+                ->where('user_id', $user->getKey())
+                ->pluck('id')
+                ->all();
+        });
+
+        static::deleted(function (User $user): void {
+            if ($user->privacyRequestIdsToAnonymise === []) {
+                return;
+            }
+
+            PrivacyDataRequest::query()
+                ->whereIn('id', $user->privacyRequestIdsToAnonymise)
+                ->whereNull('user_id')
+                ->update([
+                    'description' => null,
+                    'admin_notes' => null,
+                ]);
         });
     }
+
+    /** @var array<int, int> */
+    protected array $privacyRequestIdsToAnonymise = [];
 
     protected $fillable = ['name', 'email', 'password', 'role'];
 
@@ -115,6 +137,12 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmailContr
     public function savedResources()
     {
         return $this->hasMany(SavedResource::class);
+    }
+
+    /** @return HasMany<PrivacyDataRequest, $this> */
+    public function privacyDataRequests()
+    {
+        return $this->hasMany(PrivacyDataRequest::class);
     }
 
     public function canAccessPanel(Panel $panel): bool

@@ -541,5 +541,8 @@
   "You are receiving this email because we received a password reset request for your account.": "Primești acest mesaj deoarece am primit o solicitare de resetare a parolei contului tău.",
   "Reset Password": "Resetează parola",
   "This password reset link will expire in :count minutes.": "Acest link de resetare a parolei expiră în :count minute.",
-  "If you did not request a password reset, no further action is required.": "Dacă nu ai solicitat resetarea parolei, nu trebuie să faci nimic."
+  "If you did not request a password reset, no further action is required.": "Dacă nu ai solicitat resetarea parolei, nu trebuie să faci nimic.",
+  "Solicitarea ta a fost înregistrată. Poți urmări starea aici.": "Solicitarea ta a fost înregistrată. Poți urmări starea aici.",
+  "Preferințele cookie au fost salvate.": "Preferințele cookie au fost salvate.",
+  "Solicitarea privind datele a fost actualizată.": "Solicitarea privind datele a fost actualizată."
 }
