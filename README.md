@@ -180,16 +180,6 @@ php artisan test
 
 Covers public resources, anonymous and authenticated tests, all eight question types in both test and learning runners, structured answer validation and partial credit, weighted and unanswered scoring, empty assessments, rounding, question-order snapshots, expiry, idempotent completion, cross-attempt answer rejection, access and answer-disclosure settings, guest ownership, learning-path enrolment and sequential progression, publication readiness, resource availability, admin relation managers, learning answer disclosure, certificates, learner mastery thresholds and confidence, spaced-repetition scheduling and deduplication, adaptive-practice isolation and answer disclosure, and class-group-scoped teacher progress summaries.
 
-## Running in the Emergent preview
-
-Supervisor runs three services:
-
-- `mariadb` (local MySQL)
-- `frontend` — PHP built-in server on `:3000` serving `public/index.php`
-- `backend` — no-op (unused)
-
-Restart the app with `supervisorctl restart frontend` after `.env` changes.
-
 ## License
 
 Content and code are shared for free public educational use. See project spec for details.
