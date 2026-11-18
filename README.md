@@ -139,6 +139,14 @@ The command verifies the production environment, disabled debug mode, HTTPS URL,
 
 Production seeding never creates the predictable-password development accounts or sample educational content. For a new installation, the one-time administrator bootstrap requires temporary `ADMIN_NAME`, `ADMIN_EMAIL`, and a unique `ADMIN_PASSWORD` of at least 16 characters. Remove those values immediately after the first successful bootstrap. Existing demo accounts are not automatically deleted; review them deliberately before considering the production readiness check complete.
 
+## Privacy, data rights and consent
+
+Privacy and legal pages are available at /privacy-policy, /terms and /cookie-policy, with contact and cookie-preference pages linked in the footer. The current policy copy is deliberately labelled DRAFT / NOT LEGALLY APPROVED and excluded from indexing. Do not treat it as an effective legal notice or remove the draft warning until the controller details, processor register and retention schedule are verified and qualified Romanian/EU counsel has approved the text. Configure PRIVACY_CONTACT_EMAIL and record the approved version before launch.
+
+Verified account holders can submit and track access, correction and deletion requests at /privacy/requests. Access requests generate a re-authenticated JSON export. Correction and deletion requests enter an administrator-only review queue at /admin/privacy/requests. Deletion is intentionally not automated: linked assessment, writing, class and progress records have retention and cascade implications that require an approved legal schedule. See docs/privacy/ for the data inventory, retention framework, request SOP, processor register, cookie behaviour and policy version history.
+
+The first-visit cookie banner supports reject, accept and later preference changes. No analytics or advertising script is installed by this repository; the optional analytics preference does not load one. Inspect the production tag manager and injected scripts separately before launch.
+
 ## Architecture overview
 
 ```

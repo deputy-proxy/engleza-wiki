@@ -117,6 +117,12 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmailContr
         return $this->hasMany(SavedResource::class);
     }
 
+    /** @return HasMany<PrivacyDataRequest, $this> */
+    public function privacyDataRequests()
+    {
+        return $this->hasMany(PrivacyDataRequest::class);
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
         return in_array($this->role, ['admin', 'editor']);
@@ -154,6 +160,7 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmailContr
             'saved_resources' => 'user_id',
             'writing_submissions' => 'user_id',
             'class_groups' => 'teacher_id',
+            'privacy_data_requests' => 'user_id',
         ] as $table => $column) {
             if (Schema::hasTable($table) && DB::table($table)->where($column, $this->getKey())->exists()) {
                 return true;

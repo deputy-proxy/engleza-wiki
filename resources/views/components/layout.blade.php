@@ -10,6 +10,7 @@
     $hreflang = $locale === 'ro' ? 'ro-RO' : $locale;
     $ogLocale = $locale === 'ro' ? 'ro_RO' : 'en_US';
     $shouldIndex = $robotsIndex ?? ($resource?->robots_index ?? true);
+    $hasCookiePreferences = request()->hasCookie('engleza_cookie_preferences');
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', $locale) }}" class="antialiased">
@@ -237,9 +238,30 @@
       <span class="font-semibold text-navy-900">engleza.wiki</span>
     </div>
     <p class="text-sm text-navy-600">{{ __('Free resources for learners, teachers and curious minds.') }}</p>
+    <nav class="flex flex-wrap gap-4 text-sm text-navy-600" aria-label="Legal">
+      <a class="hover:text-brand-600" href="{{ route('privacy.policy') }}">Confidențialitate</a>
+      <a class="hover:text-brand-600" href="{{ route('privacy.terms') }}">Termeni</a>
+      <a class="hover:text-brand-600" href="{{ route('privacy.cookies') }}">Cookie-uri</a>
+      <a class="hover:text-brand-600" href="{{ route('privacy.contact') }}">Contact</a>
+      <a class="hover:text-brand-600" href="{{ route('privacy.cookie-settings') }}">Setări cookie</a>
+      @auth <a class="hover:text-brand-600" href="{{ route('privacy.requests') }}">Datele mele</a> @endauth
+      @if(auth()->user()?->isAdmin()) <a class="hover:text-brand-600" href="{{ route('admin.privacy.requests') }}">Solicitări date</a> @endif
+    </nav>
     <div class="text-sm text-navy-600">© {{ date('Y') }} engleza.wiki</div>
   </div>
 </footer>
+
+@if(!$hasCookiePreferences)
+  <aside class="fixed inset-x-4 bottom-4 z-50 mx-auto max-w-3xl rounded-2xl border border-navy-200 bg-white p-5 shadow-xl" aria-label="Preferințe cookie">
+    <p class="font-semibold text-navy-900">Preferințe cookie</p>
+    <p class="mt-1 text-sm text-navy-600">Folosim cookie-uri necesare pentru autentificare și securitate. Nu încărcăm în prezent instrumente de analiză sau publicitate.</p>
+    <div class="mt-4 flex flex-wrap gap-3">
+      <form method="POST" action="{{ route('privacy.cookie-settings.save') }}">@csrf<input type="hidden" name="analytics" value="0"><button class="btn-outline" type="submit">Refuză opționalele</button></form>
+      <form method="POST" action="{{ route('privacy.cookie-settings.save') }}">@csrf<input type="hidden" name="analytics" value="1"><button class="btn-primary" type="submit">Acceptă opționalele</button></form>
+      <a class="btn-ghost" href="{{ route('privacy.cookie-settings') }}">Personalizează</a>
+    </div>
+  </aside>
+@endif
 
 @livewireScripts
 </body>

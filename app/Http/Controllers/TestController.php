@@ -51,7 +51,6 @@ class TestController extends Controller
             'class_group_id' => $classGroupId,
             'started_at' => now(),
             'status' => 'started',
-            'ip_address' => $r->ip(), 'user_agent' => $r->userAgent(),
         ]);
 
         return redirect()->route('tests.take', ['test' => $test->slug, 'attempt' => $attempt->id]);

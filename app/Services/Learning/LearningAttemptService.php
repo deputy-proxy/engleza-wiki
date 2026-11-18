@@ -18,7 +18,7 @@ class LearningAttemptService
         private readonly QuestionResponseService $responses,
     ) {}
 
-    public function start(Resource $resource, int|string|null $userId, ?string $sessionId, ?string $ip, ?string $userAgent): LearningAttempt
+    public function start(Resource $resource, int|string|null $userId, ?string $sessionId, ?string $ip = null, ?string $userAgent = null): LearningAttempt
     {
         abort_unless($resource->status === 'published' && in_array($resource->type, ['listening', 'reading'], true), 404);
         if ($userId === null) {
@@ -32,8 +32,7 @@ class LearningAttemptService
         return LearningAttempt::create([
             'resource_id' => $resource->id, 'user_id' => $userId, 'session_id' => $userId === null ? $sessionId : null,
             'question_order' => $questions->pluck('id')->map(fn ($id): int => (int) $id)->all(),
-            'started_at' => now(), 'status' => 'started', 'ip_address' => $ip,
-            'user_agent' => $userAgent === null ? null : substr($userAgent, 0, 255),
+            'started_at' => now(), 'status' => 'started',
         ]);
     }
 

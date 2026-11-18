@@ -10,6 +10,7 @@ use App\Http\Controllers\EngagementController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LearningController;
 use App\Http\Controllers\LearningPathController;
+use App\Http\Controllers\PrivacyController;
 use App\Http\Controllers\ResourceController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SitemapController;
@@ -97,3 +98,20 @@ Route::middleware('throttle:60,1')->group(function () {
     Route::post('/resources/{resource:slug}/attempt/submit', [LearningController::class, 'submit'])->name('resources.attempt.submit');
 });
 Route::get('/resources/{resource:slug}/result/{attempt}', [LearningController::class, 'result'])->name('resources.result');
+
+Route::get('/privacy-policy', [PrivacyController::class, 'policy'])->defaults('policy', 'privacy')->name('privacy.policy');
+Route::get('/terms', [PrivacyController::class, 'policy'])->defaults('policy', 'terms')->name('privacy.terms');
+Route::get('/cookie-policy', [PrivacyController::class, 'policy'])->defaults('policy', 'cookies')->name('privacy.cookies');
+Route::get('/privacy/contact', [PrivacyController::class, 'contact'])->name('privacy.contact');
+Route::get('/privacy/cookie-settings', [PrivacyController::class, 'cookieSettings'])->name('privacy.cookie-settings');
+Route::post('/privacy/cookie-settings', [PrivacyController::class, 'saveCookieSettings'])->name('privacy.cookie-settings.save')->middleware('throttle:20,1');
+
+Route::middleware(['auth', 'verified'])->prefix('privacy')->name('privacy.')->group(function (): void {
+    Route::get('/requests', [PrivacyController::class, 'requests'])->name('requests');
+    Route::post('/requests', [PrivacyController::class, 'storeRequest'])->name('requests.store')->middleware('throttle:5,1');
+});
+
+Route::middleware(['auth', 'verified'])->prefix('admin/privacy')->name('admin.privacy.')->group(function (): void {
+    Route::get('/requests', [PrivacyController::class, 'adminRequests'])->name('requests');
+    Route::put('/requests/{privacyRequest}', [PrivacyController::class, 'updateAdminRequest'])->name('requests.update')->middleware('throttle:20,1');
+});

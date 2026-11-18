@@ -41,7 +41,8 @@ class TestAttemptService
             abort_unless(is_string($attributes['session_id'] ?? null) && $attributes['session_id'] !== '', 401);
         }
         $attributes['question_order'] = $this->questionOrder->forTest($test);
-        $attributes['user_agent'] = is_string($attributes['user_agent'] ?? null) ? substr($attributes['user_agent'], 0, 255) : null;
+        // Do not retain IP addresses or user-agent fingerprints on new attempts.
+        unset($attributes['ip_address'], $attributes['user_agent']);
 
         return $test->attempts()->create($attributes);
     }

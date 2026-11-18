@@ -62,7 +62,7 @@ class PublicFlowTest extends TestCase
         $t = Test::published()->first();
         $resp = $this->post('/tests/'.$t->slug.'/start');
         $resp->assertRedirect();
-        $this->assertDatabaseHas('test_attempts', ['test_id' => $t->id, 'user_id' => null]);
+        $this->assertDatabaseHas('test_attempts', ['test_id' => $t->id, 'user_id' => null, 'ip_address' => null, 'user_agent' => null]);
     }
 
     public function test_registered_user_can_start_test(): void
@@ -70,7 +70,7 @@ class PublicFlowTest extends TestCase
         $u = User::where('email', 'learner@engleza.wiki')->first();
         $t = Test::published()->first();
         $this->actingAs($u)->post('/tests/'.$t->slug.'/start')->assertRedirect();
-        $this->assertDatabaseHas('test_attempts', ['test_id' => $t->id, 'user_id' => $u->id]);
+        $this->assertDatabaseHas('test_attempts', ['test_id' => $t->id, 'user_id' => $u->id, 'ip_address' => null, 'user_agent' => null]);
     }
 
     public function test_scoring_service_calculates_correctly(): void

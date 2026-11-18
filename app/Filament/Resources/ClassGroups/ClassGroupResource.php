@@ -7,6 +7,7 @@ use App\Filament\Resources\ClassGroups\Pages\EditClassGroup;
 use App\Filament\Resources\ClassGroups\Pages\ListClassGroups;
 use App\Filament\Resources\ClassGroups\Schemas\ClassGroupForm;
 use App\Filament\Resources\ClassGroups\Tables\ClassGroupsTable;
+use App\Filament\Resources\Concerns\AdminOnlyLearnerData;
 use App\Models\ClassGroup;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -16,6 +17,8 @@ use Filament\Tables\Table;
 
 class ClassGroupResource extends Resource
 {
+    use AdminOnlyLearnerData;
+
     protected static ?string $model = ClassGroup::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;

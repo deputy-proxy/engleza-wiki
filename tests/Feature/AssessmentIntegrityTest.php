@@ -69,6 +69,22 @@ class AssessmentIntegrityTest extends TestCase
             ->assertSee('Fără răspuns');
     }
 
+    public function test_new_test_attempts_do_not_retain_ip_or_user_agent(): void
+    {
+        [$test] = $this->makeAssessment([['section' => 'Grammar', 'points' => 1, 'correct' => true]]);
+
+        $attempt = app(TestAttemptService::class)->start($test, [
+            'session_id' => 'privacy-test-session',
+            'started_at' => now(),
+            'status' => 'started',
+            'ip_address' => '203.0.113.10',
+            'user_agent' => 'Example Browser/1.0',
+        ]);
+
+        $this->assertNull($attempt->ip_address);
+        $this->assertNull($attempt->user_agent);
+    }
+
     public function test_empty_assessment_scores_zero_and_cannot_pass_even_with_zero_threshold(): void
     {
         $test = Assessment::factory()->create(['passing_score' => 0]);
@@ -267,6 +283,22 @@ class AssessmentIntegrityTest extends TestCase
 
         $this->assertSame($selected->id, $component->get('answers')[$questions[0]->id]);
         $this->assertSame($attempt->question_order, array_column($component->get('questions'), 'id'));
+    }
+
+    public function test_new_learning_attempts_do_not_retain_ip_or_user_agent(): void
+    {
+        [$resource] = $this->makeReadingResource([['points' => 1, 'correct' => true]]);
+
+        $attempt = app(LearningAttemptService::class)->start(
+            $resource,
+            null,
+            'privacy-minimised-session',
+            '203.0.113.10',
+            'Example Browser/1.0',
+        );
+
+        $this->assertNull($attempt->ip_address);
+        $this->assertNull($attempt->user_agent);
     }
 
     public function test_learning_attempt_scoring_includes_unanswered_weighted_questions(): void
