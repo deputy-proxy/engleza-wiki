@@ -22,7 +22,7 @@ class CertificateController extends Controller
             'result' => $attempt->result,
             'test' => $test,
             'name' => $name,
-            'issued' => now()->format('F j, Y'),
+            'issued' => now()->translatedFormat('j F Y'),
             'certificate_id' => 'ENG-'.str_pad((string) $attempt->id, 6, '0', STR_PAD_LEFT),
         ];
         $pdf = Pdf::loadView('pdf.certificate', $data)->setPaper('a4', 'landscape');

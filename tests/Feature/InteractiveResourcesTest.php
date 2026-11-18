@@ -28,8 +28,8 @@ class InteractiveResourcesTest extends TestCase
         $r = Resource::where('type', 'card')->published()->first();
         $this->assertNotNull($r);
         $this->get('/resources/'.$r->slug)->assertOk()
-            ->assertSee($r->title)
-            ->assertSee('CARDS');
+            ->assertSee($r->translated('title'))
+            ->assertSee('CARDURI');
     }
 
     public function test_interactive_cards_component_can_reveal_and_navigate_cards(): void
@@ -51,7 +51,7 @@ class InteractiveResourcesTest extends TestCase
         $r = Resource::where('type', 'listening')->published()->first();
         $this->assertNotNull($r);
         $resp = $this->get('/resources/'.$r->slug);
-        $resp->assertOk()->assertSee($r->title)->assertSee('LISTENING');
+        $resp->assertOk()->assertSee($r->translated('title'))->assertSee('ASCULTARE');
     }
 
     public function test_reading_resource_page_renders_with_passage(): void
@@ -59,14 +59,14 @@ class InteractiveResourcesTest extends TestCase
         $r = Resource::where('type', 'reading')->published()->first();
         $this->assertNotNull($r);
         $resp = $this->get('/resources/'.$r->slug);
-        $resp->assertOk()->assertSee($r->title)->assertSee('READING');
+        $resp->assertOk()->assertSee($r->translated('title'))->assertSee('LECTURĂ');
     }
 
     public function test_writing_resource_page_renders_prompt(): void
     {
         $r = Resource::where('type', 'writing')->published()->first();
         $this->assertNotNull($r);
-        $this->get('/resources/'.$r->slug)->assertOk()->assertSee('WRITING');
+        $this->get('/resources/'.$r->slug)->assertOk()->assertSee('SCRIERE');
     }
 
     public function test_learning_scoring_computes_correct_percentage(): void
@@ -100,7 +100,7 @@ class InteractiveResourcesTest extends TestCase
 
     public function test_resource_index_type_filter_works(): void
     {
-        $this->get('/resources?type=card')->assertOk()->assertSee('CARDS');
-        $this->get('/resources?type=listening')->assertOk()->assertSee('LISTENING');
+        $this->get('/resources?type=card')->assertOk()->assertSee('CARDURI');
+        $this->get('/resources?type=listening')->assertOk()->assertSee('ASCULTARE');
     }
 }

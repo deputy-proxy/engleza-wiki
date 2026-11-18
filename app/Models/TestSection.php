@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasTranslations;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,6 +14,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class TestSection extends Model
 {
+    use HasTranslations;
+
     protected $fillable = ['test_id', 'title', 'description', 'instructions', 'sort_order'];
 
     /** @return BelongsTo<Test, $this> */

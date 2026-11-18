@@ -66,7 +66,7 @@ class AssessmentIntegrityTest extends TestCase
         $this->withSession(['anon_session' => 'weighted-assessment-session'])
             ->get(route('tests.result', [$test, $attempt]))
             ->assertOk()
-            ->assertSee('Not answered');
+            ->assertSee('Fără răspuns');
     }
 
     public function test_empty_assessment_scores_zero_and_cannot_pass_even_with_zero_threshold(): void
@@ -142,8 +142,8 @@ class AssessmentIntegrityTest extends TestCase
             ->assertNotFound();
         $this->get(route('tests.result', [$test, $attempt]))
             ->assertOk()
-            ->assertSee('Time expired')
-            ->assertDontSee('Correct answer:');
+            ->assertSee('Timpul a expirat')
+            ->assertDontSee('Răspuns corect:');
         $this->travelBack();
     }
 
@@ -205,7 +205,7 @@ class AssessmentIntegrityTest extends TestCase
         $this->assertArrayNotHasKey('is_correct', $payload[0]['options'][0]);
         $this->assertArrayNotHasKey('explanation', $payload[0]);
         app(TestAttemptService::class)->complete($attempt, null, 'disclosure-session');
-        $this->get(route('tests.result', [$test, $attempt]))->assertOk()->assertDontSee('Correct answer:')->assertDontSee('test-answer-review');
+        $this->get(route('tests.result', [$test, $attempt]))->assertOk()->assertDontSee('Răspuns corect:')->assertDontSee('test-answer-review');
 
         $this->assertDatabaseHas('test_answers', ['test_attempt_id' => $attempt->id]);
     }
@@ -225,7 +225,7 @@ class AssessmentIntegrityTest extends TestCase
         $this->withSession(['anon_session' => 'allowed-disclosure-session'])
             ->get(route('tests.result', [$test, $attempt]))
             ->assertOk()
-            ->assertSee('Correct answer:')
+            ->assertSee('Răspuns corect:')
             ->assertSee('Explanation 0');
     }
 
@@ -289,7 +289,7 @@ class AssessmentIntegrityTest extends TestCase
         $this->withSession(['anon_session' => 'learning-score-session'])
             ->get(route('resources.result', [$resource, $attempt]))
             ->assertOk()
-            ->assertSee('Not answered');
+            ->assertSee('Fără răspuns');
     }
 
     public function test_learning_attempt_rejects_questions_and_options_from_another_resource(): void
@@ -367,7 +367,7 @@ class AssessmentIntegrityTest extends TestCase
         $this->assertSame('completed', $attempt->status);
         $this->assertSame(2.0, (float) $attempt->score);
         $this->assertNull(session('active_learning_attempts.'.$resource->id));
-        $this->get(route('resources.result', [$resource, $attemptId]))->assertOk()->assertSee('Correct answer:');
+        $this->get(route('resources.result', [$resource, $attemptId]))->assertOk()->assertSee('Răspuns corect:');
     }
 
     public function test_livewire_learning_exercise_does_not_expose_answers_before_submission_and_is_idempotent(): void
@@ -403,10 +403,10 @@ class AssessmentIntegrityTest extends TestCase
         $attempt = $component->get('attempt');
         $this->get(route('resources.result', [$resource, $attempt->id]))
             ->assertOk()
-            ->assertDontSee('Correct answer:')
+            ->assertDontSee('Răspuns corect:')
             ->assertDontSee('Reading explanation')
             ->assertDontSee('Incorrect')
-            ->assertSee('Submitted');
+            ->assertSee('Trimis');
     }
 
     public function test_guest_attempt_results_and_certificates_are_private_to_the_originating_session(): void

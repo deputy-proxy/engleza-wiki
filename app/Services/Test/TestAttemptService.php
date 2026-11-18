@@ -28,7 +28,7 @@ class TestAttemptService
 
         $questions = $test->sections()->with('questions.options')->get()->flatMap(fn ($section) => $section->questions);
         foreach ($questions as $question) {
-            abort_if($this->responses->definitionIssues($question) !== [], 422, 'This test contains an invalid question configuration.');
+            abort_if($this->responses->definitionIssues($question) !== [], 422, __('This test contains an invalid question configuration.'));
         }
     }
 
@@ -137,9 +137,9 @@ class TestAttemptService
                 'text' => $question->question,
                 'type' => $question->type,
                 'configuration' => $this->responses->learnerConfiguration($question),
-                'section' => $question->section?->title,
+                'section' => $question->section?->translated('title'),
                 ...($revealAnswers ? [
-                    'explanation' => $question->explanation,
+                    'explanation' => $question->translated('explanation'),
                     'answer_key' => $this->responses->answerKey($question),
                 ] : []),
                 'options' => in_array($question->type, ['single_choice', 'multiple_choice', 'true_false'], true)

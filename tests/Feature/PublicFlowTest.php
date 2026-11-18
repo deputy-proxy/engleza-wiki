@@ -31,7 +31,7 @@ class PublicFlowTest extends TestCase
     {
         $this->get('/resources')->assertOk();
         $r = Resource::published()->first();
-        $this->get('/resources/'.$r->slug)->assertOk()->assertSee($r->title);
+        $this->get('/resources/'.$r->slug)->assertOk()->assertSee($r->translated('title'));
     }
 
     public function test_draft_resource_returns_404(): void
@@ -54,7 +54,7 @@ class PublicFlowTest extends TestCase
     {
         $this->get('/tests')->assertOk();
         $t = Test::published()->first();
-        $this->get('/tests/'.$t->slug)->assertOk()->assertSee($t->title);
+        $this->get('/tests/'.$t->slug)->assertOk()->assertSee($t->translated('title'));
     }
 
     public function test_anonymous_user_can_start_test(): void

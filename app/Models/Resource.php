@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasTranslations;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -22,6 +23,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Resource extends Model
 {
     use HasFactory;
+    use HasTranslations;
 
     protected $fillable = ['title', 'slug', 'excerpt', 'content', 'type', 'status', 'level_id', 'author_id', 'featured', 'published_at', 'seo_title', 'seo_description', 'canonical_url', 'robots_index', 'og_title', 'og_description', 'og_image'];
 

@@ -179,7 +179,7 @@ class AdaptivePracticeService
                     ...($reveal ? ['is_correct' => (bool) $option->is_correct] : []),
                 ])->all(),
                 'answer_key' => $reveal ? $this->responses->answerKey($question) : null,
-                'explanation' => $reveal ? $question->explanation : null,
+                'explanation' => $reveal ? $question->translated('explanation') : null,
                 'saved_answer' => $answer?->answer_payload,
                 'is_correct' => $reveal ? $answer?->is_correct : null,
             ];

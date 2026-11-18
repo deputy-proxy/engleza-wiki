@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasTranslations;
 use App\Services\Assessment\QuestionResponseService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,6 +13,8 @@ use Illuminate\Validation\ValidationException;
 /** @property-read LearningUnit|null $unit */
 class LearningLesson extends Model
 {
+    use HasTranslations;
+
     protected $fillable = ['learning_unit_id', 'level_id', 'title', 'slug', 'description', 'objectives', 'status', 'sort_order', 'published_at'];
 
     protected $casts = ['objectives' => 'array', 'published_at' => 'datetime'];

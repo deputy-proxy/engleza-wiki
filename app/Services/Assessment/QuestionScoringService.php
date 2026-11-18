@@ -43,7 +43,7 @@ class QuestionScoringService
                 'section' => $section,
                 'topics' => $question->topics->map(fn ($topic): array => [
                     'id' => (int) $topic->id,
-                    'name' => $topic->name,
+                    'name' => $topic->translated('name'),
                     'slug' => $topic->slug,
                 ])->all(),
             ];
@@ -54,7 +54,7 @@ class QuestionScoringService
 
             foreach ($question->topics as $topic) {
                 $topicId = (int) $topic->id;
-                $byTopic[$topicId] ??= ['earned' => 0.0, 'total' => 0.0, 'name' => $topic->name, 'slug' => $topic->slug];
+                $byTopic[$topicId] ??= ['earned' => 0.0, 'total' => 0.0, 'name' => $topic->translated('name'), 'slug' => $topic->slug];
                 $byTopic[$topicId]['total'] += $points;
                 $byTopic[$topicId]['earned'] += $earned;
             }
