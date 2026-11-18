@@ -116,6 +116,7 @@ class LearningPathService
                 ['status' => 'started', 'started_at' => now()],
             );
             $progress->forceFill(['status' => 'completed', 'completed_at' => now()])->save();
+            app(EngagementService::class)->awardLessonCompletion($userId, (int) $lesson->id);
 
             $path = $lesson->unit->path;
             $availableLessons = $path->units()->where('is_published', true)->with('lessons.activities.resource', 'lessons.activities.test')

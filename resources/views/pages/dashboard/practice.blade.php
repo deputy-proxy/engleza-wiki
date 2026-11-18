@@ -16,6 +16,7 @@
       <p class="text-sm text-navy-500">Session complete</p>
       <p class="mt-1 text-3xl font-extrabold text-navy-900">{{ number_format((float) $session->percentage, 1) }}%</p>
       <p class="mt-1 text-sm text-navy-600">{{ $session->earned_points }} of {{ $session->total_points }} points</p>
+      @if($xpAwarded > 0)<p class="mt-2 text-sm font-semibold text-brand-700">You earned {{ $xpAwarded }} XP for this session.</p>@else<p class="mt-2 text-xs text-navy-500">No XP was awarded for this session. Daily practice rewards are limited to three sessions.</p>@endif
       <form method="POST" action="{{ route('practice.start') }}" class="mt-4">@csrf<button class="btn-primary" type="submit">Start another session</button></form>
     </div>
     <h2 class="mt-8 text-xl font-bold text-navy-900">Answer review</h2>

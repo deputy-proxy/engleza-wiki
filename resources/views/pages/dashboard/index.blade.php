@@ -21,6 +21,102 @@
     <div class="card p-5"><div class="text-sm text-navy-500">Vocabulary reviews due</div><div class="mt-2 text-3xl font-extrabold text-navy-900">{{ $progress['stats']['reviews_due'] }}</div><a href="{{ route('reviews.index') }}" class="mt-1 inline-block text-sm font-semibold text-brand-600">Review now →</a></div>
   </div>
 
+  <section class="mt-8" aria-labelledby="engagement-heading">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h2 id="engagement-heading" class="text-2xl font-bold text-navy-900">Your learning momentum</h2>
+        <p class="mt-1 text-sm text-navy-600">Small, consistent sessions add up. XP rewards learning activity, not test scores.</p>
+      </div>
+      @if(session('engagement_settings_updated'))
+        <p role="status" class="text-sm font-semibold text-emerald-700">Your daily goal was updated.</p>
+      @endif
+    </div>
+    <div class="mt-4 grid gap-4 md:grid-cols-3">
+      <article class="card p-5">
+        <p class="text-sm text-navy-500">Total XP</p>
+        <p class="mt-2 text-3xl font-extrabold text-navy-900" data-testid="engagement-xp">{{ number_format($engagement['xp_total']) }}</p>
+        <p class="mt-1 text-xs text-navy-500">Earned from completed learning activities</p>
+      </article>
+      <article class="card p-5">
+        <p class="text-sm text-navy-500">Current streak</p>
+        <p class="mt-2 text-3xl font-extrabold text-navy-900" data-testid="engagement-streak">{{ $engagement['current_streak'] }} {{ $engagement['current_streak'] === 1 ? 'day' : 'days' }}</p>
+        <p class="mt-1 text-xs text-navy-500">Consecutive days you reached your goal</p>
+      </article>
+      <article class="card p-5">
+        <div class="flex items-center justify-between gap-3">
+          <p class="text-sm text-navy-500">Today's goal</p>
+          <strong class="text-sm text-navy-900">{{ $engagement['daily_goal']['earned'] }} / {{ $engagement['daily_goal']['target'] }} XP</strong>
+        </div>
+        <div class="mt-3 h-3 overflow-hidden rounded-full bg-navy-100" role="progressbar" aria-label="Daily XP goal" aria-valuemin="0" aria-valuemax="{{ $engagement['daily_goal']['target'] }}" aria-valuenow="{{ min($engagement['daily_goal']['earned'], $engagement['daily_goal']['target']) }}">
+          <div class="h-full rounded-full bg-brand-500" style="width: {{ $engagement['daily_goal']['percentage'] }}%"></div>
+        </div>
+        <p class="mt-2 text-xs text-navy-500">{{ $engagement['daily_goal']['completed'] ? 'Daily goal completed. Keep going if you want.' : $engagement['daily_goal']['remaining'].' XP to reach today’s goal.' }}</p>
+      </article>
+    </div>
+
+    <div class="mt-4 grid gap-4 lg:grid-cols-2">
+      <form method="POST" action="{{ route('engagement.goal.update') }}" class="card p-5">
+        @csrf
+        @method('PUT')
+        <h3 class="font-bold text-navy-900">Your daily goal</h3>
+        <p class="mt-1 text-sm text-navy-600">Choose a target that fits your routine.</p>
+        <div class="mt-4 grid gap-3 sm:grid-cols-2">
+          <label class="block text-sm font-semibold text-navy-700">Daily target
+            <select name="daily_goal_xp" class="mt-1 w-full rounded-lg border border-navy-200 px-3 py-2" required>
+              @foreach([10, 20, 30, 50] as $goal)
+                <option value="{{ $goal }}" @selected($engagement['daily_goal_xp'] === $goal)>{{ $goal }} XP</option>
+              @endforeach
+            </select>
+          </label>
+          <label class="block text-sm font-semibold text-navy-700">Timezone
+            <input name="timezone" value="{{ $engagement['timezone'] }}" list="engagement-timezones" class="mt-1 w-full rounded-lg border border-navy-200 px-3 py-2" maxlength="64" required>
+            <datalist id="engagement-timezones"><option value="Europe/Bucharest"><option value="Europe/London"><option value="Europe/Paris"><option value="America/New_York"><option value="UTC"></datalist>
+          </label>
+        </div>
+        @error('daily_goal_xp')<p class="mt-2 text-sm text-red-600">{{ $message }}</p>@enderror
+        @error('timezone')<p class="mt-2 text-sm text-red-600">{{ $message }}</p>@enderror
+        <button type="submit" class="btn-primary mt-4">Save goal</button>
+        <p class="mt-3 text-xs text-navy-500">Activity dates are saved in this timezone. Changing it affects future activity, not your recorded history.</p>
+      </form>
+
+      <section class="card p-5" aria-labelledby="xp-history-heading">
+        <h3 id="xp-history-heading" class="font-bold text-navy-900">Recent XP awards</h3>
+        <div class="mt-3 divide-y divide-navy-100">
+          @forelse($engagement['recent_awards'] as $award)
+            <div class="flex items-center justify-between gap-3 py-3">
+              <div>
+                <p class="text-sm font-semibold text-navy-900">{{ match($award->source_type) { 'lesson' => 'Lesson completed', 'adaptive_practice' => 'Adaptive practice', 'vocabulary_review' => 'Vocabulary review', default => 'Learning activity' } }}</p>
+                <p class="text-xs text-navy-500">{{ $award->occurred_at->diffForHumans() }}</p>
+              </div>
+              <span class="font-bold text-brand-600">+{{ $award->points }} XP</span>
+            </div>
+          @empty
+            <p class="py-4 text-sm text-navy-600">Complete a lesson, practice session or vocabulary review to earn your first XP.</p>
+          @endforelse
+        </div>
+      </section>
+    </div>
+
+    <section class="card mt-4 p-5" aria-labelledby="achievements-heading">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <h3 id="achievements-heading" class="font-bold text-navy-900">Achievements</h3>
+        <span class="text-xs text-navy-500">{{ $engagement['achievements']->count() }} of {{ count($engagement['available_achievements']) }} unlocked</span>
+      </div>
+      @php($earnedAchievements = $engagement['achievements']->keyBy('achievement_key'))
+      <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        @foreach($engagement['available_achievements'] as $key => $achievement)
+          @php($unlocked = $earnedAchievements->get($key))
+          <article class="rounded-xl border p-3 {{ $unlocked ? 'border-brand-200 bg-brand-50' : 'border-navy-100 bg-white' }}">
+            <p class="text-sm font-bold {{ $unlocked ? 'text-navy-900' : 'text-navy-500' }}">{{ $achievement['title'] }}</p>
+            <p class="mt-1 text-xs text-navy-500">{{ $achievement['description'] }}</p>
+            @if($unlocked)<p class="mt-2 text-xs font-semibold text-brand-700">Unlocked {{ $unlocked->awarded_at->diffForHumans() }}</p>@else<p class="mt-2 text-xs text-navy-400">Not yet unlocked</p>@endif
+          </article>
+        @endforeach
+      </div>
+    </section>
+    <p class="mt-3 text-xs text-navy-500">Leaderboards are intentionally disabled until there is a sufficiently active cohort and a clear consent and privacy model.</p>
+  </section>
+
   @if(count($progress['learning_paths']))
     <section class="mt-10">
       <div class="flex flex-wrap items-center justify-between gap-3">

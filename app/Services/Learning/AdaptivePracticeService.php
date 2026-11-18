@@ -149,6 +149,7 @@ class AdaptivePracticeService
                 'status' => 'completed',
                 'completed_at' => now(),
             ])->save();
+            app(EngagementService::class)->awardPracticeCompletion($user, $locked);
 
             return $locked->fresh();
         });

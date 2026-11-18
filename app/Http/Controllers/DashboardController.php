@@ -6,11 +6,12 @@ use App\Models\Resource;
 use App\Models\SavedResource;
 use App\Models\TestAttempt;
 use App\Models\WritingSubmission;
+use App\Services\Learning\EngagementService;
 use App\Services\Learning\LearnerProgressService;
 
 class DashboardController extends Controller
 {
-    public function index(LearnerProgressService $progressService)
+    public function index(LearnerProgressService $progressService, EngagementService $engagementService)
     {
         $u = auth()->user();
         $attempts = TestAttempt::where('user_id', $u->id)->with('test', 'result')->latest()->limit(10)->get();
@@ -19,8 +20,9 @@ class DashboardController extends Controller
         $latestLevel = $completed->first()?->level_result;
         $saved = SavedResource::where('user_id', $u->id)->with('resource')->latest()->limit(6)->get();
         $progress = $progressService->summary($u);
+        $engagement = $engagementService->summary($u);
 
-        return view('pages.dashboard.index', compact('attempts', 'completed', 'avg', 'latestLevel', 'saved', 'progress'));
+        return view('pages.dashboard.index', compact('attempts', 'completed', 'avg', 'latestLevel', 'saved', 'progress', 'engagement'));
     }
 
     public function tests()
