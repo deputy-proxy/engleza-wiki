@@ -58,7 +58,7 @@ Open <http://localhost:3000>.
 | Teacher  | teacher@engleza.wiki        | password  |
 | Learner  | learner@engleza.wiki        | password  |
 
-Only `admin` and `editor` roles can access `/admin`.
+Only `admin` and `editor` roles can access `/admin`. User management is admin-only; account deletion is blocked when it would remove the last administrator or cascade-delete learner/class history. See [Admin panel security](docs/admin-security.md) for the role matrix and recovery procedure.
 
 ## Assessment and learning attempts
 
