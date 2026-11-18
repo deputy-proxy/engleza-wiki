@@ -55,13 +55,29 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmailContr
                 ]);
             }
 
-            PrivacyDataRequest::query()->where('user_id', $user->getKey())->update([
-                'user_id' => null,
-                'description' => null,
-                'admin_notes' => null,
-            ]);
+            $user->privacyRequestIdsToAnonymise = PrivacyDataRequest::query()
+                ->where('user_id', $user->getKey())
+                ->pluck('id')
+                ->all();
+        });
+
+        static::deleted(function (User $user): void {
+            if ($user->privacyRequestIdsToAnonymise === []) {
+                return;
+            }
+
+            PrivacyDataRequest::query()
+                ->whereIn('id', $user->privacyRequestIdsToAnonymise)
+                ->whereNull('user_id')
+                ->update([
+                    'description' => null,
+                    'admin_notes' => null,
+                ]);
         });
     }
+
+    /** @var array<int, int> */
+    protected array $privacyRequestIdsToAnonymise = [];
 
     protected $fillable = ['name', 'email', 'password', 'role'];
 

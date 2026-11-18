@@ -219,6 +219,7 @@ class PrivacyDataRightsTest extends TestCase
             'request_type' => 'deletion',
             'status' => 'submitted',
             'description' => 'Please close this account.',
+            'admin_notes' => 'Internal review notes with identifying details.',
             'identity_verified_at' => now(),
         ]);
 
