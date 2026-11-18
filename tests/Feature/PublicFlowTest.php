@@ -131,7 +131,7 @@ class PublicFlowTest extends TestCase
     {
         $this->post('/register', [
             'name' => 'New User', 'email' => 'newuser@test.com', 'password' => 'password12', 'password_confirmation' => 'password12',
-        ])->assertRedirect('/dashboard');
+        ])->assertRedirect(route('verification.notice'));
         $this->assertDatabaseHas('users', ['email' => 'newuser@test.com', 'role' => 'learner']);
     }
 

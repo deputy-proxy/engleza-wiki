@@ -71,8 +71,16 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1');
+
+    Route::get('/password/forgot', [AuthController::class, 'showLinkRequestForm'])->name('password.request');
+    Route::post('/password/email', [AuthController::class, 'sendResetLinkEmail'])->middleware('throttle:5,1')->name('password.email');
+    Route::get('/password/reset/{token}', [AuthController::class, 'showResetForm'])->name('password.reset');
+    Route::post('/password/reset', [AuthController::class, 'resetPassword'])->middleware('throttle:5,1')->name('password.update');
 });
 Route::middleware('auth')->group(function () {
+    Route::get('/email/verify', [AuthController::class, 'showVerificationNotice'])->name('verification.notice');
+    Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
+    Route::post('/email/verification-notification', [AuthController::class, 'resendVerification'])->middleware('throttle:6,1')->name('verification.send');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::put('/engagement/goal', [EngagementController::class, 'updateGoal'])->name('engagement.goal.update')->middleware('throttle:10,1');
