@@ -10,7 +10,11 @@
     $hreflang = $locale === 'ro' ? 'ro-RO' : $locale;
     $ogLocale = $locale === 'ro' ? 'ro_RO' : 'en_US';
     $shouldIndex = $robotsIndex ?? ($resource?->robots_index ?? true);
-    $hasCookiePreferences = request()->hasCookie('engleza_cookie_preferences');
+    $rawCookiePreferences = request()->cookie('engleza_cookie_preferences');
+    $cookiePreferences = is_string($rawCookiePreferences) ? json_decode($rawCookiePreferences, true) : null;
+    $hasCookiePreferences = is_array($cookiePreferences)
+      && array_key_exists('analytics', $cookiePreferences)
+      && ($cookiePreferences['version'] ?? null) === config('privacy.cookie_policy_version');
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', $locale) }}" class="antialiased">

@@ -12,6 +12,7 @@ use App\Models\PrivacyDataRequest;
 use App\Models\User;
 use App\Services\Privacy\PersonalDataExport;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
@@ -38,6 +39,16 @@ class PrivacyDataRightsTest extends TestCase
             ->assertOk()
             ->assertDontSee('NU ESTE ÎNCĂ APROBAT JURIDIC')
             ->assertSee('index,follow', false);
+    }
+
+    public function test_invalid_policy_status_fails_closed_to_draft(): void
+    {
+        config(['privacy.policy_status' => 'approved-by-someone']);
+
+        $this->get('/privacy-policy')
+            ->assertOk()
+            ->assertSee('NU ESTE ÎNCĂ APROBAT JURIDIC')
+            ->assertSee('noindex,nofollow', false);
     }
 
     public function test_privacy_request_pages_require_a_verified_account(): void
@@ -236,6 +247,22 @@ class PrivacyDataRightsTest extends TestCase
         $this->post('/privacy/cookie-settings', ['analytics' => '0'])
             ->assertRedirect()
             ->assertCookie('engleza_cookie_preferences');
+    }
+
+    public function test_cookie_policy_version_change_requires_a_fresh_preference(): void
+    {
+        config(['privacy.cookie_policy_version' => '2.0']);
+        $oldPreference = Crypt::encryptString(json_encode([
+            'analytics' => true,
+            'version' => '1.0',
+            'updated_at' => now()->toIso8601String(),
+        ]));
+
+        $this->withCookie('engleza_cookie_preferences', $oldPreference)
+            ->get('/privacy/cookie-settings')
+            ->assertOk()
+            ->assertSee('Preferințe cookie')
+            ->assertDontSee('checked', false);
     }
 
     public function test_learner_records_in_filament_are_admin_only(): void

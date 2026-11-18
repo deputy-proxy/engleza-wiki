@@ -18,7 +18,7 @@ class LearningAttemptService
         private readonly QuestionResponseService $responses,
     ) {}
 
-    public function start(Resource $resource, int|string|null $userId, ?string $sessionId, ?string $ip = null, ?string $userAgent = null): LearningAttempt
+    public function start(Resource $resource, int|string|null $userId, ?string $sessionId): LearningAttempt
     {
         abort_unless($resource->status === 'published' && in_array($resource->type, ['listening', 'reading'], true), 404);
         if ($userId === null) {

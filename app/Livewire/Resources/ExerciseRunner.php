@@ -120,9 +120,7 @@ class ExerciseRunner extends Component
         if (! auth()->check() && ! session()->has('anon_session')) {
             session(['anon_session' => (string) Str::uuid()]);
         }
-        $this->attempt = $attempts->start(
-            $this->resource, auth()->id(), session('anon_session'), request()->ip(), request()->userAgent(),
-        );
+        $this->attempt = $attempts->start($this->resource, auth()->id(), session('anon_session'));
         session()->put('active_learning_attempts.'.$this->resource->id, $this->attempt->id);
     }
 

@@ -19,7 +19,7 @@ class PrivacyController extends Controller
 
         return view('pages.policies.'.$policy, [
             'policyVersion' => config('privacy.policy_version'),
-            'policyStatus' => config('privacy.policy_status'),
+            'policyStatus' => config('privacy.policy_status') === 'published' ? 'published' : 'draft',
         ]);
     }
 
@@ -87,6 +87,9 @@ class PrivacyController extends Controller
         $rawPreferences = $request->cookie('engleza_cookie_preferences', '{}');
         $decodedPreferences = is_string($rawPreferences) ? json_decode($rawPreferences, true) : [];
         $preferences = is_array($decodedPreferences) ? $decodedPreferences : [];
+        if (($preferences['version'] ?? null) !== config('privacy.cookie_policy_version')) {
+            $preferences = [];
+        }
 
         return view('pages.privacy.cookies-settings', [
             'analytics' => (bool) ($preferences['analytics'] ?? false),

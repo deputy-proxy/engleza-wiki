@@ -293,8 +293,6 @@ class AssessmentIntegrityTest extends TestCase
             $resource,
             null,
             'privacy-minimised-session',
-            '203.0.113.10',
-            'Example Browser/1.0',
         );
 
         $this->assertNull($attempt->ip_address);
@@ -307,7 +305,7 @@ class AssessmentIntegrityTest extends TestCase
             ['points' => 2, 'correct' => true],
             ['points' => 3, 'correct' => true],
         ]);
-        $attempt = app(LearningAttemptService::class)->start($resource, null, 'learning-score-session', null, null);
+        $attempt = app(LearningAttemptService::class)->start($resource, null, 'learning-score-session');
         $this->assertTrue(app(LearningAttemptService::class)->recordAnswer(
             $attempt, $questions[0]->id, $questions[0]->options->first()->id, null, 'learning-score-session',
         ));
@@ -328,7 +326,7 @@ class AssessmentIntegrityTest extends TestCase
     {
         [$resource, $questions] = $this->makeReadingResource([['points' => 1, 'correct' => true]]);
         [, $foreignQuestions] = $this->makeReadingResource([['points' => 1, 'correct' => true]]);
-        $attempt = app(LearningAttemptService::class)->start($resource, null, 'learning-membership-session', null, null);
+        $attempt = app(LearningAttemptService::class)->start($resource, null, 'learning-membership-session');
         $service = app(LearningAttemptService::class);
 
         $this->assertFalse($service->recordAnswer(
@@ -343,7 +341,7 @@ class AssessmentIntegrityTest extends TestCase
     public function test_learning_attempt_question_set_is_snapshotted_and_new_questions_are_rejected(): void
     {
         [$resource, $questions] = $this->makeReadingResource([['points' => 1, 'correct' => true]]);
-        $attempt = app(LearningAttemptService::class)->start($resource, null, 'learning-snapshot-session', null, null);
+        $attempt = app(LearningAttemptService::class)->start($resource, null, 'learning-snapshot-session');
         $reading = ReadingResource::query()->where('resource_id', $resource->id)->firstOrFail();
         $newQuestion = Question::query()->create([
             'reading_resource_id' => $reading->id, 'type' => 'single_choice',
@@ -416,6 +414,8 @@ class AssessmentIntegrityTest extends TestCase
         $freshAttempt = LearningAttempt::query()->findOrFail($attempt->id);
         $this->assertSame('completed', $freshAttempt->status);
         $this->assertSame(100.0, (float) $freshAttempt->percentage);
+        $this->assertNull($freshAttempt->ip_address);
+        $this->assertNull($freshAttempt->user_agent);
         $this->assertDatabaseCount('learning_attempts', 1);
         $this->assertDatabaseCount('learning_answers', 1);
         $this->assertArrayHasKey('is_correct', $component->get('questions')[0]['options'][0]);
