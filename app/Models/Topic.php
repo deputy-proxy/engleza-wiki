@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasTranslations;
 use Illuminate\Database\Eloquent\Model;
 
 class Topic extends Model
 {
+    use HasTranslations;
+
     protected $fillable = ['name', 'slug', 'description', 'parent_id', 'sort_order'];
 
     public function parent()

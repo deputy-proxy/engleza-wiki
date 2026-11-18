@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasTranslations;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Test extends Model
 {
     use HasFactory;
+    use HasTranslations;
 
     protected $fillable = ['title', 'slug', 'description', 'instructions', 'level_id', 'skill_id', 'duration_minutes', 'passing_score', 'access_type', 'status', 'is_public', 'shuffle_questions', 'show_correct_answers', 'published_at'];
 

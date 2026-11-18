@@ -128,7 +128,7 @@ class LearningAttemptService
             'type' => $question->type,
             'configuration' => $this->responses->learnerConfiguration($question),
             ...($revealAnswers ? [
-                'explanation' => $question->explanation,
+                'explanation' => $question->translated('explanation'),
                 'answer_key' => $this->responses->answerKey($question),
             ] : []),
             'options' => in_array($question->type, ['single_choice', 'multiple_choice', 'true_false'], true)

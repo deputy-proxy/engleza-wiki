@@ -27,7 +27,7 @@ class LearningPathTest extends TestCase
         $this->actingAs($user)->post(route('learning.paths.enroll', $path))->assertRedirect(route('learning.paths.show', $path));
         $this->get(route('learning.lessons.show', $lessons[0]))->assertOk()->assertSee($lessons[0]->title);
         $this->get(route('resources.show', $activities[0]->resource))
-            ->assertOk()->assertSee('Part of a learning path')->assertSee($lessons[0]->title);
+            ->assertOk()->assertSee('Parte dintr-un parcurs de învățare')->assertSee($lessons[0]->title);
         $this->get(route('learning.lessons.show', $lessons[1]))->assertForbidden();
 
         $this->post(route('learning.activities.complete', $activities[0]))->assertRedirect();

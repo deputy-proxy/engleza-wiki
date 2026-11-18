@@ -153,7 +153,7 @@ class LearnerProgressTest extends TestCase
         $this->assertSame(1, $summary[0]['attempt_count']);
         $this->assertSame(1, $summary[0]['question_count']);
         $this->actingAs($teacher)->get(route('classes.results', $group->join_code))
-            ->assertOk()->assertSee($learner->name)->assertSee('Travel');
+            ->assertOk()->assertSee($learner->name)->assertSee('Călătorii');
         $this->actingAs($learner)->get(route('classes.results', $group->join_code))->assertForbidden();
     }
 
@@ -282,7 +282,7 @@ class LearnerProgressTest extends TestCase
 
         $service = app(AdaptivePracticeService::class);
         $session = $service->start($user);
-        $this->actingAs($user)->get(route('practice.show', $session))->assertOk()->assertSee('Practice session');
+        $this->actingAs($user)->get(route('practice.show', $session))->assertOk()->assertSee('Sesiune de exerciții');
         $this->assertSame('easy', $session->difficulty_min);
         $this->assertSame('medium', $session->difficulty_max);
         $payload = $service->questionPayload($service->session($session, $user));
@@ -303,7 +303,7 @@ class LearnerProgressTest extends TestCase
 
         $review = $service->questionPayload($service->session($completed, $user));
         $this->assertArrayHasKey('is_correct', $review[0]['options'][0]);
-        $this->actingAs($user)->get(route('practice.show', $completed))->assertOk()->assertSee('Answer review');
+        $this->actingAs($user)->get(route('practice.show', $completed))->assertOk()->assertSee('Verificarea răspunsurilor');
         $nextSession = $service->start($user);
         $this->assertCount(1, $nextSession->question_order);
         $remainingId = $nextSession->question_order[0];
@@ -328,9 +328,9 @@ class LearnerProgressTest extends TestCase
         $user = User::factory()->create();
 
         $this->actingAs($user)->get(route('dashboard'))->assertOk()
-            ->assertSee('Progress by skill')->assertSee('Progress by topic')->assertSee('Recommended next steps');
+            ->assertSee('Progres în funcție de competență')->assertSee('Progres în funcție de subiect')->assertSee('Pașii următori recomandați');
         $this->actingAs($user)->get(route('reviews.index'))->assertOk()
-            ->assertSee('Vocabulary review')->assertSee('Ready to review');
+            ->assertSee('Recapitularea vocabularului')->assertSee('Gata de recapitulare');
     }
 
     public function test_vocabulary_review_and_adaptive_sessions_are_private_to_the_owner(): void

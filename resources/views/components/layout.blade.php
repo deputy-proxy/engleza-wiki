@@ -1,15 +1,29 @@
+@props(['title' => config('app.name'), 'description' => 'Resurse, teste și lecții gratuite de limba engleză pentru cursanți și profesori.', 'resource' => null])
+
+@php
+    $metaTitle = $resource?->translated('seo_title') ?: $title;
+    $metaDescription = $resource?->translated('seo_description') ?: $description;
+    $ogTitle = $resource?->translated('og_title') ?: $metaTitle;
+    $ogDescription = $resource?->translated('og_description') ?: $metaDescription;
+    $canonicalUrl = $resource?->canonical_url ?: url()->current();
+@endphp
 <!DOCTYPE html>
-<html lang="en" class="antialiased">
+<html lang="ro" class="antialiased">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<title>{{ $title ?? config('app.name') }}</title>
-<meta name="description" content="{{ $description ?? 'Free English resources, tests and lessons for learners and teachers.' }}">
+<title>{{ $metaTitle }}</title>
+<meta name="description" content="{{ $metaDescription }}">
+<link rel="canonical" href="{{ $canonicalUrl }}">
+<link rel="alternate" hreflang="ro" href="{{ $canonicalUrl }}">
+<link rel="alternate" hreflang="x-default" href="{{ $canonicalUrl }}">
 <meta property="og:site_name" content="engleza.wiki">
-<meta property="og:title" content="{{ $title ?? config('app.name') }}">
-<meta property="og:description" content="{{ $description ?? 'Free English resources and tests.' }}">
+<meta property="og:locale" content="ro_RO">
+<meta property="og:title" content="{{ $ogTitle }}">
+<meta property="og:description" content="{{ $ogDescription }}">
 <meta property="og:type" content="website">
+<meta property="og:url" content="{{ $canonicalUrl }}">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.bunny.net">
 <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700,800&display=swap" rel="stylesheet">
@@ -21,8 +35,6 @@
   <div class="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between gap-8">
     <a href="{{ route('home') }}" class="flex items-center gap-2" data-testid="brand-link">
       <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl">
-        <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-          <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
           <svg width="100%" height="100%" viewBox="0 0 512 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
               <g>
                   <g transform="matrix(1.451504,0.318623,0,1.503165,-1131.637575,-548.086615)">
@@ -181,25 +193,25 @@
       <span class="text-xl font-bold tracking-tight text-navy-900">engleza<span class="text-brand-500">.wiki</span></span>
     </a>
     <nav class="hidden lg:flex items-center gap-7 text-sm font-medium text-navy-700">
-      <a href="{{ route('home') }}" class="hover:text-brand-600" data-testid="nav-home">Home</a>
-      <a href="{{ route('resources.index') }}" class="hover:text-brand-600" data-testid="nav-resources">Resources</a>
-      <a href="{{ route('learning.paths.index') }}" class="hover:text-brand-600" data-testid="nav-learning">Learning paths</a>
-      <a href="{{ route('grammar') }}" class="hover:text-brand-600" data-testid="nav-grammar">Grammar</a>
-      <a href="{{ route('vocabulary') }}" class="hover:text-brand-600" data-testid="nav-vocabulary">Vocabulary</a>
-      <a href="{{ route('for-teachers') }}" class="hover:text-brand-600" data-testid="nav-for-teachers">For Teachers</a>
-      <a href="{{ route('about') }}" class="hover:text-brand-600" data-testid="nav-about">About</a>
+      <a href="{{ route('home') }}" class="hover:text-brand-600" data-testid="nav-home">{{ __('Home') }}</a>
+      <a href="{{ route('resources.index') }}" class="hover:text-brand-600" data-testid="nav-resources">{{ __('Resources') }}</a>
+      <a href="{{ route('learning.paths.index') }}" class="hover:text-brand-600" data-testid="nav-learning">{{ __('Learning paths') }}</a>
+      <a href="{{ route('grammar') }}" class="hover:text-brand-600" data-testid="nav-grammar">{{ __('Grammar') }}</a>
+      <a href="{{ route('vocabulary') }}" class="hover:text-brand-600" data-testid="nav-vocabulary">{{ __('Vocabulary') }}</a>
+      <a href="{{ route('for-teachers') }}" class="hover:text-brand-600" data-testid="nav-for-teachers">{{ __('For Teachers') }}</a>
+      <a href="{{ route('about') }}" class="hover:text-brand-600" data-testid="nav-about">{{ __('About') }}</a>
     </nav>
     <div class="flex items-center gap-3">
-      <a href="{{ route('search') }}" class="p-2 text-navy-700 hover:text-brand-600" data-testid="search-icon" aria-label="Search">
+      <a href="{{ route('search') }}" class="p-2 text-navy-700 hover:text-brand-600" data-testid="search-icon" aria-label="{{ __('Search') }}">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
       </a>
       @auth
-        <a href="{{ route('dashboard') }}" class="btn-ghost" data-testid="nav-dashboard">Dashboard</a>
-        <a href="{{ route('dashboard.learning') }}" class="btn-ghost" data-testid="nav-my-learning">My learning</a>
-        <form method="POST" action="{{ route('logout') }}">@csrf<button class="btn-outline" data-testid="nav-logout">Log out</button></form>
+        <a href="{{ route('dashboard') }}" class="btn-ghost" data-testid="nav-dashboard">{{ __('Dashboard') }}</a>
+        <a href="{{ route('dashboard.learning') }}" class="btn-ghost" data-testid="nav-my-learning">{{ __('My learning') }}</a>
+        <form method="POST" action="{{ route('logout') }}">@csrf<button class="btn-outline" data-testid="nav-logout">{{ __('Log out') }}</button></form>
       @else
-        <a href="{{ route('login') }}" class="btn-ghost" data-testid="nav-login">Log in</a>
-        <a href="{{ route('tests.index') }}" class="btn-primary" data-testid="nav-cta-test">Test your English</a>
+        <a href="{{ route('login') }}" class="btn-ghost" data-testid="nav-login">{{ __('Log in') }}</a>
+        <a href="{{ route('tests.index') }}" class="btn-primary" data-testid="nav-cta-test">{{ __('Test your English') }}</a>
       @endauth
     </div>
   </div>
@@ -217,7 +229,7 @@
       </span>
       <span class="font-semibold text-navy-900">engleza.wiki</span>
     </div>
-    <p class="text-sm text-navy-600">Free resources for learners, teachers and curious minds.</p>
+    <p class="text-sm text-navy-600">{{ __('Free resources for learners, teachers and curious minds.') }}</p>
     <div class="text-sm text-navy-600">© {{ date('Y') }} engleza.wiki</div>
   </div>
 </footer>

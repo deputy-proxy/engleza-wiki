@@ -24,7 +24,7 @@ class AuthController extends Controller
             return redirect()->intended(route('dashboard'));
         }
 
-        return back()->withErrors(['email' => 'Invalid credentials'])->onlyInput('email');
+        return back()->withErrors(['email' => __('Invalid credentials')])->onlyInput('email');
     }
 
     public function showRegister()

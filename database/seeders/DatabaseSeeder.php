@@ -132,6 +132,7 @@ class DatabaseSeeder extends Seeder
 
         // Interactive resources (cards, listening, reading, writing)
         $this->call(InteractiveResourcesSeeder::class);
+        $this->call(RomanianTranslationsSeeder::class);
     }
 
     private function seedTests($L, $S, $T): void

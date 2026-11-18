@@ -3,7 +3,7 @@
 @php $q = $questions[$currentIndex] ?? null; $total = count($questions); $answered = count($answers); @endphp
 
 <div class="flex items-center justify-between text-sm text-navy-600 mb-4" data-testid="test-header">
-  <div>Question <span class="font-bold text-navy-900">{{ $currentIndex + 1 }}</span> of {{ $total }} <span class="ml-2 text-navy-500">({{ $q['section'] ?? '' }})</span></div>
+  <div>{{ __('Question') }} <span class="font-bold text-navy-900">{{ $currentIndex + 1 }}</span> of {{ $total }} <span class="ml-2 text-navy-500">({{ $q['section'] ?? '' }})</span></div>
   <div x-show="endsAt" aria-live="polite" x-text="'⏱ ' + remaining" class="font-mono font-bold text-brand-600" data-testid="test-timer"></div>
 </div>
 <div class="h-2 w-full rounded-full bg-navy-100 overflow-hidden">
@@ -37,7 +37,7 @@
       @endforeach
     </div>
   @elseif(in_array($q['type'], ['text', 'short_text'], true))
-    <label class="mt-6 block text-sm font-medium text-navy-700">Your answer
+    <label class="mt-6 block text-sm font-medium text-navy-700">{{ __('Your answer') }}
       <input type="text" maxlength="2000" value="{{ $answers[$q['id']] ?? '' }}" wire:input.debounce.300ms="setAnswer({{ $q['id'] }}, $event.target.value)"
         class="mt-2 w-full rounded-xl border border-navy-200 px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500">
     </label>
@@ -47,7 +47,7 @@
         <label class="grid gap-2 sm:grid-cols-2 sm:items-center text-sm text-navy-700">
           <span>{{ $pair['left'] }}</span>
           <select wire:change="setStructuredAnswer({{ $q['id'] }}, @js($pair['left']), $event.target.value)" class="w-full rounded-xl border border-navy-200 px-3 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500">
-            <option value="">Choose a match</option>
+            <option value="">{{ __('Choose a match') }}</option>
             @foreach($pair['choices'] as $choice)
               <option value="{{ $choice }}" @selected(($answers[$q['id']][$pair['left']] ?? '') === $choice)>{{ $choice }}</option>
             @endforeach
@@ -59,9 +59,9 @@
     <div class="mt-6 space-y-3">
       @foreach($q['configuration']['items'] ?? [] as $i => $item)
         <label class="grid gap-2 sm:grid-cols-[5rem_1fr] sm:items-center text-sm text-navy-700">
-          <span>Position {{ $i + 1 }}</span>
+          <span>{{ __('Position') }} {{ $i + 1 }}</span>
           <select wire:change="setStructuredAnswer({{ $q['id'] }}, @js((string) $i), $event.target.value)" class="w-full rounded-xl border border-navy-200 px-3 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500">
-            <option value="">Choose an item</option>
+            <option value="">{{ __('Choose an item') }}</option>
             @foreach($q['configuration']['items'] as $choice)
               <option value="{{ $choice }}" @selected(($answers[$q['id']][$i] ?? '') === $choice)>{{ $choice }}</option>
             @endforeach
@@ -83,16 +83,16 @@
 @endif
 
 <div class="mt-6 flex items-center justify-between">
-  <button wire:click="prev" @disabled($currentIndex === 0) class="btn-outline disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500" data-testid="prev-btn">← Previous</button>
-  <div class="text-sm text-navy-500" data-testid="answered-counter">{{ $answered }} / {{ $total }} answered</div>
+  <button wire:click="prev" @disabled($currentIndex === 0) class="btn-outline disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500" data-testid="prev-btn">{{ __('← Previous') }}</button>
+  <div class="text-sm text-navy-500" data-testid="answered-counter">{{ $answered }} / {{ $total }} {{ __('answered') }}</div>
   @if($currentIndex < $total - 1)
-    <button wire:click="next" class="btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500" data-testid="next-btn">Next →</button>
+    <button wire:click="next" class="btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500" data-testid="next-btn">{{ __('Next →') }}</button>
   @else
-    <button wire:click="submit" wire:loading.attr="disabled" class="btn-primary bg-emerald-600 hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500" data-testid="submit-btn">Submit test</button>
+    <button wire:click="submit" wire:loading.attr="disabled" class="btn-primary bg-emerald-600 hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500" data-testid="submit-btn">{{ __('Submit test') }}</button>
   @endif
 </div>
 
-<div class="mt-8 flex flex-wrap gap-2" data-testid="question-nav" role="group" aria-label="Question navigation">
+<div class="mt-8 flex flex-wrap gap-2" data-testid="question-nav" role="group" aria-label="{{ __('Question navigation') }}">
   @foreach($questions as $i => $qq)
     <button wire:click="jumpTo({{ $i }})" aria-current="{{ $i === $currentIndex ? 'step' : 'false' }}"
       class="h-9 w-9 rounded-full text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 {{ $i === $currentIndex ? 'bg-brand-500 text-white' : (isset($answers[$qq['id']]) ? 'bg-emerald-100 text-emerald-800' : 'bg-navy-100 text-navy-700') }}">{{ $i + 1 }}</button>
