@@ -165,13 +165,13 @@ class EngagementService
                 'goal_completed_at' => $earned >= $daily->goal_xp ? ($daily->goal_completed_at ?? $occurredAt) : $daily->goal_completed_at,
             ])->save();
 
-            $this->evaluateAchievements($user, $sourceType);
+            $this->evaluateAchievements($user, $sourceType, $sourceId);
 
             return $award;
         });
     }
 
-    private function evaluateAchievements(User $user, string $sourceType): void
+    private function evaluateAchievements(User $user, string $sourceType, ?int $sourceId): void
     {
         $lessonCount = LessonProgress::query()->where('user_id', $user->id)->where('status', 'completed')->count();
         $practiceCount = ExperiencePointAward::query()->where('user_id', $user->id)->where('source_type', 'adaptive_practice')->count();
@@ -212,7 +212,7 @@ class EngagementService
                 'achievement_key' => $key,
                 'title' => $definition['title'],
                 'description' => $definition['description'],
-                'evidence' => $evidence + ['trigger' => $sourceType],
+                'evidence' => $evidence + ['source_type' => $sourceType, 'source_id' => $sourceId],
                 'awarded_at' => now(),
             ]);
         }
@@ -222,7 +222,7 @@ class EngagementService
     {
         $dates = LearnerDailyEngagement::query()->where('user_id', $user->id)
             ->whereNotNull('goal_completed_at')->whereDate('activity_date', '<=', CarbonImmutable::now($timezone)->toDateString())
-            ->orderByDesc('activity_date')->limit(400)->pluck('activity_date');
+            ->orderByDesc('activity_date')->pluck('activity_date');
 
         if ($dates->isEmpty()) {
             return 0;

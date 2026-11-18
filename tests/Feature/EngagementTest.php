@@ -203,6 +203,9 @@ class EngagementTest extends TestCase
             'user_id' => $user->id,
             'achievement_key' => 'three_skills_mastered',
         ]);
+        $achievement = LearnerAchievement::query()->where('user_id', $user->id)->where('achievement_key', 'first_skill_mastery')->firstOrFail();
+        self::assertSame('adaptive_practice', $achievement->evidence['source_type']);
+        self::assertSame($session->id, $achievement->evidence['source_id']);
     }
 
     public function test_reward_issuance_locks_the_learner_settings_row_to_serialize_daily_limits(): void
