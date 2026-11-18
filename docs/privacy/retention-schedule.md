@@ -12,7 +12,7 @@
 | Writing submissions | Persist as learner text; FK to user cascades on delete | Purpose-limited retention with review window; check class/appeal/legal needs | No |
 | Class groups and results | Teacher owns group; deleting teacher currently cascades group deletion | Transfer ownership or anonymise group/results before closure | No |
 | Progress, vocabulary and engagement | Persist as account-owned history | Delete or anonymise with closure, subject to approved exceptions | No |
-| Privacy requests | Request record and staff notes retained | Keep minimal accountability record for counsel-approved period | No |
+| Privacy requests | Request record retained; after approved account closure, requester link, description and internal notes are cleared | Keep minimal anonymised accountability record for counsel-approved period | No |
 | Logs and backups | Host/application retention not fully verified | Set explicit rotation, access and backup expiry | No |
 
 ## Safety rules

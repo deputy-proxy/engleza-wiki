@@ -19,7 +19,7 @@ Record the exact fields and requested correction. Verify the source of truth and
 
 ## Erasure and account closure
 
-Do not perform automatic deletion. Map tests/answers/results, certificates, writing, class groups, progress, vocabulary, XP, logs, exports, backups and processors. Identify statutory retention, disputes, safeguarding and educational-record obligations with counsel. Decide record-by-record whether to delete, irreversibly anonymise, restrict or retain under a documented exception. Transfer teacher-owned classes before closure where appropriate. Execute only after controller approval and verify active database, file storage and processor actions; record backup expiry separately.
+Do not perform automatic deletion. Map tests/answers/results, certificates, writing, class groups, progress, vocabulary, XP, logs, exports, backups and processors. Identify statutory retention, disputes, safeguarding and educational-record obligations with counsel. Decide record-by-record whether to delete, irreversibly anonymise, restrict or retain under a documented exception. Transfer teacher-owned classes before closure where appropriate. Execute only after controller approval and verify active database, file storage and processor actions; record backup expiry separately. When the user account is deleted after all learning records have been handled, the application anonymises the retained request record by clearing its user link, description and internal notes while preserving minimal request type/status/timestamps.
 
 ## Tracking and response
 

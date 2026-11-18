@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('privacy_data_requests', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('user_id')->constrained()->restrictOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->string('request_type', 32);
             $table->string('status', 32)->default('submitted');
             $table->text('description')->nullable();

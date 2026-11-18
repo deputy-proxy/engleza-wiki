@@ -14,7 +14,6 @@ use App\Services\Privacy\PersonalDataExport;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 class PrivacyDataRightsTest extends TestCase
@@ -212,7 +211,7 @@ class PrivacyDataRightsTest extends TestCase
         $this->actingAs($admin)->get('/admin/writing-submissions')->assertOk();
     }
 
-    public function test_pending_privacy_request_prevents_account_deletion(): void
+    public function test_account_deletion_anonymises_the_retained_privacy_request(): void
     {
         $user = User::factory()->create();
         PrivacyDataRequest::create([
@@ -223,12 +222,16 @@ class PrivacyDataRightsTest extends TestCase
             'identity_verified_at' => now(),
         ]);
 
-        try {
-            $user->delete();
-            $this->fail('A user with a retained privacy request must not be deleted by cascade.');
-        } catch (ValidationException) {
-            $this->assertDatabaseHas('users', ['id' => $user->id]);
-        }
+        $user->delete();
+
+        $this->assertDatabaseMissing('users', ['id' => $user->id]);
+        $this->assertDatabaseHas('privacy_data_requests', [
+            'user_id' => null,
+            'request_type' => 'deletion',
+            'status' => 'submitted',
+            'description' => null,
+            'admin_notes' => null,
+        ]);
     }
 
     public function test_cookie_preferences_can_be_saved_and_withdrawn(): void

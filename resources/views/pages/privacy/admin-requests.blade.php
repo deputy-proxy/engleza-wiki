@@ -6,7 +6,7 @@
 <div class="mt-8 space-y-5">
 @foreach($requests as $item)
 <article class="rounded-xl border border-navy-100 p-5">
-<div class="flex flex-wrap justify-between gap-3"><div><p class="font-semibold">{{ $item->user->name }} · {{ $item->user->email }}</p><p class="text-sm text-navy-500">#{{ $item->id }} · {{ $item->request_type }} · {{ $item->created_at->format('d.m.Y H:i') }}</p></div><span class="rounded-full bg-navy-50 px-3 py-1 text-sm">{{ $item->status }}</span></div>
+<div class="flex flex-wrap justify-between gap-3"><div><p class="font-semibold">{{ $item->user?->name ?? 'Cont anonimizat' }} @if($item->user) · {{ $item->user->email }} @endif</p><p class="text-sm text-navy-500">#{{ $item->id }} · {{ $item->request_type }} · {{ $item->created_at->format('d.m.Y H:i') }}</p></div><span class="rounded-full bg-navy-50 px-3 py-1 text-sm">{{ $item->status }}</span></div>
 <p class="mt-3 whitespace-pre-wrap text-sm">{{ $item->description ?: 'Fără detalii suplimentare.' }}</p>
 <p class="mt-2 text-xs text-navy-500">Identitate verificată: {{ $item->identity_verified_at?->format('d.m.Y H:i') ?? 'Nu' }}</p>
 <form method="POST" action="{{ route('admin.privacy.requests.update', $item) }}" class="mt-4 grid gap-3 md:grid-cols-[1fr_2fr_auto]">

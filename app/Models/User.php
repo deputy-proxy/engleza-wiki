@@ -54,6 +54,12 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmailContr
                     'user' => 'This account has learning history or class records. Preserve or transfer those records before deleting the account.',
                 ]);
             }
+
+            PrivacyDataRequest::query()->where('user_id', $user->getKey())->update([
+                'user_id' => null,
+                'description' => null,
+                'admin_notes' => null,
+            ]);
         });
     }
 
@@ -160,7 +166,6 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmailContr
             'saved_resources' => 'user_id',
             'writing_submissions' => 'user_id',
             'class_groups' => 'teacher_id',
-            'privacy_data_requests' => 'user_id',
         ] as $table => $column) {
             if (Schema::hasTable($table) && DB::table($table)->where($column, $this->getKey())->exists()) {
                 return true;
