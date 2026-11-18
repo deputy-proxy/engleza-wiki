@@ -166,8 +166,8 @@ class EngagementTest extends TestCase
         self::assertNotNull($otherAward);
         self::assertSame(20, $engagement->summary($otherUser)['xp_total']);
         $this->actingAs($user)->get(route('dashboard'))->assertOk()
-            ->assertSee('Your learning momentum')
-            ->assertSee('First steps')
+            ->assertSee('Progresul tău')
+            ->assertSee('Primii pași')
             ->assertDontSee($otherUser->name);
     }
 

@@ -14,11 +14,11 @@ class DashboardController extends Controller
     public function index(LearnerProgressService $progressService, EngagementService $engagementService)
     {
         $u = auth()->user();
-        $attempts = TestAttempt::where('user_id', $u->id)->with('test', 'result')->latest()->limit(10)->get();
+        $attempts = TestAttempt::where('user_id', $u->id)->with(['test.translations', 'test.level.translations', 'result'])->latest()->limit(10)->get();
         $completed = $attempts->where('status', 'completed');
         $avg = $completed->count() ? round($completed->avg('percentage'), 1) : 0;
         $latestLevel = $completed->first()?->level_result;
-        $saved = SavedResource::where('user_id', $u->id)->with('resource')->latest()->limit(6)->get();
+        $saved = SavedResource::where('user_id', $u->id)->with(['resource.translations', 'resource.level.translations'])->latest()->limit(6)->get();
         $progress = $progressService->summary($u);
         $engagement = $engagementService->summary($u);
 
@@ -27,21 +27,21 @@ class DashboardController extends Controller
 
     public function tests()
     {
-        $attempts = TestAttempt::where('user_id', auth()->id())->with('test', 'result')->latest()->paginate(20);
+        $attempts = TestAttempt::where('user_id', auth()->id())->with(['test.translations', 'test.level.translations', 'result'])->latest()->paginate(20);
 
         return view('pages.dashboard.tests', compact('attempts'));
     }
 
     public function resources()
     {
-        $saved = SavedResource::where('user_id', auth()->id())->with('resource.level')->latest()->paginate(20);
+        $saved = SavedResource::where('user_id', auth()->id())->with(['resource.translations', 'resource.level.translations'])->latest()->paginate(20);
 
         return view('pages.dashboard.resources', compact('saved'));
     }
 
     public function writing()
     {
-        $submissions = WritingSubmission::where('user_id', auth()->id())->with('writingResource.resource')->latest()->paginate(20);
+        $submissions = WritingSubmission::where('user_id', auth()->id())->with(['writingResource.translations', 'writingResource.resource.translations'])->latest()->paginate(20);
 
         return view('pages.dashboard.writing', compact('submissions'));
     }

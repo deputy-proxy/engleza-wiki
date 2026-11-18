@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasTranslations;
 use App\Models\Resource as ContentResource;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -14,6 +15,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class ReadingResource extends Model
 {
+    use HasTranslations;
+
     protected $casts = ['show_correct_answers' => 'boolean'];
 
     protected $fillable = ['resource_id', 'title', 'instructions', 'content', 'show_correct_answers'];

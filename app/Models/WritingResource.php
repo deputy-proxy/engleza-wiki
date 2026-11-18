@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasTranslations;
 use Illuminate\Database\Eloquent\Model;
 
 class WritingResource extends Model
 {
+    use HasTranslations;
+
     protected $fillable = ['resource_id', 'prompt', 'instructions', 'minimum_words', 'maximum_words', 'recommended_time_minutes', 'rubric', 'example_answer'];
 
     public function resource()

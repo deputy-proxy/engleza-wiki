@@ -88,21 +88,21 @@ class LearningPathController extends Controller
         $data = $request->validate(['attempt_id' => ['nullable', 'integer']]);
         $learning->completeActivity($activity, (int) auth()->id(), isset($data['attempt_id']) ? (int) $data['attempt_id'] : null);
 
-        return back()->with('status', 'Activity completed.');
+        return back()->with('status', __('Activity completed.'));
     }
 
     public function completeLesson(LearningLesson $lesson, LearningPathService $learning): RedirectResponse
     {
         $learning->completeLesson($lesson, (int) auth()->id());
 
-        return redirect()->route('learning.lessons.show', $lesson)->with('status', 'Lesson completed. You earned 20 XP.');
+        return redirect()->route('learning.lessons.show', $lesson)->with('status', __('Lesson completed. You earned 20 XP.'));
     }
 
     public function myLearning(Request $request, LearningPathService $learning): View
     {
         $userId = (int) $request->user()->id;
         $enrollments = $request->user()->learningPathEnrollments()
-            ->with(['path.level', 'path.units.lessons.progress', 'path.units.lessons.activities.resource', 'path.units.lessons.activities.test'])
+            ->with(['path.translations', 'path.level.translations', 'path.units.lessons.translations', 'path.units.lessons.progress', 'path.units.lessons.activities.translations', 'path.units.lessons.activities.resource.translations', 'path.units.lessons.activities.resource.level.translations', 'path.units.lessons.activities.test.translations', 'path.units.lessons.activities.test.level.translations', 'path.units.lessons.activities.test.skill.translations'])
             ->latest('activated_at')->get();
 
         foreach ($enrollments as $enrollment) {

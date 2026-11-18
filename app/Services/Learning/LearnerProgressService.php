@@ -38,7 +38,7 @@ class LearnerProgressService
             ->where('user_id', $user->id)
             ->where('status', 'completed')
             ->whereNotNull('completed_at')
-            ->with(['test.level', 'test.skill', 'answers.question.topics'])
+            ->with(['test.translations', 'test.level.translations', 'test.skill.translations', 'answers.question.translations', 'answers.question.topics.translations'])
             ->orderByDesc('completed_at')
             ->get();
 
@@ -47,12 +47,20 @@ class LearnerProgressService
             ->where('status', 'completed')
             ->whereNotNull('completed_at')
             ->with([
-                'answers.question.topics',
-                'answers.question.section.test.skill',
-                'answers.question.readingResource.resource.skills',
-                'answers.question.readingResource.resource.topics',
-                'answers.question.listeningResource.resource.skills',
-                'answers.question.listeningResource.resource.topics',
+                'answers.question.translations',
+                'answers.question.topics.translations',
+                'answers.question.section.translations',
+                'answers.question.section.test.translations',
+                'answers.question.section.test.level.translations',
+                'answers.question.section.test.skill.translations',
+                'answers.question.readingResource.translations',
+                'answers.question.readingResource.resource.translations',
+                'answers.question.readingResource.resource.skills.translations',
+                'answers.question.readingResource.resource.topics.translations',
+                'answers.question.listeningResource.translations',
+                'answers.question.listeningResource.resource.translations',
+                'answers.question.listeningResource.resource.skills.translations',
+                'answers.question.listeningResource.resource.topics.translations',
             ])
             ->orderByDesc('completed_at')
             ->get();
@@ -61,7 +69,7 @@ class LearnerProgressService
             ->where('user_id', $user->id)
             ->where('status', 'completed')
             ->whereNotNull('completed_at')
-            ->with(['resource.level', 'resource.skills', 'resource.topics', 'answers.question.topics'])
+            ->with(['resource.translations', 'resource.level.translations', 'resource.skills.translations', 'resource.topics.translations', 'answers.question.translations', 'answers.question.topics.translations'])
             ->orderByDesc('completed_at')
             ->get();
 
@@ -79,11 +87,11 @@ class LearnerProgressService
                 }
 
                 if ($test->skill !== null) {
-                    $this->addEvidence($skillEvidence, (int) $test->skill->id, $test->skill->name, $score, $question, $attempt->completed_at, 'test:'.$attempt->id);
+                    $this->addEvidence($skillEvidence, (int) $test->skill->id, $test->skill->translated('name'), $score, $question, $attempt->completed_at, 'test:'.$attempt->id);
                 }
 
                 foreach ($question->topics as $topic) {
-                    $this->addEvidence($topicEvidence, (int) $topic->id, $topic->name, $score, $question, $attempt->completed_at, 'test:'.$attempt->id);
+                    $this->addEvidence($topicEvidence, (int) $topic->id, __($topic->translated('name')), $score, $question, $attempt->completed_at, 'test:'.$attempt->id);
                 }
             }
         }
@@ -99,12 +107,12 @@ class LearnerProgressService
                 }
 
                 foreach ($resource->skills as $skill) {
-                    $this->addEvidence($skillEvidence, (int) $skill->id, $skill->name, $score, $question, $attempt->completed_at, 'learning:'.$attempt->id);
+                    $this->addEvidence($skillEvidence, (int) $skill->id, __($skill->translated('name')), $score, $question, $attempt->completed_at, 'learning:'.$attempt->id);
                 }
 
                 $topics = $question->topics->isNotEmpty() ? $question->topics : $resource->topics;
                 foreach ($topics as $topic) {
-                    $this->addEvidence($topicEvidence, (int) $topic->id, $topic->name, $score, $question, $attempt->completed_at, 'learning:'.$attempt->id);
+                    $this->addEvidence($topicEvidence, (int) $topic->id, __($topic->translated('name')), $score, $question, $attempt->completed_at, 'learning:'.$attempt->id);
                 }
             }
         }
@@ -119,7 +127,7 @@ class LearnerProgressService
 
                 $testSkill = $question->section?->test?->skill;
                 if ($testSkill !== null) {
-                    $this->addEvidence($skillEvidence, (int) $testSkill->id, $testSkill->name, $score, $question, $session->completed_at, 'adaptive:'.$session->id, 0.75);
+                    $this->addEvidence($skillEvidence, (int) $testSkill->id, __($testSkill->translated('name')), $score, $question, $session->completed_at, 'adaptive:'.$session->id, 0.75);
                 }
 
                 $resource = null;
@@ -129,12 +137,12 @@ class LearnerProgressService
                     $resource = $question->listeningResource->resource;
                 }
                 foreach ($resource->skills ?? collect() as $skill) {
-                    $this->addEvidence($skillEvidence, (int) $skill->id, $skill->name, $score, $question, $session->completed_at, 'adaptive:'.$session->id, 0.75);
+                    $this->addEvidence($skillEvidence, (int) $skill->id, __($skill->translated('name')), $score, $question, $session->completed_at, 'adaptive:'.$session->id, 0.75);
                 }
 
                 $topics = $question->topics->isNotEmpty() ? $question->topics : ($resource->topics ?? collect());
                 foreach ($topics as $topic) {
-                    $this->addEvidence($topicEvidence, (int) $topic->id, $topic->name, $score, $question, $session->completed_at, 'adaptive:'.$session->id, 0.75);
+                    $this->addEvidence($topicEvidence, (int) $topic->id, __($topic->translated('name')), $score, $question, $session->completed_at, 'adaptive:'.$session->id, 0.75);
                 }
             }
         }
@@ -149,7 +157,7 @@ class LearnerProgressService
 
         return [
             'cefr' => [
-                'level' => $latestTest?->level_result ?: $latestTest?->test?->level?->name,
+                'level' => $latestTest?->level_result ?: $latestTest?->test?->level?->translated('name'),
                 'assessed_at' => $latestTest?->completed_at,
                 'source' => $latestTest === null ? null : 'latest_completed_formal_test',
             ],
@@ -182,7 +190,7 @@ class LearnerProgressService
             ->where('class_group_id', $group->id)
             ->whereNotNull('user_id')
             ->where('status', 'completed')
-            ->with(['user', 'test.skill', 'answers.question.topics'])
+            ->with(['user', 'test.translations', 'test.skill.translations', 'answers.question.translations', 'answers.question.topics.translations'])
             ->orderBy('completed_at')
             ->get()
             ->groupBy('user_id');
@@ -213,14 +221,14 @@ class LearnerProgressService
 
                     if ($attempt->test->skill !== null) {
                         $id = (int) $attempt->test->skill->id;
-                        $skillScores[$id] ??= ['name' => $attempt->test->skill->name, 'earned' => 0.0, 'total' => 0.0];
+                        $skillScores[$id] ??= ['name' => __($attempt->test->skill->translated('name')), 'earned' => 0.0, 'total' => 0.0];
                         $skillScores[$id]['earned'] += $ratio * (float) $question->points;
                         $skillScores[$id]['total'] += (float) $question->points;
                     }
 
                     foreach ($question->topics as $topic) {
                         $id = (int) $topic->id;
-                        $topicScores[$id] ??= ['name' => $topic->name, 'earned' => 0.0, 'total' => 0.0];
+                        $topicScores[$id] ??= ['name' => __($topic->translated('name')), 'earned' => 0.0, 'total' => 0.0];
                         $topicScores[$id]['earned'] += $ratio * (float) $question->points;
                         $topicScores[$id]['total'] += (float) $question->points;
                     }
@@ -382,9 +390,9 @@ class LearnerProgressService
         foreach ($testAttempts->take(5) as $attempt) {
             $activity->push([
                 'type' => 'test',
-                'title' => $attempt->test->title,
+                'title' => $attempt->test->translated('title'),
                 'date' => $attempt->completed_at,
-                'detail' => round((float) $attempt->percentage, 1).'% score',
+                'detail' => __(':percentage% score', ['percentage' => round((float) $attempt->percentage, 1)]),
                 'url' => route('tests.result', [$attempt->test, $attempt]),
             ]);
         }
@@ -392,9 +400,9 @@ class LearnerProgressService
         foreach ($learningAttempts->take(5) as $attempt) {
             $activity->push([
                 'type' => 'exercise',
-                'title' => $attempt->resource->title,
+                'title' => $attempt->resource->translated('title'),
                 'date' => $attempt->completed_at,
-                'detail' => round((float) $attempt->percentage, 1).'% score',
+                'detail' => __(':percentage% score', ['percentage' => round((float) $attempt->percentage, 1)]),
                 'url' => route('resources.result', [$attempt->resource, $attempt]),
             ]);
         }
@@ -402,20 +410,20 @@ class LearnerProgressService
         foreach ($adaptiveSessions->take(5) as $session) {
             $activity->push([
                 'type' => 'practice',
-                'title' => 'Adaptive practice',
+                'title' => __('Adaptive practice'),
                 'date' => $session->completed_at,
-                'detail' => round((float) $session->percentage, 1).'% score',
+                'detail' => __(':percentage% score', ['percentage' => round((float) $session->percentage, 1)]),
                 'url' => route('practice.show', $session),
             ]);
         }
 
-        $lessonProgress = $user->lessonProgress()->with('lesson')->latest('updated_at')->limit(5)->get();
+        $lessonProgress = $user->lessonProgress()->with('lesson.translations')->latest('updated_at')->limit(5)->get();
         foreach ($lessonProgress as $progress) {
             $activity->push([
                 'type' => 'lesson',
-                'title' => $progress->lesson->title,
+                'title' => $progress->lesson->translated('title'),
                 'date' => $progress->completed_at ?? $progress->updated_at,
-                'detail' => $progress->status === 'completed' ? 'Lesson completed' : 'Lesson in progress',
+                'detail' => $progress->status === 'completed' ? __('Lesson completed') : __('Lesson in progress'),
                 'url' => route('learning.lessons.show', $progress->lesson),
             ]);
         }
@@ -431,10 +439,18 @@ class LearnerProgressService
         $enrollments = LearningPathEnrollment::query()
             ->where('user_id', $user->id)
             ->with([
-                'path.level',
-                'path.units.lessons.unit.path',
-                'path.units.lessons.activities.resource',
-                'path.units.lessons.activities.test',
+                'path.translations',
+                'path.level.translations',
+                'path.skills.translations',
+                'path.topics.translations',
+                'path.units.lessons.translations',
+                'path.units.lessons.unit.path.translations',
+                'path.units.lessons.activities.translations',
+                'path.units.lessons.activities.resource.translations',
+                'path.units.lessons.activities.resource.level.translations',
+                'path.units.lessons.activities.test.translations',
+                'path.units.lessons.activities.test.level.translations',
+                'path.units.lessons.activities.test.skill.translations',
                 'path.units.lessons.progress' => fn ($query) => $query->where('user_id', $user->id),
             ])
             ->latest('activated_at')
@@ -457,8 +473,8 @@ class LearnerProgressService
                 ->contains(fn ($progress): bool => $progress->status === 'completed'));
 
             $summaries[] = [
-                'title' => $path->title,
-                'level' => $path->level?->name,
+                'title' => $path->translated('title'),
+                'level' => $path->level?->translated('name'),
                 'status' => $enrollment->status,
                 'completed_lessons' => $completedCount,
                 'available_lessons' => $availableLessons->count(),
@@ -466,9 +482,9 @@ class LearnerProgressService
                     ? round(($completedCount / $availableLessons->count()) * 100, 1) : 0.0,
                 'url' => route('learning.paths.show', $path),
                 'next_lesson' => $nextLesson === null ? null : [
-                    'title' => $nextLesson->title,
+                    'title' => $nextLesson->translated('title'),
                     'url' => route('learning.lessons.show', $nextLesson),
-                    'objectives' => $nextLesson->objectives ?? [],
+                    'objectives' => $nextLesson->translated('objectives') ?? [],
                 ],
             ];
         }
@@ -496,15 +512,15 @@ class LearnerProgressService
             $resource = Resource::query()->published()
                 ->whereHas('topics', fn ($query) => $query->whereKey($topic['id']))
                 ->whereNotIn('id', $recentResourceIds)
-                ->with('level')
+                ->with(['translations', 'level.translations'])
                 ->orderBy('id')
                 ->first();
 
             if ($resource !== null) {
                 $recommendations[] = [
                     'type' => 'topic',
-                    'title' => $resource->title,
-                    'reason' => 'Practise '.$topic['name'].' ('.$topic['mastery_percentage'].'% demonstrated mastery).',
+                    'title' => $resource->translated('title'),
+                    'reason' => __('Practise :topic (:percentage% demonstrated mastery).', ['topic' => $topic['name'], 'percentage' => $topic['mastery_percentage']]),
                     'url' => route('resources.show', $resource),
                 ];
             }
@@ -513,8 +529,8 @@ class LearnerProgressService
         if (LearnerVocabularyItem::query()->where('user_id', $user->id)->where('due_at', '<=', now())->exists()) {
             $recommendations[] = [
                 'type' => 'review',
-                'title' => 'Review due vocabulary',
-                'reason' => 'You have vocabulary items ready for spaced review.',
+                'title' => __('Review due vocabulary'),
+                'reason' => __('You have vocabulary items ready for spaced review.'),
                 'url' => route('reviews.index'),
             ];
         }
@@ -524,7 +540,7 @@ class LearnerProgressService
                 $recommendations[] = [
                     'type' => 'lesson',
                     'title' => $path['next_lesson']['title'],
-                    'reason' => 'Continue your active learning path: '.$path['title'].'.',
+                    'reason' => __('Continue your active learning path: :title.', ['title' => $path['title']]),
                     'url' => $path['next_lesson']['url'],
                 ];
                 break;

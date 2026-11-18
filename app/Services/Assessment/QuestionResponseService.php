@@ -8,6 +8,20 @@ use InvalidArgumentException;
 
 class QuestionResponseService
 {
+    /** @param array<string, scalar> $replace */
+    private function message(string $key, array $replace = []): string
+    {
+        if (function_exists('app') && app()->bound('translator')) {
+            return __($key, $replace);
+        }
+
+        foreach ($replace as $name => $value) {
+            $key = str_replace(':'.$name, (string) $value, $key);
+        }
+
+        return $key;
+    }
+
     public const SUPPORTED_TYPES = [
         'single_choice', 'multiple_choice', 'true_false', 'text', 'short_text',
         'matching', 'ordering', 'gap_fill',
@@ -20,26 +34,26 @@ class QuestionResponseService
             return [];
         }
         if (! is_array($metadata)) {
-            return ['Exercise configuration must be a JSON object.'];
+            return [$this->message('Exercise configuration must be a JSON object.')];
         }
 
         if ($type === 'matching') {
             $pairs = $metadata['pairs'] ?? null;
             if (! is_array($pairs) || ! array_is_list($pairs) || count($pairs) < 2) {
-                return ['Matching exercises require at least two pairs.'];
+                return [$this->message('Matching exercises require at least two pairs.')];
             }
             $left = [];
             $right = [];
             foreach ($pairs as $pair) {
                 if (! is_array($pair) || ! is_string($pair['left'] ?? null) || trim($pair['left']) === ''
                     || ! is_string($pair['right'] ?? null) || trim($pair['right']) === '') {
-                    return ['Every matching pair requires non-empty left and right values.'];
+                    return [$this->message('Every matching pair requires non-empty left and right values.')];
                 }
                 $left[] = trim($pair['left']);
                 $right[] = trim($pair['right']);
             }
             if (count(array_unique($left)) !== count($left) || count(array_unique($right)) !== count($right)) {
-                return ['Matching pair labels and matches must be unique.'];
+                return [$this->message('Matching pair labels and matches must be unique.')];
             }
 
             return [];
@@ -50,7 +64,7 @@ class QuestionResponseService
             if (! is_array($items) || ! array_is_list($items) || count($items) < 2
                 || ! collect($items)->every(fn ($item): bool => is_string($item) && trim($item) !== '')
                 || count(array_unique($items)) !== count($items)) {
-                return ['Ordering exercises require at least two unique, non-empty items in the correct order.'];
+                return [$this->message('Ordering exercises require at least two unique, non-empty items in the correct order.')];
             }
 
             return [];
@@ -58,17 +72,17 @@ class QuestionResponseService
 
         $gaps = $metadata['gaps'] ?? null;
         if (! is_array($gaps) || $gaps === []) {
-            return ['Gap-fill exercises require at least one named gap.'];
+            return [$this->message('Gap-fill exercises require at least one named gap.')];
         }
         foreach ($gaps as $key => $accepted) {
             if (! is_string($key) || trim($key) === '') {
-                return ['Every gap requires a non-empty name.'];
+                return [$this->message('Every gap requires a non-empty name.')];
             }
             $answersAreValid = is_array($accepted)
                 ? array_is_list($accepted) && $accepted !== [] && collect($accepted)->every(fn ($answer): bool => is_string($answer) && trim($answer) !== '')
                 : is_string($accepted) && trim($accepted) !== '';
             if (! $answersAreValid) {
-                return ['Every gap requires one or more non-empty accepted answers.'];
+                return [$this->message('Every gap requires one or more non-empty accepted answers.')];
             }
         }
 
@@ -79,7 +93,7 @@ class QuestionResponseService
     public function definitionIssues(Question $question): array
     {
         if (! in_array($question->type, self::SUPPORTED_TYPES, true)) {
-            return ["Unsupported question type [{$question->type}]."];
+            return [$this->message('Unsupported question type [:type].', ['type' => $question->type])];
         }
         if (in_array($question->type, ['matching', 'ordering', 'gap_fill'], true)) {
             return $this->metadataIssues($question->type, $question->metadata);
@@ -92,13 +106,13 @@ class QuestionResponseService
 
         if (in_array($question->type, ['text', 'short_text'], true)) {
             return $correctCount >= 1 && $correctOptions->every(fn ($option): bool => trim($option->value) !== '')
-                ? [] : ['Text questions require at least one non-empty accepted answer option marked correct.'];
+                ? [] : [$this->message('Text questions require at least one non-empty accepted answer option marked correct.')];
         }
 
         return match ($question->type) {
-            'single_choice' => $optionsAreComplete && $options->count() >= 2 && $correctCount === 1 ? [] : ['Single-choice questions require at least two options and exactly one correct option.'],
-            'true_false' => $optionsAreComplete && $options->count() === 2 && $correctCount === 1 ? [] : ['True/false questions require exactly two options and exactly one correct option.'],
-            default => $optionsAreComplete && $options->count() >= 2 && $correctCount >= 1 ? [] : ['Multiple-choice questions require at least two options and at least one correct option.'],
+            'single_choice' => $optionsAreComplete && $options->count() >= 2 && $correctCount === 1 ? [] : [$this->message('Single-choice questions require at least two options and exactly one correct option.')],
+            'true_false' => $optionsAreComplete && $options->count() === 2 && $correctCount === 1 ? [] : [$this->message('True/false questions require exactly two options and exactly one correct option.')],
+            default => $optionsAreComplete && $options->count() >= 2 && $correctCount >= 1 ? [] : [$this->message('Multiple-choice questions require at least two options and at least one correct option.')],
         };
     }
 
@@ -108,7 +122,7 @@ class QuestionResponseService
     public function evaluate(Question $question, mixed $response): array
     {
         if (! in_array($question->type, self::SUPPORTED_TYPES, true)) {
-            throw new InvalidArgumentException("Unsupported question type [{$question->type}].");
+            throw new InvalidArgumentException($this->message('Unsupported question type [:type].', ['type' => $question->type]));
         }
         $points = (float) $question->points;
         if ($this->definitionIssues($question) !== []) {

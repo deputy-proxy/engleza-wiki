@@ -15,14 +15,14 @@ class CertificateController extends Controller
         abort_unless($attempt->status === 'completed', 404);
         $attempts->authorize($attempt, auth()->id(), session('anon_session'));
 
-        $attempt->load('result', 'user', 'test.level');
-        $name = $attempt->user?->name ?: 'Anonymous learner';
+        $attempt->load(['result', 'user', 'test.translations', 'test.level.translations']);
+        $name = $attempt->user?->name ?: __('Anonymous learner');
         $data = [
             'attempt' => $attempt,
             'result' => $attempt->result,
             'test' => $test,
             'name' => $name,
-            'issued' => now()->format('F j, Y'),
+            'issued' => now()->translatedFormat('j F Y'),
             'certificate_id' => 'ENG-'.str_pad((string) $attempt->id, 6, '0', STR_PAD_LEFT),
         ];
         $pdf = Pdf::loadView('pdf.certificate', $data)->setPaper('a4', 'landscape');

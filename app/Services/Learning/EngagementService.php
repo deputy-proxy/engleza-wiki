@@ -27,11 +27,11 @@ class EngagementService
     public function updateSettings(User $user, int $dailyGoalXp, string $timezone): LearnerEngagementSetting
     {
         if (! in_array($dailyGoalXp, config('engagement.daily_goals', [10, 20, 30, 50]), true)) {
-            throw ValidationException::withMessages(['daily_goal_xp' => 'Choose a daily goal of 10, 20, 30 or 50 XP.']);
+            throw ValidationException::withMessages(['daily_goal_xp' => __('Choose a daily goal of 10, 20, 30 or 50 XP.')]);
         }
 
         if (! in_array($timezone, timezone_identifiers_list(), true)) {
-            throw ValidationException::withMessages(['timezone' => 'Choose a valid timezone identifier.']);
+            throw ValidationException::withMessages(['timezone' => __('Choose a valid timezone identifier.')]);
         }
 
         $settings = $this->settings($user);
@@ -82,6 +82,8 @@ class EngagementService
         $goalEarned = $daily ? $daily->xp_earned : 0;
         $xp = (int) ExperiencePointAward::query()->where('user_id', $user->id)->sum('points');
         $streak = $this->currentStreak($user, $settings->timezone);
+        /** @var array<string, array{title: string, description: string}> $achievementDefinitions */
+        $achievementDefinitions = config('engagement.achievements', []);
 
         return [
             'xp_total' => $xp,
@@ -96,7 +98,10 @@ class EngagementService
             'timezone' => $settings->timezone,
             'daily_goal_xp' => $settings->daily_goal_xp,
             'achievements' => LearnerAchievement::query()->where('user_id', $user->id)->orderByDesc('awarded_at')->get(),
-            'available_achievements' => config('engagement.achievements', []),
+            'available_achievements' => collect($achievementDefinitions)->map(fn (array $achievement): array => [
+                'title' => __($achievement['title']),
+                'description' => __($achievement['description']),
+            ])->all(),
             'recent_awards' => ExperiencePointAward::query()->where('user_id', $user->id)->latest('occurred_at')->limit(8)->get(),
             'leaderboards_enabled' => false,
         ];

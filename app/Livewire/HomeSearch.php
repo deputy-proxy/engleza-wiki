@@ -28,15 +28,15 @@ class HomeSearch extends Component
 
             return;
         }
-        $this->resources = Resource::published()
-            ->where(fn ($x) => $x->where('title', 'like', "%$term%")->orWhere('excerpt', 'like', "%$term%"))
+        $this->resources = Resource::published()->with(['translations', 'level.translations'])
+            ->where(fn ($x) => $x->where('title', 'like', "%$term%")->orWhere('excerpt', 'like', "%$term%")->orWhereHas('translations', fn ($translations) => $translations->where('locale', app()->getLocale())->where('status', 'reviewed')->whereIn('field', ['title', 'excerpt'])->where('value', 'like', "%$term%")))
             ->orderByDesc('featured')->orderByDesc('published_at')
             ->limit(6)->get()
-            ->map(fn ($r) => ['title' => $r->title, 'slug' => $r->slug, 'type' => $r->type, 'level' => $r->level?->name])
+            ->map(fn ($r) => ['title' => $r->translated('title'), 'slug' => $r->slug, 'type' => $r->type, 'level' => $r->level?->translated('name')])
             ->all();
-        $this->tests = Test::published()->where('title', 'like', "%$term%")
+        $this->tests = Test::published()->with(['translations', 'level.translations'])->where(fn ($query) => $query->where('title', 'like', "%$term%")->orWhereHas('translations', fn ($translations) => $translations->where('locale', app()->getLocale())->where('status', 'reviewed')->where('field', 'title')->where('value', 'like', "%$term%")))
             ->limit(3)->get()
-            ->map(fn ($t) => ['title' => $t->title, 'slug' => $t->slug, 'level' => $t->level?->name])
+            ->map(fn ($t) => ['title' => $t->translated('title'), 'slug' => $t->slug, 'level' => $t->level?->translated('name')])
             ->all();
         $this->open = true;
     }

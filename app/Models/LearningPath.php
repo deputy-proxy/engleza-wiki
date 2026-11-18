@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasTranslations;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,6 +13,8 @@ use Illuminate\Validation\ValidationException;
 /** @property-read Level|null $level */
 class LearningPath extends Model
 {
+    use HasTranslations;
+
     protected $fillable = ['level_id', 'title', 'slug', 'description', 'status', 'sort_order', 'published_at'];
 
     protected $casts = ['published_at' => 'datetime'];

@@ -21,7 +21,7 @@ class LearningPathService
     public function availablePaths(): Collection
     {
         return LearningPath::query()->published()
-            ->with(['level', 'skills', 'topics', 'units.lessons.activities.resource', 'units.lessons.activities.test'])
+            ->with(['translations', 'level.translations', 'skills.translations', 'topics.translations', 'units.lessons.translations', 'units.lessons.level.translations', 'units.lessons.skills.translations', 'units.lessons.topics.translations', 'units.lessons.activities.translations', 'units.lessons.activities.resource.translations', 'units.lessons.activities.resource.level.translations', 'units.lessons.activities.test.translations', 'units.lessons.activities.test.level.translations', 'units.lessons.activities.test.skill.translations'])
             ->get()
             ->filter(fn (LearningPath $path): bool => $path->units->contains(fn ($unit): bool => $unit->is_published
                 && $unit->lessons->contains(fn (LearningLesson $lesson): bool => $this->isLessonAvailable($lesson))))
@@ -34,7 +34,7 @@ class LearningPathService
             ? $path
             : LearningPath::query()->where('slug', $path)->firstOrFail();
         abort_unless($path->status === 'published' && $path->published_at !== null && $path->published_at->lte(now()), 404);
-        $path->load(['level', 'skills', 'topics', 'units.lessons.activities.resource', 'units.lessons.activities.test']);
+        $path->load(['translations', 'level.translations', 'skills.translations', 'topics.translations', 'units.lessons.translations', 'units.lessons.level.translations', 'units.lessons.skills.translations', 'units.lessons.topics.translations', 'units.lessons.activities.translations', 'units.lessons.activities.resource.translations', 'units.lessons.activities.resource.level.translations', 'units.lessons.activities.test.translations', 'units.lessons.activities.test.level.translations', 'units.lessons.activities.test.skill.translations']);
         abort_unless($path->units->contains(fn ($unit): bool => $unit->is_published
             && $unit->lessons->contains(fn (LearningLesson $lesson): bool => $this->isLessonAvailable($lesson))), 404);
 
@@ -46,7 +46,7 @@ class LearningPathService
         $lesson = $lesson instanceof LearningLesson
             ? $lesson
             : LearningLesson::query()->where('slug', $lesson)->firstOrFail();
-        $lesson->load(['unit.path', 'level', 'skills', 'topics', 'activities.resource.level', 'activities.test']);
+        $lesson->load(['translations', 'unit.path.translations', 'level.translations', 'skills.translations', 'topics.translations', 'activities.translations', 'activities.resource.translations', 'activities.resource.level.translations', 'activities.resource.skills.translations', 'activities.resource.topics.translations', 'activities.test.translations', 'activities.test.level.translations', 'activities.test.skill.translations']);
         abort_unless($this->isLessonAvailable($lesson), 404);
         $this->assertEnrolledAndUnlocked($lesson, $userId);
 
@@ -80,7 +80,7 @@ class LearningPathService
 
     public function completeActivity(LessonActivity $activity, int $userId, ?int $attemptId = null): LessonActivityProgress
     {
-        $lesson = $activity->lesson()->with('unit.path')->firstOrFail();
+        $lesson = $activity->lesson()->with(['translations', 'unit.path.translations'])->firstOrFail();
         $this->assertEnrolledAndUnlocked($lesson, $userId);
         abort_unless($this->isLessonAvailable($lesson), 404);
 
@@ -109,7 +109,7 @@ class LearningPathService
             $requiredIds = $lesson->activities()->where('is_required', true)->pluck('id');
             $completedIds = LessonActivityProgress::query()->where('user_id', $userId)
                 ->whereIn('lesson_activity_id', $requiredIds)->pluck('lesson_activity_id');
-            abort_unless($requiredIds->diff($completedIds)->isEmpty(), 422, 'Complete all required activities before completing this lesson.');
+            abort_unless($requiredIds->diff($completedIds)->isEmpty(), 422, __('Complete all required activities before completing this lesson.'));
 
             $progress = LessonProgress::query()->firstOrCreate(
                 ['learning_lesson_id' => $lesson->id, 'user_id' => $userId],
@@ -119,7 +119,7 @@ class LearningPathService
             app(EngagementService::class)->awardLessonCompletion($userId, (int) $lesson->id);
 
             $path = $lesson->unit->path;
-            $availableLessons = $path->units()->where('is_published', true)->with('lessons.activities.resource', 'lessons.activities.test')
+            $availableLessons = $path->units()->where('is_published', true)->with(['lessons.translations', 'lessons.activities.translations', 'lessons.activities.resource.translations', 'lessons.activities.test.translations'])
                 ->get()->flatMap(fn ($unit) => $unit->lessons->filter(fn (LearningLesson $item): bool => $this->isLessonAvailable($item)));
             $completedCount = LessonProgress::query()->where('user_id', $userId)
                 ->whereIn('learning_lesson_id', $availableLessons->pluck('id'))
@@ -180,15 +180,15 @@ class LearningPathService
                 return true;
             }
             $interactive = $resource->type === 'listening'
-                ? $resource->listeningResource()->with('questions.options')->first()
-                : $resource->readingResource()->with('questions.options')->first();
+                ? $resource->listeningResource()->with(['translations', 'questions.translations', 'questions.options', 'questions.topics.translations'])->first()
+                : $resource->readingResource()->with(['translations', 'questions.translations', 'questions.options', 'questions.topics.translations'])->first();
             $questions = $interactive === null ? collect() : $interactive->questions;
         } else {
             $test = $activity->test;
             if ($test === null) {
                 return false;
             }
-            $questions = $test->sections()->with('questions.options')->get()->flatMap(fn ($section) => $section->questions);
+            $questions = $test->sections()->with(['questions.translations', 'questions.options', 'questions.topics.translations'])->get()->flatMap(fn ($section) => $section->questions);
         }
 
         if ($questions->isEmpty()) {
@@ -224,7 +224,7 @@ class LearningPathService
                 }
                 $complete = LessonProgress::query()->where('learning_lesson_id', $previousLesson->id)
                     ->where('user_id', $userId)->where('status', 'completed')->exists();
-                abort_unless($complete, 403, 'Complete earlier lessons before continuing.');
+                abort_unless($complete, 403, __('Complete earlier lessons before continuing.'));
             }
         }
 

@@ -24,9 +24,9 @@ class LearningAttemptService
         if ($userId === null) {
             abort_unless(is_string($sessionId) && $sessionId !== '', 401);
         }
-        $questions = $this->questions($resource)->load('options');
+        $questions = $this->questions($resource)->load(['translations', 'topics.translations', 'section.translations', 'options']);
         foreach ($questions as $question) {
-            abort_if($this->responses->definitionIssues($question) !== [], 422, 'This exercise contains an invalid question configuration.');
+            abort_if($this->responses->definitionIssues($question) !== [], 422, __('This exercise contains an invalid question configuration.'));
         }
 
         return LearningAttempt::create([
@@ -92,10 +92,10 @@ class LearningAttemptService
             $locked = LearningAttempt::query()->whereKey($attempt->id)->lockForUpdate()->firstOrFail();
             $this->authorize($locked, $userId, $sessionId);
             if ($locked->status === 'completed') {
-                return $locked->load(['answers.question', 'answers.option']);
+                return $locked->load(['answers.question.translations', 'answers.option']);
             }
             abort_unless($locked->status === 'started', 410);
-            $questions = $this->questionsForAttempt($locked)->load(['topics', 'section', 'options']);
+            $questions = $this->questionsForAttempt($locked)->load(['translations', 'topics.translations', 'section.translations', 'options']);
             $answers = $locked->answers()->with('option')->get();
             $scores = $this->questionScoring->score($questions, $answers);
             foreach ($scores['question_scores'] as $questionId => $score) {
@@ -128,7 +128,7 @@ class LearningAttemptService
             'type' => $question->type,
             'configuration' => $this->responses->learnerConfiguration($question),
             ...($revealAnswers ? [
-                'explanation' => $question->explanation,
+                'explanation' => $question->translated('explanation'),
                 'answer_key' => $this->responses->answerKey($question),
             ] : []),
             'options' => in_array($question->type, ['single_choice', 'multiple_choice', 'true_false'], true)
@@ -170,7 +170,7 @@ class LearningAttemptService
                 $query->whereIn('listening_resource_id', $attempt->resource->listeningResource()->select('id'))
                     ->orWhereIn('reading_resource_id', $attempt->resource->readingResource()->select('id'));
             })
-            ->with(['topics', 'section', 'options'])
+            ->with(['translations', 'topics.translations', 'section.translations', 'options'])
             ->get()
             ->keyBy('id');
         $orderedQuestions = [];

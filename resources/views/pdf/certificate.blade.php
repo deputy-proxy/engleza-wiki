@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>engleza.wiki Certificate</title>
+  <title>{{ __('Certificate of Achievement') }} · engleza.wiki</title>
   <style>
     @page { margin: 0; }
     body { font-family: 'DejaVu Sans', sans-serif; margin: 0; padding: 0; color: #0f1e5c; }
@@ -26,33 +26,33 @@
   <div class="frame">
     <div class="brand">engleza.wiki</div>
     <div class="inner">
-      <h1>Certificate of Achievement</h1>
-      <div class="subtitle">Free English Level Test</div>
+      <h1>{{ __('Certificate of Achievement') }}</h1>
+      <div class="subtitle">{{ __('Free English Level Test') }}</div>
 
-      <div style="margin-top: 30px;">This certificate is proudly presented to</div>
+      <div style="margin-top: 30px;">{{ __('This certificate is proudly presented to') }}</div>
       <div class="name">{{ $name }}</div>
 
-      <div style="margin-top: 24px;">for successfully completing</div>
-      <div style="font-size: 22px; font-weight: bold; margin: 10px 0;">{{ $test->title }}</div>
+      <div style="margin-top: 24px;">{{ __('for successfully completing') }}</div>
+      <div style="font-size: 22px; font-weight: bold; margin: 10px 0;">{{ $test->translated('title') }}</div>
 
-      <div style="margin-top: 30px; font-size: 15px;">Assessed CEFR level</div>
+      <div style="margin-top: 30px; font-size: 15px;">{{ __('Assessed CEFR level') }}</div>
       <div class="level-box">{{ $result?->level ?? $attempt->level_result ?? '—' }}</div>
 
       <div class="stats">
-        <div class="stat"><div class="stat-label">Overall Score</div><div class="stat-value">{{ $result?->overall_percentage ?? $attempt->percentage }}%</div></div>
+        <div class="stat"><div class="stat-label">{{ __('Overall Score') }}</div><div class="stat-value">{{ $result?->overall_percentage ?? $attempt->percentage }}%</div></div>
         @if($result?->grammar_score !== null)
-          <div class="stat"><div class="stat-label">Grammar</div><div class="stat-value">{{ $result->grammar_score }}%</div></div>
+          <div class="stat"><div class="stat-label">{{ __('Grammar') }}</div><div class="stat-value">{{ $result->grammar_score }}%</div></div>
         @endif
         @if($result?->vocabulary_score !== null)
-          <div class="stat"><div class="stat-label">Vocabulary</div><div class="stat-value">{{ $result->vocabulary_score }}%</div></div>
+          <div class="stat"><div class="stat-label">{{ __('Vocabulary') }}</div><div class="stat-value">{{ $result->vocabulary_score }}%</div></div>
         @endif
         @if($result?->reading_score !== null)
-          <div class="stat"><div class="stat-label">Reading</div><div class="stat-value">{{ $result->reading_score }}%</div></div>
+          <div class="stat"><div class="stat-label">{{ __('Reading') }}</div><div class="stat-value">{{ $result->reading_score }}%</div></div>
         @endif
       </div>
 
       <div class="footer">
-        Issued on {{ $issued }} · engleza.wiki — Free English resources for learners and teachers
+        {{ __('Issued on ') }}{{ $issued }} · {{ __('engleza.wiki — Free English resources for learners and teachers') }}
       </div>
     </div>
     <div class="cert-id">{{ $certificate_id }}</div>

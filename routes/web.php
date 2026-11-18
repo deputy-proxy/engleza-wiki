@@ -12,11 +12,13 @@ use App\Http\Controllers\LearningController;
 use App\Http\Controllers\LearningPathController;
 use App\Http\Controllers\ResourceController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\VocabularyReviewController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 Route::get('/resources', [ResourceController::class, 'index'])->name('resources.index');
 Route::get('/resources/{resource:slug}', [ResourceController::class, 'show'])->name('resources.show');
 

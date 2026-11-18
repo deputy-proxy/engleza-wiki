@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasTranslations;
 use App\Models\Resource as ContentResource;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -15,6 +16,8 @@ use Illuminate\Support\Facades\Storage;
  */
 class ListeningResource extends Model
 {
+    use HasTranslations;
+
     protected $casts = ['show_correct_answers' => 'boolean'];
 
     protected $fillable = ['resource_id', 'instructions', 'show_correct_answers', 'media_path', 'media_type', 'original_filename', 'mime_type', 'file_size', 'duration_seconds'];

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasTranslations;
 use App\Models\Resource as LearningResource;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,6 +11,8 @@ use Illuminate\Validation\ValidationException;
 
 class LessonActivity extends Model
 {
+    use HasTranslations;
+
     protected $fillable = ['learning_lesson_id', 'type', 'resource_id', 'test_id', 'title', 'instructions', 'sort_order', 'is_required'];
 
     protected $casts = ['is_required' => 'bool'];
