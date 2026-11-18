@@ -17,7 +17,9 @@ class UserForm
             TextInput::make('email')->label('Email address')->email()->required()->unique(ignoreRecord: true),
             Select::make('role')->required()->native(false)->options([
                 'admin' => 'Admin', 'editor' => 'Editor', 'teacher' => 'Teacher', 'learner' => 'Learner',
-            ])->default('learner'),
+            ])->default('learner')
+                ->visible(fn (): bool => auth()->user()?->isAdmin() ?? false)
+                ->dehydrated(fn (): bool => auth()->user()?->isAdmin() ?? false),
             DateTimePicker::make('email_verified_at')->label('Verified at'),
             TextInput::make('password')->password()->revealable()
                 ->dehydrated(fn ($state) => filled($state))

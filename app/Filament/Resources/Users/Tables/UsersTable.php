@@ -28,6 +28,6 @@ class UsersTable
             ])
             ->defaultSort('created_at', 'desc')
             ->recordActions([EditAction::make()])
-            ->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
+            ->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()->authorizeIndividualRecords('delete')])]);
     }
 }
