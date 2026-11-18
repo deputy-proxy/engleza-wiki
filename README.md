@@ -150,6 +150,28 @@ resources/views/
 └── livewire/tests/           # Livewire test engine template
 ```
 
+## Learning engagement and motivation
+
+Learner engagement is derived only from successful server-side learning operations. It is separate from assessment points, percentages and the evidence used by the mastery model.
+
+### XP policy
+
+- Completing a lesson awards **20 XP** once per learner and lesson.
+- Completing an adaptive practice session awards **10 XP**, for at most three rewarded sessions per learner per local day.
+- Completing a vocabulary review awards **2 XP** once per vocabulary item per learner per local day, for at most ten rewarded items per day.
+- XP awards are stored in an immutable ledger with their source activity, timestamp, local activity date and an idempotency key. Retried requests cannot issue a second award.
+- Vocabulary and practice limits are reward limits, not restrictions on learning activity. Learners can continue practising after reaching them.
+
+### Daily goals and streaks
+
+Learners choose a daily target of 10, 20, 30 or 50 XP and an IANA timezone (for example, `Europe/Bucharest`). An activity belongs to the calendar date in that timezone at the time the XP is awarded. Each daily record snapshots the target in effect when that date first receives XP, and its completion timestamp is persisted when the target is reached. Streaks count consecutive local calendar dates on which the goal was reached. A streak remains current through the rest of the following local day; after that, it resets to zero. Date-based calculations naturally follow daylight-saving transitions. Changing timezone affects future activity dates; existing daily records are not rewritten.
+
+### Achievements and privacy
+
+Reward values, daily limits, goal choices and achievement definitions are maintained in `config/engagement.php`; awarded points and achievement descriptions are snapshotted so later policy changes do not rewrite history. Achievement awards are persisted once per learner with evidence describing the qualifying milestone. Current milestones cover first lesson, ten lessons, first adaptive practice session, 50 vocabulary-review awards, three- and seven-day goal streaks, and 100/500 XP. XP and achievement records are visible only to their owner.
+
+Global and class leaderboards are intentionally not enabled. The platform does not yet have enough legitimate cohort activity or an explicit consent and privacy model to justify rankings. No assessment scores, writing submissions or private learner histories are exposed through social features.
+
 ## Automated tests
 
 ```bash

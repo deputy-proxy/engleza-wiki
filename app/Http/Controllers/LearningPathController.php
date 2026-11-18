@@ -95,7 +95,7 @@ class LearningPathController extends Controller
     {
         $learning->completeLesson($lesson, (int) auth()->id());
 
-        return redirect()->route('learning.lessons.show', $lesson)->with('status', 'Lesson completed.');
+        return redirect()->route('learning.lessons.show', $lesson)->with('status', 'Lesson completed. You earned 20 XP.');
     }
 
     public function myLearning(Request $request, LearningPathService $learning): View

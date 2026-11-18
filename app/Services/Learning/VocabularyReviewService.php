@@ -161,7 +161,7 @@ class VocabularyReviewService
                 'due_at' => $now->copy()->addSeconds($nextInterval),
             ])->save();
 
-            VocabularyReviewEvent::query()->create([
+            $event = VocabularyReviewEvent::query()->create([
                 'learner_vocabulary_item_id' => $locked->id,
                 'user_id' => $user->id,
                 'grade' => $grade,
@@ -170,6 +170,7 @@ class VocabularyReviewService
                 'response_time_ms' => $responseTimeMs,
                 'reviewed_at' => $now,
             ]);
+            app(EngagementService::class)->awardVocabularyReview($user, $event);
 
             return $locked->fresh();
         });

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AdaptivePracticeSession;
+use App\Models\ExperiencePointAward;
 use App\Services\Learning\AdaptivePracticeService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,8 +24,10 @@ class AdaptivePracticeController extends Controller
     {
         $session = $practice->session($session, auth()->user());
         $questions = $practice->questionPayload($session);
+        $xpAwarded = (int) ExperiencePointAward::query()->where('user_id', auth()->id())
+            ->where('source_type', 'adaptive_practice')->where('source_id', $session->id)->value('points');
 
-        return view('pages.dashboard.practice', compact('session', 'questions'));
+        return view('pages.dashboard.practice', compact('session', 'questions', 'xpAwarded'));
     }
 
     public function submit(Request $request, AdaptivePracticeSession $session, AdaptivePracticeService $practice): RedirectResponse

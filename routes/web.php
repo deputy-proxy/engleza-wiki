@@ -6,6 +6,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\ClassGroupController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EngagementController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LearningController;
 use App\Http\Controllers\LearningPathController;
@@ -72,6 +73,7 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::put('/engagement/goal', [EngagementController::class, 'updateGoal'])->name('engagement.goal.update')->middleware('throttle:10,1');
     Route::get('/my-tests', [DashboardController::class, 'tests'])->name('dashboard.tests');
     Route::get('/my-resources', [DashboardController::class, 'resources'])->name('dashboard.resources');
     Route::get('/my-writing', [DashboardController::class, 'writing'])->name('dashboard.writing');

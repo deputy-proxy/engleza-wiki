@@ -31,12 +31,16 @@ class LearningPathTest extends TestCase
         $this->get(route('learning.lessons.show', $lessons[1]))->assertForbidden();
 
         $this->post(route('learning.activities.complete', $activities[0]))->assertRedirect();
-        $this->post(route('learning.lessons.complete', $lessons[0]))->assertRedirect(route('learning.lessons.show', $lessons[0]));
+        $this->post(route('learning.lessons.complete', $lessons[0]))->assertRedirect(route('learning.lessons.show', $lessons[0]))
+            ->assertSessionHas('status', 'Lesson completed. You earned 20 XP.');
         $this->assertDatabaseHas('lesson_progress', [
             'learning_lesson_id' => $lessons[0]->id, 'user_id' => $user->id, 'status' => 'completed',
         ]);
         $this->assertDatabaseHas('lesson_activity_progress', [
             'lesson_activity_id' => $activities[0]->id, 'user_id' => $user->id, 'status' => 'completed',
+        ]);
+        $this->assertDatabaseHas('experience_point_awards', [
+            'user_id' => $user->id, 'source_type' => 'lesson', 'source_id' => $lessons[0]->id, 'points' => 20,
         ]);
 
         $this->get(route('learning.lessons.show', $lessons[1]))->assertOk()->assertSee($lessons[1]->title);

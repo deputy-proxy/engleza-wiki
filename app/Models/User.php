@@ -56,6 +56,18 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(AdaptivePracticeSession::class);
     }
 
+    /** @return HasMany<ExperiencePointAward, $this> */
+    public function experiencePointAwards()
+    {
+        return $this->hasMany(ExperiencePointAward::class);
+    }
+
+    /** @return HasMany<LearnerAchievement, $this> */
+    public function achievements()
+    {
+        return $this->hasMany(LearnerAchievement::class);
+    }
+
     public function savedResources()
     {
         return $this->hasMany(SavedResource::class);

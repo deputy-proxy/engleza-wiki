@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\AdaptivePracticeSession;
 use App\Models\CardResource;
 use App\Models\ClassGroup;
+use App\Models\ExperiencePointAward;
 use App\Models\LearnerVocabularyItem;
 use App\Models\LearningLesson;
 use App\Models\LearningPath;
@@ -251,6 +252,8 @@ class LearnerProgressTest extends TestCase
         $this->assertSame(0, $item->fresh()->repetitions);
         $this->assertSame(1, $item->fresh()->lapses);
         $this->assertDatabaseCount('vocabulary_review_events', 2);
+        $this->assertDatabaseCount('experience_point_awards', 1);
+        $this->assertDatabaseHas('experience_point_awards', ['user_id' => $user->id, 'source_type' => 'vocabulary_review', 'points' => 2]);
     }
 
     public function test_adaptive_practice_uses_a_separate_session_and_does_not_create_formal_test_attempts(): void
@@ -300,10 +303,11 @@ class LearnerProgressTest extends TestCase
         $this->assertSame(100.0, (float) $completed->percentage);
         $this->assertDatabaseCount('adaptive_practice_sessions', 1);
         $this->assertDatabaseCount('test_attempts', 0);
+        $this->assertDatabaseHas('experience_point_awards', ['user_id' => $user->id, 'source_type' => 'adaptive_practice', 'source_id' => $session->id, 'points' => 10]);
 
         $review = $service->questionPayload($service->session($completed, $user));
         $this->assertArrayHasKey('is_correct', $review[0]['options'][0]);
-        $this->actingAs($user)->get(route('practice.show', $completed))->assertOk()->assertSee('Answer review');
+        $this->actingAs($user)->get(route('practice.show', $completed))->assertOk()->assertSee('Answer review')->assertSee('You earned 10 XP for this session.');
         $nextSession = $service->start($user);
         $this->assertCount(1, $nextSession->question_order);
         $remainingId = $nextSession->question_order[0];
@@ -313,6 +317,7 @@ class LearnerProgressTest extends TestCase
         ])->assertRedirect(route('practice.show', $nextSession));
         $nextSession->refresh();
         $this->assertSame('completed', $nextSession->status);
+        $this->assertSame(20, (int) ExperiencePointAward::query()->where('user_id', $user->id)->sum('points'));
 
         $profile = app(LearnerProgressService::class)->summary($user);
         $topicProgress = collect($profile['topics'])->firstWhere('id', $topic->id);
