@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" class="antialiased">
+<html lang="ro" class="antialiased">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <title>{{ $title ?? config('app.name') }}</title>
 <meta name="description" content="{{ $description ?? 'Free English resources, tests and lessons for learners and teachers.' }}">
-<meta property="og:site_name" content="engleza.wiki">
+<meta property="og:site_name" content="engleza.wiki">\n<meta property="og:locale" content="ro_RO">
 <meta property="og:title" content="{{ $title ?? config('app.name') }}">
 <meta property="og:description" content="{{ $description ?? 'Free English resources and tests.' }}">
 <meta property="og:type" content="website">
