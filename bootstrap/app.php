@@ -15,7 +15,6 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withCommands()
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->authenticateSessions();
-        $middleware->trustProxies(at: '*');
         $middleware->appendToGroup('web', SetPublicLocale::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

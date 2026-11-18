@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'engleza.wiki'),
 
     /*
     |--------------------------------------------------------------------------
@@ -65,7 +65,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => env('APP_TIMEZONE', 'UTC'),
 
     /*
     |--------------------------------------------------------------------------
@@ -98,6 +98,22 @@ return [
     'cipher' => 'AES-256-CBC',
 
     'key' => env('APP_KEY'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | One-Time Production Administrator Bootstrap
+    |--------------------------------------------------------------------------
+    |
+    | These credentials are used only when production has no administrator.
+    | Remove ADMIN_PASSWORD immediately after the first successful bootstrap.
+    |
+    */
+
+    'bootstrap_admin' => [
+        'name' => env('ADMIN_NAME'),
+        'email' => env('ADMIN_EMAIL'),
+        'password' => env('ADMIN_PASSWORD'),
+    ],
 
     'previous_keys' => [
         ...array_filter(

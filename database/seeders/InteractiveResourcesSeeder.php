@@ -17,12 +17,17 @@ use App\Models\User;
 use App\Models\WritingResource;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
+use RuntimeException;
 
 class InteractiveResourcesSeeder extends Seeder
 {
     public function run(): void
     {
-        $admin = User::where('email', 'admin@engleza.wiki')->first();
+        if (app()->environment('production')) {
+            throw new RuntimeException('Interactive sample resources are disabled in production.');
+        }
+
+        $admin = User::query()->where('role', 'admin')->orderBy('id')->firstOrFail();
         $L = fn ($s) => Level::where('slug', $s)->first()?->id;
         $S = fn ($s) => Skill::where('slug', Str::slug($s))->first();
         $T = fn ($s) => Topic::where('slug', Str::slug($s))->first();

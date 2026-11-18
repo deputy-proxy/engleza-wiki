@@ -21,11 +21,13 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Users
-        User::updateOrCreate(['email' => 'admin@engleza.wiki'], ['name' => 'Admin', 'password' => bcrypt('password'), 'role' => 'admin', 'email_verified_at' => now()]);
-        User::updateOrCreate(['email' => 'editor@engleza.wiki'], ['name' => 'Editor', 'password' => bcrypt('password'), 'role' => 'editor', 'email_verified_at' => now()]);
-        User::updateOrCreate(['email' => 'teacher@engleza.wiki'], ['name' => 'Teacher', 'password' => bcrypt('password'), 'role' => 'teacher', 'email_verified_at' => now()]);
-        User::updateOrCreate(['email' => 'learner@engleza.wiki'], ['name' => 'Learner', 'password' => bcrypt('password'), 'role' => 'learner', 'email_verified_at' => now()]);
+        if (app()->environment('production')) {
+            $this->call(ProductionAdminSeeder::class);
+
+            return;
+        }
+
+        $this->call(DevelopmentUsersSeeder::class);
 
         // Levels
         foreach (['Pre-A1', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2'] as $i => $n) {
@@ -65,7 +67,7 @@ class DatabaseSeeder extends Seeder
             Topic::updateOrCreate(['slug' => Str::slug($n)], ['name' => $n, 'parent_id' => $grammarRoot->id]);
         }
 
-        $admin = User::where('email', 'admin@engleza.wiki')->first();
+        $admin = User::query()->where('role', 'admin')->orderBy('id')->firstOrFail();
         $L = fn ($s) => Level::where('slug', $s)->first()?->id;
         $S = fn ($s) => Skill::where('slug', Str::slug($s))->first();
         $T = fn ($s) => Topic::where('slug', Str::slug($s))->first();

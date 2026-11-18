@@ -39,7 +39,7 @@ Tailwind CSS 4, Livewire 3, Alpine.js, MySQL. No React/Vue/Inertia/Bootstrap.
 - CSRF protection on all POST routes
 - Automated feature tests (PublicFlowTest — 12 tests covering critical paths)
 - Comprehensive seed data with realistic content
-- README + test_credentials.md
+- README with development-only seed account details
 
 ## Backlog (P1/P2)
 - P1: SEO sitemap.xml + robots.txt
