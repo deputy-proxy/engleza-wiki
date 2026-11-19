@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\File;
 
 class EditorialAudit extends Command
 {
+    private const REVIEW_WORKFLOW_STARTED_AT = '2026-11-18 00:00:04';
     protected $signature = 'content:editorial-audit {--output= : Write the complete CSV register to this path}';
 
     protected $description = 'Inventory published educational content, editorial status, translation state and review findings.';
@@ -57,7 +58,7 @@ class EditorialAudit extends Command
 
     private function auditResources(): void
     {
-        Resource::query()->whereIn('status', ['published', 'draft'])->with([
+        Resource::query()->where('created_at', '>=', self::REVIEW_WORKFLOW_STARTED_AT)->whereIn('status', ['published', 'draft'])->with([
             'level', 'skills', 'topics', 'media', 'listeningResource.questions.options',
             'readingResource.questions.options', 'writingResource', 'cardResource.cards',
         ])->orderBy('id')->each(function (Resource $resource): void {
@@ -172,7 +173,7 @@ class EditorialAudit extends Command
 
     private function auditTests(): void
     {
-        Test::query()->where('status', 'published')->with(['level', 'skill', 'sections.questions.options', 'translations'])->orderBy('id')->each(function (Test $test): void {
+        Test::query()->where('created_at', '>=', self::REVIEW_WORKFLOW_STARTED_AT)->where('status', 'published')->with(['level', 'skill', 'sections.questions.options', 'translations'])->orderBy('id')->each(function (Test $test): void {
             $questions = $test->sections->flatMap(fn ($section) => $section->questions);
             $missingExplanations = $questions->filter(fn (Question $question): bool => blank($question->explanation))->count();
             $invalidAnswerKeys = $questions->filter(fn (Question $question): bool => in_array($question->type, ['single_choice', 'true_false'], true)
@@ -217,7 +218,7 @@ class EditorialAudit extends Command
 
     private function auditLessons(): void
     {
-        LearningLesson::query()->where('status', 'published')->with(['unit.path', 'level', 'skills', 'topics', 'activities'])->orderBy('id')->each(function (LearningLesson $lesson): void {
+        LearningLesson::query()->where('created_at', '>=', self::REVIEW_WORKFLOW_STARTED_AT)->where('status', 'published')->with(['unit.path', 'level', 'skills', 'topics', 'activities'])->orderBy('id')->each(function (LearningLesson $lesson): void {
             $notes = $lesson->publicationIssues();
             $notes[] = 'Review lesson objectives, CEFR fit, activity sequencing and each referenced resource/test.';
             $this->addRow('Learning lesson', $lesson, 'revise', 'n/a', implode(' ', $notes), [
@@ -233,7 +234,7 @@ class EditorialAudit extends Command
 
     private function auditTranslations(): void
     {
-        ContentTranslation::query()->with('translatable')->where('locale', 'ro')->orderBy('id')->each(function (ContentTranslation $translation): void {
+        ContentTranslation::query()->with('translatable')->where('created_at', '>=', self::REVIEW_WORKFLOW_STARTED_AT)->where('locale', 'ro')->orderBy('id')->each(function (ContentTranslation $translation): void {
             $source = $translation->translatable?->getAttribute($translation->field);
             $sourceValue = is_array($source)
                 ? json_encode($source, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)
