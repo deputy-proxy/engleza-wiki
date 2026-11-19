@@ -3,6 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\ContentTranslation;
+use App\Models\LearningLesson;
+use App\Models\LearningPath;
+use App\Models\LearningUnit;
 use App\Models\Resource;
 use App\Models\Test as Assessment;
 use App\Models\User;
