@@ -39,10 +39,12 @@ class TestController extends Controller
         // Optional class-code binding
         $classGroupId = null;
         if ($code = $r->input('class_code')) {
-            $g = ClassGroup::where('join_code', strtoupper($code))->where('is_active', true)->first();
-            if ($g && ($g->test_id === null || $g->test_id === $test->id)) {
-                $classGroupId = $g->id;
-            }
+            $g = ClassGroup::query()->where('join_code', strtoupper($code))->where('is_active', true)->firstOrFail();
+            abort_unless(auth()->check() && auth()->user()->role === 'learner', 403);
+            abort_unless($g->test_id === $test->id, 403);
+            abort_unless($g->activeMemberships()->where('user_id', auth()->id())->exists(), 403);
+            abort_unless($test->status === 'published' && $test->editorial_status === 'approved' && $test->is_public, 403);
+            $classGroupId = $g->id;
         }
 
         $attempt = $attempts->start($test, [

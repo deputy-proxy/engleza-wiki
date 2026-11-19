@@ -3,9 +3,6 @@
 namespace App\Filament\Resources\ClassGroups\Tables;
 
 use Filament\Actions\Action;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -27,8 +24,6 @@ class ClassGroupsTable
                 Action::make('results')->label('Results')->icon('heroicon-o-chart-bar')->color('success')
                     ->url(fn ($record) => route('classes.results', $record->join_code)),
                 EditAction::make(),
-                DeleteAction::make(),
-            ])
-            ->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
+            ]);
     }
 }

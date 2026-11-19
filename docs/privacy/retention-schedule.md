@@ -10,7 +10,7 @@
 | Tests, answers and results | Persist; some content FKs cascade; user references may null on delete | Decide retention by educational purpose, certificate/appeal needs and legal obligations | No |
 | Learning attempts and answers | Persist; user reference nullable | Same as tests; separately review technical identifiers | No |
 | Writing submissions, versions and reviews | Persist as learner text and teacher feedback; versions and reviews are linked to the parent submission; learner deletion is blocked while protected learning records exist | Purpose-limited retention with review window; check class/appeal/legal needs; controller and counsel must approve exact periods and any destructive action | No |
-| Class groups and results | Teacher owns group; deleting teacher currently cascades group deletion | Transfer ownership or anonymise group/results before closure | No |
+| Class groups, memberships and transfers | Class ownership is transferable; membership removals and teacher transfers are append-only audit events; current reports exclude removed learners | Archive classes, transfer ownership and retain membership/transfer history. Do not delete class, membership or transfer records through the application | No |
 | Progress, vocabulary and engagement | Persist as account-owned history | Delete or anonymise with closure, subject to approved exceptions | No |
 | Privacy requests | Request record retained; after approved account closure, requester link, description and internal notes are cleared | Keep minimal anonymised accountability record for counsel-approved period | No |
 | Logs and backups | Host/application retention not fully verified | Set explicit rotation, access and backup expiry | No |

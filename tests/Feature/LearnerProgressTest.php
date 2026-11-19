@@ -24,6 +24,7 @@ use App\Models\TestSection;
 use App\Models\Topic;
 use App\Models\User;
 use App\Services\Learning\AdaptivePracticeService;
+use App\Services\Learning\ClassGroupService;
 use App\Services\Learning\LearnerProgressService;
 use App\Services\Learning\VocabularyReviewService;
 use App\Services\Test\TestAttemptService;
@@ -123,7 +124,7 @@ class LearnerProgressTest extends TestCase
     public function test_teacher_summary_is_limited_to_completed_attempts_in_their_class_group(): void
     {
         $teacher = User::factory()->create(['role' => 'teacher']);
-        $learner = User::factory()->create();
+        $learner = User::factory()->create(['role' => 'learner']);
         $skill = Skill::query()->create(['name' => 'Vocabulary', 'slug' => 'vocabulary']);
         $topic = Topic::query()->create(['name' => 'Travel', 'slug' => 'travel']);
         $test = Assessment::factory()->create(['skill_id' => $skill->id]);
@@ -141,6 +142,7 @@ class LearnerProgressTest extends TestCase
         $question->topics()->attach($topic);
         $test->refresh()->approveEditorialReview(User::factory()->create(['role' => 'admin']));
         $group = ClassGroup::query()->create(['name' => 'Group A', 'teacher_id' => $teacher->id]);
+        app(ClassGroupService::class)->join($learner, $group);
         $attemptService = app(TestAttemptService::class);
         $groupAttempt = $attemptService->start($test, [
             'user_id' => $learner->id, 'class_group_id' => $group->id, 'started_at' => now(),

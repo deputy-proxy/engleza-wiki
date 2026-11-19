@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ClassGroup;
+use App\Models\ClassGroupMembership;
 use App\Models\Resource;
 use App\Models\WritingSubmission;
 use App\Services\Learning\WritingSubmissionService;
@@ -31,8 +32,9 @@ class WritingSubmissionController extends Controller
     public function storeForClass(Request $request, ClassGroup $group, Resource $resource, WritingSubmissionService $service): RedirectResponse
     {
         abort_unless($group->is_active, 404);
+        abort_unless($group->activeMemberships()->where('user_id', $request->user()->id)->exists(), 403);
         abort_unless($resource->type === 'writing' && $resource->writingResource, 404);
-        abort_unless($resource->status === 'published' && $resource->isEditorialVisible(), 404);
+        abort_unless($resource->status === 'published' && $resource->editorial_status === 'approved', 404);
         abort_unless($group->writingResources()->whereKey($resource->writingResource->id)->exists(), 404);
         $data = $request->validate([
             'content' => ['required', 'string', 'max:20000'],
@@ -70,7 +72,7 @@ class WritingSubmissionController extends Controller
     public function teacherIndex(Request $request, ClassGroup $group): View
     {
         $this->authorizeTeacher($request, $group);
-        $submissions = $group->writingSubmissions()->where('status', '!=', 'draft')->with(['user', 'writingResource.resource.translations'])->latest()->paginate(20);
+        $submissions = $group->writingSubmissions()->where('status', '!=', 'draft')->whereHas('user.classGroupMemberships', fn ($q) => $q->where('class_group_id', $group->id)->whereNull('removed_at'))->with(['user:id,name', 'writingResource.resource.translations'])->latest()->paginate(20);
 
         return view('pages.classes.writing', compact('group', 'submissions'));
     }
@@ -79,7 +81,8 @@ class WritingSubmissionController extends Controller
     {
         $this->authorizeTeacher($request, $group);
         abort_unless($submission->class_group_id === $group->id && $submission->status !== 'draft', 404);
-        $submission->load(['user', 'writingResource.resource.translations', 'versions', 'reviews.teacher', 'reviews.version']);
+        abort_unless($submission->user->classGroupMemberships()->where('class_group_id', $group->id)->whereNull('removed_at')->exists(), 404);
+        $submission->load(['user:id,name', 'writingResource.resource.translations', 'versions', 'reviews.teacher:id,name', 'reviews.version']);
 
         return view('pages.classes.writing-review', compact('group', 'submission'));
     }
@@ -87,7 +90,7 @@ class WritingSubmissionController extends Controller
     public function beginReview(Request $request, ClassGroup $group, WritingSubmission $submission, WritingSubmissionService $service): RedirectResponse
     {
         $this->authorizeTeacher($request, $group);
-        abort_unless($submission->class_group_id === $group->id, 404);
+        $this->authorizeActiveSubmission($group, $submission);
         $service->beginReview($submission);
 
         return back()->with('status', 'writing-review-started');
@@ -96,7 +99,7 @@ class WritingSubmissionController extends Controller
     public function publishFeedback(Request $request, ClassGroup $group, WritingSubmission $submission, WritingSubmissionService $service): RedirectResponse
     {
         $this->authorizeTeacher($request, $group);
-        abort_unless($submission->class_group_id === $group->id, 404);
+        $this->authorizeActiveSubmission($group, $submission);
         $criteria = ['task_achievement', 'organization', 'vocabulary', 'grammar', 'mechanics'];
         $data = $request->validate([
             'rubric_scores' => ['required', 'array:'.implode(',', $criteria)],
@@ -114,7 +117,7 @@ class WritingSubmissionController extends Controller
     public function requestRevision(Request $request, ClassGroup $group, WritingSubmission $submission, WritingSubmissionService $service): RedirectResponse
     {
         $this->authorizeTeacher($request, $group);
-        abort_unless($submission->class_group_id === $group->id, 404);
+        $this->authorizeActiveSubmission($group, $submission);
         $service->requestRevision($submission);
 
         return back()->with('status', 'writing-revision-requested');
@@ -123,10 +126,17 @@ class WritingSubmissionController extends Controller
     public function complete(Request $request, ClassGroup $group, WritingSubmission $submission, WritingSubmissionService $service): RedirectResponse
     {
         $this->authorizeTeacher($request, $group);
-        abort_unless($submission->class_group_id === $group->id, 404);
+        $this->authorizeActiveSubmission($group, $submission);
         $service->complete($submission);
 
         return back()->with('status', 'writing-completed');
+    }
+
+    private function authorizeActiveSubmission(ClassGroup $group, WritingSubmission $submission): void
+    {
+        abort_unless($submission->class_group_id === $group->id && $submission->status !== 'draft', 404);
+        abort_unless(ClassGroupMembership::query()->where('class_group_id', $group->id)
+            ->where('user_id', $submission->user_id)->whereNull('removed_at')->exists(), 404);
     }
 
     private function authorizeTeacher(Request $request, ClassGroup $group): void

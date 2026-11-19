@@ -16,8 +16,9 @@ User management is protected by Laravel's `UserPolicy`. Filament resource naviga
 
 - An administrator cannot demote or delete their own account through the user-management resource.
 - The last administrator cannot be demoted or deleted. Promote and verify another administrator before changing the existing administrator's role.
-- Accounts with learning attempts, enrollments, lesson progress, vocabulary/review history, adaptive practice, XP/achievements, saved resources, writing submissions, or teacher class groups cannot be deleted through this resource. Several of these tables use cascading foreign keys; blocking deletion prevents accidental destruction of educational history.
+- Accounts with learning attempts, enrollments, lesson progress, vocabulary/review history, adaptive practice, XP/achievements, saved resources, writing submissions, or teacher class groups, class memberships and class transfer history cannot be deleted through this resource. Several of these tables use cascading foreign keys; blocking deletion prevents accidental destruction of educational history.
 - Accounts without protected records may be deleted by an administrator. Review the account and its dependencies before deletion.
+- Teachers manage their own classes through `/teaching`; class and writing routes re-check current ownership and active learner membership. Class transfers are audited and immediately revoke the previous teacher’s access. Teachers cannot access the Filament panel.
 - Role changes are performed only by an authenticated administrator. The role field is omitted from non-admin form state, and the policy rejects unauthorized requests independently of the UI.
 
 ## Administrator provisioning and recovery

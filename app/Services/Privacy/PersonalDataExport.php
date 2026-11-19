@@ -41,7 +41,7 @@ class PersonalDataExport
         $writingSubmissionIds = collect($records['writing_submissions'])->pluck('id')->all();
         $records['writing_submission_versions'] = $this->relatedRows('writing_submission_versions', 'writing_submission_id', $writingSubmissionIds);
         $records['writing_submission_reviews'] = $this->relatedRows('writing_submission_reviews', 'writing_submission_id', $writingSubmissionIds);
-        $records['teacher_writing_reviews'] = $this->ownedRows('writing_submission_reviews', 'teacher_id', $user->getKey());
+        $records['teacher_writing_reviews'] = [];
 
         $testAttemptIds = collect($records['test_attempts'])->pluck('id')->all();
         $learningAttemptIds = collect($records['learning_attempts'])->pluck('id')->all();
@@ -56,10 +56,29 @@ class PersonalDataExport
             'id', 'name', 'test_id', 'description', 'is_active', 'created_at', 'updated_at',
         ]);
         $teachingClassGroupIds = collect($records['teaching_class_groups'])->pluck('id')->all();
+        if ($teachingClassGroupIds !== [] && Schema::hasTable('writing_submission_reviews')) {
+            $records['teacher_writing_reviews'] = DB::table('writing_submission_reviews')
+                ->join('writing_submissions', 'writing_submissions.id', '=', 'writing_submission_reviews.writing_submission_id')
+                ->join('class_group_memberships', function ($join): void {
+                    $join->on('class_group_memberships.class_group_id', '=', 'writing_submissions.class_group_id')
+                        ->on('class_group_memberships.user_id', '=', 'writing_submissions.user_id')->whereNull('class_group_memberships.removed_at');
+                })->where('writing_submission_reviews.teacher_id', $user->getKey())
+                ->whereIn('writing_submissions.class_group_id', $teachingClassGroupIds)
+                ->get(['writing_submission_reviews.*'])->map(fn (object $row): array => (array) $row)->all();
+        }
         $records['teaching_class_writing_assignments'] = $this->relatedRows('class_group_writing_resource', 'class_group_id', $teachingClassGroupIds);
 
+        $records['class_group_memberships'] = Schema::hasTable('class_group_memberships')
+            ? DB::table('class_group_memberships')->where('user_id', $user->getKey())->get()->map(fn (object $row): array => (array) $row)->all() : [];
+        $records['teaching_class_membership_events'] = $teachingClassGroupIds !== [] && Schema::hasTable('class_group_memberships')
+            ? DB::table('class_group_memberships')->whereIn('class_group_id', $teachingClassGroupIds)->get(['id', 'class_group_id', 'joined_at', 'removed_at', 'created_at', 'updated_at'])->map(fn (object $row): array => (array) $row)->all() : [];
+        $records['class_group_membership_actions'] = $teachingClassGroupIds !== [] && Schema::hasTable('class_group_memberships')
+            ? DB::table('class_group_memberships')->where(fn ($q) => $q->where('added_by', $user->getKey())->orWhere('removed_by', $user->getKey()))->get(['id', 'class_group_id', 'joined_at', 'removed_at', 'created_at', 'updated_at'])->map(fn (object $row): array => (array) $row)->all() : [];
+        $records['class_group_transfer_history'] = Schema::hasTable('class_group_transfers')
+            ? DB::table('class_group_transfers')->where(fn ($q) => $q->where('previous_teacher_id', $user->getKey())->orWhere('new_teacher_id', $user->getKey())->orWhere('transferred_by', $user->getKey()))->get(['id', 'class_group_id', 'transferred_at', 'created_at', 'updated_at'])->map(fn (object $row): array => (array) $row)->all() : [];
         $learnerClassGroupIds = collect($records['test_attempts'])->pluck('class_group_id')
             ->merge(collect($records['writing_submissions'])->pluck('class_group_id'))
+            ->merge(collect($records['class_group_memberships'])->pluck('class_group_id'))
             ->filter()->unique()->values()->all();
         $records['learner_class_groups'] = $this->relatedRows(
             'class_groups',
@@ -74,7 +93,7 @@ class PersonalDataExport
             ->all();
 
         return [
-            'export_version' => '1.1',
+            'export_version' => '1.2',
             'exported_at' => now()->toIso8601String(),
             'account' => [
                 'name' => $user->name,

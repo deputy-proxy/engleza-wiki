@@ -188,6 +188,37 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmailContr
             }
         }
 
+        if (Schema::hasTable('class_group_memberships') && DB::table('class_group_memberships')
+            ->where('user_id', $this->getKey())->exists()) {
+            return true;
+        }
+        if (Schema::hasTable('class_group_memberships') && DB::table('class_group_memberships')
+            ->where(fn ($query) => $query->where('added_by', $this->getKey())->orWhere('removed_by', $this->getKey()))->exists()) {
+            return true;
+        }
+
+        if (Schema::hasTable('class_group_transfers') && DB::table('class_group_transfers')
+            ->where(fn ($query) => $query->where('previous_teacher_id', $this->getKey())
+                ->orWhere('new_teacher_id', $this->getKey())->orWhere('transferred_by', $this->getKey()))->exists()) {
+            return true;
+        }
+
+        if (Schema::hasTable('class_group_memberships') && DB::table('class_group_memberships')
+            ->where(fn ($query) => $query->where('added_by', $this->getKey())->orWhere('removed_by', $this->getKey()))->exists()) {
+            return true;
+        }
+
+        if (Schema::hasTable('class_group_transfers') && DB::table('class_group_transfers')
+            ->where(fn ($query) => $query->where('previous_teacher_id', $this->getKey())->orWhere('new_teacher_id', $this->getKey())->orWhere('transferred_by', $this->getKey()))->exists()) {
+            return true;
+        }
+
         return false;
+    }
+
+    /** @return HasMany<ClassGroupMembership, $this> */
+    public function classGroupMemberships(): HasMany
+    {
+        return $this->hasMany(ClassGroupMembership::class);
     }
 }
