@@ -35,15 +35,13 @@ class AuditTranslations extends Command
         $this->audit(Question::query()->where(function ($query): void {
             $query->whereHas('section.test', fn ($test) => $test->where('status', 'published')->where('editorial_status', '!=', 'grandfathered'))
                 ->orWhereHas('listeningResource.resource', fn ($resource) => $resource->where('status', 'published')->where('editorial_status', '!=', 'grandfathered'))
-                ->orWhereHas('readingResource.resource', fn ($resource) => $resource->where('status', 'published'));
+                ->orWhereHas('readingResource.resource', fn ($resource) => $resource->where('status', 'published')->where('editorial_status', '!=', 'grandfathered'));
         })->get(), ['explanation'], $locale);
         $publishedResourceIds = Resource::query()->where('editorial_status', '!=', 'grandfathered')->where('status', 'published')->pluck('id');
         $this->audit(CardResource::query()->whereIn('resource_id', $publishedResourceIds)->get(), ['instructions'], $locale);
         $this->audit(ListeningResource::query()->whereIn('resource_id', $publishedResourceIds)->get(), ['instructions'], $locale);
         $this->audit(ReadingResource::query()->whereIn('resource_id', $publishedResourceIds)->get(), ['title', 'instructions'], $locale);
         $this->audit(WritingResource::query()->whereIn('resource_id', $publishedResourceIds)->get(), ['prompt', 'instructions', 'rubric'], $locale);
-        $this->audit(LearningPath::query()->where('status', 'published')->get(), ['title', 'description'], $locale);
-        $this->audit(LearningUnit::query()->where('is_published', true)->whereHas('path', fn ($query) => $query->where('status', 'published'))->get(), ['title', 'description'], $locale);
         $this->audit(LearningLesson::query()->where('editorial_status', '!=', 'grandfathered')->where('status', 'published')->whereHas('unit.path', fn ($query) => $query->where('status', 'published'))->get(), ['title', 'description', 'objectives'], $locale);
         $this->audit(LessonActivity::query()->whereHas('lesson', fn ($query) => $query->where('status', 'published')->where('editorial_status', '!=', 'grandfathered'))->get(), ['title', 'instructions'], $locale);
 
