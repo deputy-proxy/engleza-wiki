@@ -219,11 +219,9 @@ class ProductionConfigurationTest extends TestCase
         Config::set('session.same_site', 'lax');
         Config::set('session.lifetime', 120);
         Config::set('cache.default', 'database');
-        Config::set('mail.default', 'smtp');
-        Config::set('mail.mailers.smtp.host', 'smtp.example.test');
-        Config::set('mail.mailers.smtp.port', 587);
-        Config::set('mail.mailers.smtp.username', 'smtp-user');
-        Config::set('mail.mailers.smtp.password', 'smtp-test-password');
+        Config::set('mail.default', 'resend');
+        Config::set('mail.mailers.resend.transport', 'resend');
+        Config::set('services.resend.key', 're_test_api_key');
         Config::set('mail.from.address', 'no-reply@example.test');
         Config::set('logging.default', 'stack');
         Config::set('app.bootstrap_admin.password', null);
@@ -258,7 +256,7 @@ class ProductionConfigurationTest extends TestCase
         $this->assertStringContainsString('Session payloads are encrypted at rest', $output);
         $this->assertStringContainsString('Session cookies are Secure', $output);
         $this->assertStringContainsString('Database-backed session storage and its table are available', $output);
-        $this->assertStringContainsString('Authenticated SMTP transport and sender are configured', $output);
+        $this->assertStringContainsString('Resend API transport, API key and sender are configured', $output);
         $this->assertStringContainsString('Default log channel redacts sensitive fields', $output);
         $this->assertStringNotContainsString('temporary-secret-value', $output);
     }

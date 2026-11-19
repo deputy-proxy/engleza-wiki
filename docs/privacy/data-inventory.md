@@ -33,7 +33,7 @@
 
 1. Controller legal identity, establishment address, privacy contact and DPO/contact role if applicable.
 2. Hostinger DPA, hosting region, CDN processing, backup schedule/retention, support access and subprocessors.
-3. Configured SMTP provider and its DPA, region, message retention and subprocessors.
+3. Configured Resend transactional-email provider and its DPA, processing region, message retention and subprocessors.
 4. Bunny Fonts processing terms and whether self-hosting is preferable.
 5. Production log destination, access, rotation and backup inclusion.
 6. Operator-managed exports and copies.

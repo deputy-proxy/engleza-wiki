@@ -134,7 +134,7 @@ Run `php artisan migrate --force` during deployment. The assessment-integrity mi
 
 ## Production readiness
 
-Before deploying to production, follow the [production configuration checklist](docs/production-configuration.md). It covers the verified Hostinger CDN/origin topology, environment variables, HTTPS and session cookies, database/cache persistence, authenticated SMTP, safe administrator bootstrap, seeding boundaries, logging redaction, and post-deployment checks.
+Before deploying to production, follow the [production configuration checklist](docs/production-configuration.md). It covers the verified Hostinger CDN/origin topology, environment variables, HTTPS and session cookies, database/cache persistence, Resend transactional email, safe administrator bootstrap, seeding boundaries, logging redaction, and post-deployment checks. For the live service inventory, operational evidence, backup/restore procedure, incident response and outstanding verification, see the [production operations runbook](docs/operations-runbook.md).
 
 Run the fail-closed readiness check after configuring the production environment and applying migrations:
 
@@ -142,7 +142,7 @@ Run the fail-closed readiness check after configuring the production environment
 php artisan app:production-readiness
 ```
 
-The command verifies the production environment, disabled debug mode, HTTPS URL, encryption key, MySQL/MariaDB connectivity, database-backed session/cache tables, encrypted session payloads and secure cookie flags, authenticated SMTP, sensitive-log redaction, administrator presence, absence of known development accounts, and removal of temporary bootstrap credentials. It exits non-zero when a check fails and does not print secret values.
+The command verifies the production environment, disabled debug mode, HTTPS URL, encryption key, MySQL/MariaDB connectivity, database-backed session/cache tables, encrypted session payloads and secure cookie flags, Resend transactional email, sensitive-log redaction, administrator presence, absence of known development accounts, and removal of temporary bootstrap credentials. It exits non-zero when a check fails and does not print secret values.
 
 Production seeding never creates the predictable-password development accounts or sample educational content. For a new installation, the one-time administrator bootstrap requires temporary `ADMIN_NAME`, `ADMIN_EMAIL`, and a unique `ADMIN_PASSWORD` of at least 16 characters. Remove those values immediately after the first successful bootstrap. Existing demo accounts are not automatically deleted; review them deliberately before considering the production readiness check complete.
 

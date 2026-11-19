@@ -39,26 +39,23 @@
 
 Local and automated tests use `MAIL_MAILER=log`; inspect the configured application log for generated messages. Do not use the log mailer in production because users will not receive email.
 
-For production, configure a supported delivery transport in the deployment environment, for example:
+Production transactional email is delivered through Resend. Configure the API key and verified sender in the deployment environment:
 
 ```dotenv
-MAIL_MAILER=smtp
-MAIL_HOST=mail.example.com
-MAIL_PORT=587
-MAIL_USERNAME=your-smtp-username
-MAIL_PASSWORD=your-smtp-password
-MAIL_SCHEME=tls
+MAIL_MAILER=resend
+RESEND_API_KEY=<Resend API key>
 MAIL_FROM_ADDRESS=no-reply@engleza.wiki
 MAIL_FROM_NAME="engleza.wiki"
 ```
 
-Use the actual SMTP values supplied by the mail provider. Store credentials only in deployment secrets/environment variables, never in this repository. Verify SPF, DKIM and DMARC for the sender domain and send a real verification and password-reset message before production launch. If delivery is queued by a future mail configuration, confirm the queue processing mechanism separately; the current account notifications are sent synchronously.
+Create a Resend API key with the minimum required permissions and store it only in deployment secrets/environment variables, never in this repository. Authenticate `engleza.wiki` in Resend, publish the exact SPF/DKIM records Resend provides, and verify DNS before sending. Send real verification and password-reset messages to controlled test mailboxes and inspect delivery events before launch. The application sends these account notifications synchronously.
 
 ## Configuration reference
 
 | Variable | Default | Meaning |
 |---|---:|---|
-| `MAIL_MAILER` | `log` | Local/test default; use a real transport in production |
+| `MAIL_MAILER` | `log` | Local/test default; set to `resend` in production |
+| `RESEND_API_KEY` | unset | Resend API credential; configure as a deployment secret |
 | `MAIL_FROM_ADDRESS` | `hello@example.com` | Sender address |
 | `MAIL_FROM_NAME` | application name | Sender display name |
 | `AUTH_VERIFICATION_EXPIRE` | `60` | Signed email verification link lifetime in minutes |
