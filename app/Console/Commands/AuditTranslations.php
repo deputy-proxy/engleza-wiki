@@ -39,12 +39,6 @@ class AuditTranslations extends Command
 
         $this->audit(Resource::query()->where('editorial_status', '!=', 'grandfathered')->where('status', 'published')->get(), ['title', 'excerpt', 'content', 'seo_title', 'seo_description', 'og_title', 'og_description'], $locale);
         $this->audit(Test::query()->where('editorial_status', '!=', 'grandfathered')->where('status', 'published')->get(), ['title', 'description', 'instructions'], $locale);
-        $this->audit(Category::query()->where('created_at', '>=', self::REVIEW_WORKFLOW_STARTED_AT)->where('is_active', true)->get(), ['name', 'description'], $locale);
-        $this->audit(Audience::query()->where('created_at', '>=', self::REVIEW_WORKFLOW_STARTED_AT)->get(), ['name'], $locale);
-        $this->audit(Topic::query()->where('created_at', '>=', self::REVIEW_WORKFLOW_STARTED_AT)->get(), ['name', 'description'], $locale);
-        $this->audit(Level::query()->where('created_at', '>=', self::REVIEW_WORKFLOW_STARTED_AT)->get(), ['name', 'description'], $locale);
-        $this->audit(Skill::query()->where('created_at', '>=', self::REVIEW_WORKFLOW_STARTED_AT)->get(), ['name', 'description'], $locale);
-        $this->audit(Tag::query()->where('created_at', '>=', self::REVIEW_WORKFLOW_STARTED_AT)->get(), ['name'], $locale);
         $this->audit(TestSection::query()->whereHas('test', fn ($query) => $query->where('status', 'published')->where('editorial_status', '!=', 'grandfathered'))->get(), ['title', 'description', 'instructions'], $locale);
         $this->audit(Question::query()->where(function ($query): void {
             $query->whereHas('section.test', fn ($test) => $test->where('status', 'published')->where('editorial_status', '!=', 'grandfathered'))
