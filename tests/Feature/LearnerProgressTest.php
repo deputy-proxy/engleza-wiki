@@ -233,6 +233,7 @@ class LearnerProgressTest extends TestCase
 
         $vocabularySkill = Skill::query()->create(['name' => 'Vocabulary', 'slug' => 'vocabulary']);
         $vocabularyTest = Assessment::factory()->create(['skill_id' => $vocabularySkill->id]);
+        $vocabularyTest->approveEditorialReview(User::factory()->create(['role' => 'admin']));
         $section = TestSection::query()->create(['test_id' => $vocabularyTest->id, 'title' => 'Matching']);
         Question::query()->create([
             'test_section_id' => $section->id, 'type' => 'matching', 'question' => 'Match the words',
@@ -268,6 +269,7 @@ class LearnerProgressTest extends TestCase
         $skill = Skill::query()->create(['name' => 'Grammar', 'slug' => 'grammar']);
         $topic = Topic::query()->create(['name' => 'Articles', 'slug' => 'articles']);
         $test = Assessment::factory()->create(['skill_id' => $skill->id]);
+        $test->approveEditorialReview(User::factory()->create(['role' => 'admin']));
         $section = TestSection::query()->create(['test_id' => $test->id, 'title' => 'Practice']);
         $questions = collect();
 
