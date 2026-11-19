@@ -359,7 +359,8 @@ CONTENT,
 
         foreach ($testsData as [$title,$level,$desc,$duration]) {
             $test = Test::updateOrCreate(['slug' => Str::slug($title)], [
-                'title' => $title, 'description' => $desc, 'level_id' => $L($level), 'skill_id' => $S('Grammar')->id,
+                'title' => $title, 'description' => $desc, 'level_id' => $L($level),
+                'skill_id' => str_contains($title, 'Level Test') ? null : (str_contains($title, 'Vocabulary') ? $S('Vocabulary')->id : $S('Grammar')->id),
                 'duration_minutes' => $duration, 'passing_score' => 60, 'access_type' => 'free', 'status' => 'published',
                 'is_public' => true, 'shuffle_questions' => false, 'show_correct_answers' => true,
                 'instructions' => "Answer all questions to the best of your ability. You have {$duration} minutes to complete this test. No dictionaries allowed.",

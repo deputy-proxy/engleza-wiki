@@ -214,7 +214,7 @@
 <section class="py-16 bg-gradient-to-br from-navy-900 via-navy-800 to-brand-700 text-white">
   <div class="mx-auto max-w-4xl px-6 text-center" data-testid="test-cta">
     <h2 class="text-3xl md:text-5xl font-extrabold">{{ __('How good is your English?') }}</h2>
-    <p class="mt-4 text-lg text-white/80">{{ __('Take a free English level test and discover your approximate CEFR level in minutes.') }}</p>
+    <p class="mt-4 text-lg text-white/80">{{ __('Take a free English practice test for an indicative estimate based on grammar, vocabulary and reading. It is not an official CEFR examination.') }}</p>
     <a href="{{ route('tests.index') }}" class="mt-8 inline-flex btn-primary bg-white text-brand-700 hover:bg-yellow-50" data-testid="take-free-test-btn">{{ __('Take the free test') }}</a>
   </div>
 </section>

@@ -6,6 +6,9 @@
   </div>
   <h1 class="mt-4 text-4xl font-extrabold text-navy-900" data-testid="test-title">{{ $test->translated('title') }}</h1>
   <p class="mt-3 text-navy-600">{{ $test->translated('description') }}</p>
+  @if(str_starts_with($test->slug, 'english-level-test-'))
+    <p class="mt-3 rounded-lg bg-amber-50 p-4 text-sm text-amber-900">{{ __('This is an indicative practice estimate, not an official CEFR examination or certificate. It samples grammar, vocabulary and reading only; it does not assess listening, speaking or writing.') }}</p>
+  @endif
   <div class="mt-8 card p-6">
     <h2 class="text-lg font-bold text-navy-900">{{ __('Instructions') }}</h2>
     <p class="mt-2 text-navy-600 whitespace-pre-line">{{ $test->translated('instructions') }}</p>

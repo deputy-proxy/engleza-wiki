@@ -2,7 +2,7 @@
 
 > Free knowledge. Better English.
 
-**engleza.wiki** is a free English-learning knowledge and assessment platform for learners, teachers, and parents. It combines a public educational resource website, a free CEFR-aligned English testing platform, and a comprehensive Filament admin panel.
+**engleza.wiki** is a free English-learning knowledge and assessment platform for learners, teachers, and parents. It combines a public educational resource website, a free English practice assessment platform with indicative level estimates, and a comprehensive Filament admin panel.
 
 ## Stack
 
@@ -69,6 +69,8 @@ Editors manage decisions in the existing Filament Content area. The Translations
 The rubric, CEFR content standards, publication workflow and reviewer responsibilities are documented in `docs/editorial/`. Editorial audits are prospective: they only inspect records created after the workflow rollout. Existing demo content is grandfathered and is not retroactively audited or blocked. New records remain unpublished until editorial approval. Translation checks follow the same prospective boundary.
 ## Assessment and learning attempts
 
+The A1-B2 assessment blueprints, item-writing guide, review/pilot procedure and learner-facing scope statement are documented in `docs/assessment/`. Run `php artisan assessment:bank-audit` to validate prospective item banks. Use `--include-grandfathered` only for a diagnostic inventory of existing demo records; that mode does not approve or change them. The current demo bank has not completed qualified teacher review or a representative learner pilot.
+
 Anonymous visitors can take free tests without registering. Attempts are owned by the authenticated learner or the originating anonymous session. Test and learning attempts persist their assigned question IDs at start, so questions added later cannot silently join an in-progress attempt and shuffled navigation remains stable. An interrupted started attempt can be reopened through its existing attempt URL; its saved answers and question order are restored.
 
 Scoring is server-authoritative and shared through `App\Services\Assessment\QuestionScoringService`:
@@ -78,7 +80,7 @@ Scoring is server-authoritative and shared through `App\Services\Assessment\Ques
 - Percentages are rounded to one decimal place before the whole-number passing threshold is evaluated.
 - Empty assessments return 0% and cannot pass.
 - Section and topic breakdowns use the same complete question set and are persisted with the result.
-- Test results include a CEFR estimate and recommendations based on weak topics.
+- Level-test results provide an indicative CEFR estimate from grammar, vocabulary and reading only. They are not official CEFR examinations or certificates; listening, speaking and writing are not assessed.
 
 Test access rules: `free` allows guest and registered learners; `registered` requires authentication; `premium` is currently unavailable because the repository has no subscription/entitlement model, so it is deliberately denied rather than treated as free. Expired attempts retain and score answers saved before the deadline, remain marked `expired`, and do not receive completion certificates. Repeated submissions return the existing result. Correct answers and explanations are withheld until a completed attempt and then follow `show_correct_answers`; listening and reading resources have the same configurable disclosure toggle, defaulting to enabled to preserve existing behaviour.
 

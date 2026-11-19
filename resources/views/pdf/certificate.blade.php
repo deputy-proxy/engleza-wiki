@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>{{ __('Certificate of Achievement') }} · engleza.wiki</title>
+  <title>{{ __('Practice Assessment Result') }} · engleza.wiki</title>
   <style>
     @page { margin: 0; }
     body { font-family: 'DejaVu Sans', sans-serif; margin: 0; padding: 0; color: #0f1e5c; }
@@ -26,16 +26,16 @@
   <div class="frame">
     <div class="brand">engleza.wiki</div>
     <div class="inner">
-      <h1>{{ __('Certificate of Achievement') }}</h1>
-      <div class="subtitle">{{ __('Free English Level Test') }}</div>
+      <h1>{{ __('Practice Assessment Result') }}</h1>
+      <div class="subtitle">{{ __('Indicative English Level Estimate') }}</div>
 
-      <div style="margin-top: 30px;">{{ __('This certificate is proudly presented to') }}</div>
+      <div style="margin-top: 30px;">{{ __('Assessment result for') }}</div>
       <div class="name">{{ $name }}</div>
 
-      <div style="margin-top: 24px;">{{ __('for successfully completing') }}</div>
+      <div style="margin-top: 24px;">{{ __('for completing') }}</div>
       <div style="font-size: 22px; font-weight: bold; margin: 10px 0;">{{ $test->translated('title') }}</div>
 
-      <div style="margin-top: 30px; font-size: 15px;">{{ __('Assessed CEFR level') }}</div>
+      <div style="margin-top: 30px; font-size: 15px;">{{ __('Indicative CEFR estimate') }}</div>
       <div class="level-box">{{ $result?->level ?? $attempt->level_result ?? '—' }}</div>
 
       <div class="stats">
@@ -52,7 +52,7 @@
       </div>
 
       <div class="footer">
-        {{ __('Issued on ') }}{{ $issued }} · {{ __('engleza.wiki — Free English resources for learners and teachers') }}
+        {{ __('Issued on ') }}{{ $issued }} · {{ __('Practice result only. Not an official CEFR certificate. This test samples grammar, vocabulary and reading only.') }}
       </div>
     </div>
     <div class="cert-id">{{ $certificate_id }}</div>
