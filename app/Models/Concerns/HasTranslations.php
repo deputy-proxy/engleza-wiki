@@ -31,7 +31,7 @@ trait HasTranslations
         if (! $translations instanceof Collection) {
             $translations = $this->relationLoaded('translations')
                 ? $this->getRelation('translations')->where('locale', $locale)->where('status', 'reviewed')->whereIn('editorial_status', ['approved', 'grandfathered'])->keyBy('field')
-                : $this->translations()->where('locale', $locale)->where('status', 'reviewed')->where('editorial_status', 'approved')->get()->keyBy('field');
+                : $this->translations()->where('locale', $locale)->where('status', 'reviewed')->whereIn('editorial_status', ['approved', 'grandfathered'])->get()->keyBy('field');
             $this->setRelation('localizedFields', $translations);
         }
 
