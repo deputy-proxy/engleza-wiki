@@ -1,13 +1,13 @@
 <?php
 
-namespace Tests\\Feature;
+namespace Tests\Feature;
 
-use App\\Models\\ContentTranslation;
-use App\\Models\\Resource;
-use App\\Models\\Test as Assessment;
-use App\\Models\\User;
-use Illuminate\\Foundation\\Testing\\RefreshDatabase;
-use Tests\\TestCase;
+use App\Models\ContentTranslation;
+use App\Models\Resource;
+use App\Models\Test as Assessment;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class ProspectiveEditorialWorkflowTest extends TestCase
 {
@@ -124,7 +124,8 @@ class ProspectiveEditorialWorkflowTest extends TestCase
 
     public function test_editing_a_grandfathered_demo_resource_moves_only_that_item_into_review(): void
     {
-        $resource = Resource::factory()->create(['editorial_status' => 'grandfathered']);
+        $resource = Resource::factory()->create();
+        $resource->forceFill(['editorial_status' => 'grandfathered'])->saveQuietly();
 
         $this->assertTrue(Resource::published()->whereKey($resource->id)->exists());
 
