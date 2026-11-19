@@ -41,6 +41,7 @@ class EditorialQualityTest extends TestCase
     public function test_editing_reviewed_source_content_invalidates_approval_and_public_visibility(): void
     {
         $resource = Resource::factory()->create();
+        $resource->approveEditorialReview(User::factory()->create(['role' => 'admin']));
         $this->assertTrue($resource->isEditorialApproved());
 
         $resource->update(['content' => 'A materially changed explanation.']);
