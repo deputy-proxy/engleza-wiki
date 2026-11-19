@@ -140,22 +140,22 @@ class EditorialReviewObserver
         $pending = ['editorial_status' => 'pending', 'editorial_reviewed_by' => null, 'editorial_reviewed_at' => null];
 
         if ($taxonomy instanceof Level) {
-            Resource::query()->where('level_id', $id)->whereIn('editorial_status', ['approved', 'noindex'])->update($pending);
-            Test::query()->where('level_id', $id)->whereIn('editorial_status', ['approved', 'noindex'])->update($pending);
-            LearningLesson::query()->where('level_id', $id)->whereIn('editorial_status', ['approved', 'noindex'])->update($pending);
+            Resource::query()->where('level_id', $id)->whereIn('editorial_status', ['approved', 'noindex', 'grandfathered'])->update($pending);
+            Test::query()->where('level_id', $id)->whereIn('editorial_status', ['approved', 'noindex', 'grandfathered'])->update($pending);
+            LearningLesson::query()->where('level_id', $id)->whereIn('editorial_status', ['approved', 'noindex', 'grandfathered'])->update($pending);
         } elseif ($taxonomy instanceof Skill) {
-            Resource::query()->whereHas('skills', fn ($query) => $query->whereKey($id))->whereIn('editorial_status', ['approved', 'noindex'])->update($pending);
-            Test::query()->where('skill_id', $id)->whereIn('editorial_status', ['approved', 'noindex'])->update($pending);
-            LearningLesson::query()->whereHas('skills', fn ($query) => $query->whereKey($id))->whereIn('editorial_status', ['approved', 'noindex'])->update($pending);
+            Resource::query()->whereHas('skills', fn ($query) => $query->whereKey($id))->whereIn('editorial_status', ['approved', 'noindex', 'grandfathered'])->update($pending);
+            Test::query()->where('skill_id', $id)->whereIn('editorial_status', ['approved', 'noindex', 'grandfathered'])->update($pending);
+            LearningLesson::query()->whereHas('skills', fn ($query) => $query->whereKey($id))->whereIn('editorial_status', ['approved', 'noindex', 'grandfathered'])->update($pending);
         } elseif ($taxonomy instanceof Topic) {
-            Resource::query()->whereHas('topics', fn ($query) => $query->whereKey($id))->whereIn('editorial_status', ['approved', 'noindex'])->update($pending);
-            LearningLesson::query()->whereHas('topics', fn ($query) => $query->whereKey($id))->whereIn('editorial_status', ['approved', 'noindex'])->update($pending);
+            Resource::query()->whereHas('topics', fn ($query) => $query->whereKey($id))->whereIn('editorial_status', ['approved', 'noindex', 'grandfathered'])->update($pending);
+            LearningLesson::query()->whereHas('topics', fn ($query) => $query->whereKey($id))->whereIn('editorial_status', ['approved', 'noindex', 'grandfathered'])->update($pending);
         } elseif ($taxonomy instanceof Category) {
-            Resource::query()->whereHas('categories', fn ($query) => $query->whereKey($id))->whereIn('editorial_status', ['approved', 'noindex'])->update($pending);
+            Resource::query()->whereHas('categories', fn ($query) => $query->whereKey($id))->whereIn('editorial_status', ['approved', 'noindex', 'grandfathered'])->update($pending);
         } elseif ($taxonomy instanceof Tag) {
-            Resource::query()->whereHas('tags', fn ($query) => $query->whereKey($id))->whereIn('editorial_status', ['approved', 'noindex'])->update($pending);
+            Resource::query()->whereHas('tags', fn ($query) => $query->whereKey($id))->whereIn('editorial_status', ['approved', 'noindex', 'grandfathered'])->update($pending);
         } elseif ($taxonomy instanceof Audience) {
-            Resource::query()->whereHas('audiences', fn ($query) => $query->whereKey($id))->whereIn('editorial_status', ['approved', 'noindex'])->update($pending);
+            Resource::query()->whereHas('audiences', fn ($query) => $query->whereKey($id))->whereIn('editorial_status', ['approved', 'noindex', 'grandfathered'])->update($pending);
         }
     }
 }
