@@ -15,7 +15,7 @@ class EditorialAudit extends Command
 {
     protected $signature = 'content:editorial-audit {--output= : Write the complete CSV register to this path}';
 
-    protected $description = 'Inventory published educational content, editorial status, translation state and review findings.';
+    protected $description = 'Inventory content created under the editorial workflow, including translation state and review findings.';
 
     /** @var array<int, array<string, string|int|null>> */
     private array $rows = [];
