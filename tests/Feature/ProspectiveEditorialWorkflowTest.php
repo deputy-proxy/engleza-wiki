@@ -19,7 +19,6 @@ class ProspectiveEditorialWorkflowTest extends TestCase
     public function test_existing_demo_content_is_grandfathered_without_being_retroactively_reviewed(): void
     {
         $resource = Resource::factory()->create([
-            'created_at' => '2026-11-18 00:00:03',
             'editorial_status' => 'pending',
         ]);
         $translation = ContentTranslation::create([
@@ -31,7 +30,6 @@ class ProspectiveEditorialWorkflowTest extends TestCase
             'source_hash' => hash('sha256', $resource->title),
             'status' => 'reviewed',
         ]);
-        $translation->forceFill(['created_at' => '2026-11-18 00:00:03'])->saveQuietly();
 
         $migration = require database_path('migrations/2026_11_19_000001_grandfather_existing_demo_content.php');
         $migration->up();
