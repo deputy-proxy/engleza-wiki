@@ -87,6 +87,7 @@ trait HasEditorialReview
         ];
         $this->newQuery()->whereKey($this->getKey())->whereIn('editorial_status', ['approved', 'noindex', 'grandfathered'])->update($attributes);
         $this->forceFill($attributes);
+        $this->syncOriginalAttributes(array_keys($attributes));
     }
 
     public function approveEditorialReview(User $reviewer, ?string $notes = null): void
@@ -99,6 +100,7 @@ trait HasEditorialReview
         ];
         $this->newQuery()->whereKey($this->getKey())->update($attributes);
         $this->forceFill($attributes);
+        $this->syncOriginalAttributes(array_keys($attributes));
     }
 
     public function setEditorialDecision(string $decision, User $reviewer, ?string $notes = null): void
@@ -132,5 +134,6 @@ trait HasEditorialReview
 
         $this->newQuery()->whereKey($this->getKey())->update($attributes);
         $this->forceFill($attributes);
+        $this->syncOriginalAttributes(array_keys($attributes));
     }
 }
