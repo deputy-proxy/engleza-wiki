@@ -89,6 +89,7 @@ class AssessmentIntegrityTest extends TestCase
     public function test_empty_assessment_scores_zero_and_cannot_pass_even_with_zero_threshold(): void
     {
         $test = Assessment::factory()->create(['passing_score' => 0]);
+        $test->approveEditorialReview(User::factory()->create(['role' => 'admin']));
         $attempt = app(TestAttemptService::class)->start($test, [
             'session_id' => 'empty-assessment-session', 'started_at' => now(), 'status' => 'started',
         ]);
@@ -203,6 +204,9 @@ class AssessmentIntegrityTest extends TestCase
     {
         $registered = Assessment::factory()->create(['access_type' => 'registered']);
         $premium = Assessment::factory()->create(['access_type' => 'premium']);
+        $reviewer = User::factory()->create(['role' => 'admin']);
+        $registered->approveEditorialReview($reviewer);
+        $premium->approveEditorialReview($reviewer);
         $this->post(route('tests.start', $registered))->assertForbidden();
         $this->post(route('tests.start', $premium))->assertForbidden();
         $user = User::where('email', 'learner@engleza.wiki')->firstOrFail();
