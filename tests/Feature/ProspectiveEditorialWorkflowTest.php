@@ -72,6 +72,29 @@ class ProspectiveEditorialWorkflowTest extends TestCase
         $this->assertTrue(Assessment::published()->whereKey($assessment->id)->exists());
     }
 
+    public function test_new_learning_lesson_starts_pending(): void
+    {
+        $path = LearningPath::create([
+            'title' => 'Issue 18 test path',
+            'slug' => 'issue-18-test-path',
+            'status' => 'draft',
+        ]);
+        $unit = LearningUnit::create([
+            'learning_path_id' => $path->id,
+            'title' => 'Issue 18 test unit',
+            'sort_order' => 1,
+        ]);
+        $lesson = LearningLesson::create([
+            'learning_unit_id' => $unit->id,
+            'title' => 'Issue 18 test lesson',
+            'slug' => 'issue-18-test-lesson',
+            'status' => 'draft',
+            'sort_order' => 1,
+        ]);
+
+        $this->assertSame('pending', $lesson->editorial_status);
+    }
+
     public function test_rejected_new_content_remains_hidden_and_records_the_review_decision(): void
     {
         $resource = Resource::factory()->create();
