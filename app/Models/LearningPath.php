@@ -74,7 +74,7 @@ class LearningPath extends Model
     public function scopePublished(Builder $query): Builder
     {
         return $query->where('status', 'published')->whereNotNull('published_at')->where('published_at', '<=', now())
-            ->whereHas('units.lessons', fn (Builder $lessons) => $lessons->where('status', 'published')->where('editorial_status', 'approved'));
+            ->whereHas('units.lessons', fn (Builder $lessons) => $lessons->where('status', 'published')->whereIn('editorial_status', ['approved', 'grandfathered']));
     }
 
     public function getRouteKeyName(): string
