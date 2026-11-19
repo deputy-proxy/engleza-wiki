@@ -36,7 +36,7 @@ class LearningPath extends Model
             $units = $path->units()->where('is_published', true)
                 ->with(['lessons.activities.resource', 'lessons.activities.test'])->get();
             $hasPublishedLesson = $units->flatMap(fn (LearningUnit $unit) => $unit->lessons)
-                ->contains(fn (LearningLesson $lesson): bool => $lesson->status === 'published' && $lesson->editorial_status === 'approved' && $lesson->publicationIssues() === []);
+                ->contains(fn (LearningLesson $lesson): bool => $lesson->status === 'published' && in_array($lesson->editorial_status, ['approved', 'grandfathered'], true) && $lesson->publicationIssues() === []);
 
             if (! $hasPublishedLesson) {
                 throw ValidationException::withMessages(['status' => 'Publish at least one unit containing a published lesson with valid activities before publishing this path.']);
