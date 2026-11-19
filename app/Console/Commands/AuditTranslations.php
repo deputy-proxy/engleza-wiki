@@ -2,24 +2,16 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Audience;
 use App\Models\CardResource;
-use App\Models\Category;
 use App\Models\ContentTranslation;
 use App\Models\LearningLesson;
-use App\Models\LearningPath;
-use App\Models\LearningUnit;
 use App\Models\LessonActivity;
-use App\Models\Level;
 use App\Models\ListeningResource;
 use App\Models\Question;
 use App\Models\ReadingResource;
 use App\Models\Resource;
-use App\Models\Skill;
-use App\Models\Tag;
 use App\Models\Test;
 use App\Models\TestSection;
-use App\Models\Topic;
 use App\Models\WritingResource;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
