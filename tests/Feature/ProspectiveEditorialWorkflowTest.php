@@ -30,8 +30,8 @@ class ProspectiveEditorialWorkflowTest extends TestCase
             'value' => 'Traducere demo',
             'source_hash' => hash('sha256', $resource->title),
             'status' => 'reviewed',
-            'created_at' => '2026-11-18 00:00:03',
         ]);
+        $translation->forceFill(['created_at' => '2026-11-18 00:00:03'])->saveQuietly();
 
         $migration = require database_path('migrations/2026_11_19_000001_grandfather_existing_demo_content.php');
         $migration->up();
