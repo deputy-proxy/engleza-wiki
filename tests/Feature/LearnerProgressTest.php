@@ -41,6 +41,7 @@ class LearnerProgressTest extends TestCase
         $topic = Topic::query()->create(['name' => 'Articles', 'slug' => 'articles']);
         $level = Level::query()->create(['name' => 'A1', 'slug' => 'a1']);
         $test = Assessment::factory()->create(['skill_id' => $skill->id, 'level_id' => $level->id]);
+        $test->approveEditorialReview(User::factory()->create(['role' => 'admin']));
         $section = TestSection::query()->create(['test_id' => $test->id, 'title' => 'Grammar']);
         $questions = collect();
 
@@ -126,6 +127,7 @@ class LearnerProgressTest extends TestCase
         $skill = Skill::query()->create(['name' => 'Vocabulary', 'slug' => 'vocabulary']);
         $topic = Topic::query()->create(['name' => 'Travel', 'slug' => 'travel']);
         $test = Assessment::factory()->create(['skill_id' => $skill->id]);
+        $test->approveEditorialReview(User::factory()->create(['role' => 'admin']));
         $section = TestSection::query()->create(['test_id' => $test->id, 'title' => 'Vocabulary']);
         $question = Question::query()->create([
             'test_section_id' => $section->id, 'type' => 'single_choice', 'question' => 'Travel question',
@@ -164,6 +166,7 @@ class LearnerProgressTest extends TestCase
         $path = LearningPath::query()->create(['title' => 'A1 path', 'slug' => 'a1-path', 'status' => 'draft']);
         $unit = LearningUnit::query()->create(['learning_path_id' => $path->id, 'title' => 'Unit', 'sort_order' => 1, 'is_published' => true]);
         $resource = Resource::factory()->create(['type' => 'article', 'status' => 'published', 'published_at' => now()]);
+        $resource->approveEditorialReview(User::factory()->create(['role' => 'admin']));
         $lesson = LearningLesson::query()->create([
             'learning_unit_id' => $unit->id, 'title' => 'First lesson', 'slug' => 'first-lesson',
             'objectives' => ['Use greetings'], 'status' => 'draft', 'published_at' => now(), 'sort_order' => 1,
@@ -192,6 +195,7 @@ class LearnerProgressTest extends TestCase
         $resource = Resource::factory()->create([
             'type' => 'card', 'status' => 'published', 'published_at' => now(),
         ]);
+        $resource->approveEditorialReview(User::factory()->create(['role' => 'admin']));
         $deck = CardResource::query()->create(['resource_id' => $resource->id, 'instructions' => 'Review']);
         ResourceCard::query()->create([
             'card_resource_id' => $deck->id, 'front' => 'To give up', 'back' => 'To stop trying', 'sort_order' => 1,
@@ -204,6 +208,7 @@ class LearnerProgressTest extends TestCase
         $duplicateResource = Resource::factory()->create([
             'type' => 'card', 'status' => 'published', 'published_at' => now(),
         ]);
+        $duplicateResource->approveEditorialReview(User::factory()->create(['role' => 'admin']));
         $duplicateDeck = CardResource::query()->create(['resource_id' => $duplicateResource->id, 'instructions' => 'Another deck']);
         ResourceCard::query()->create([
             'card_resource_id' => $duplicateDeck->id, 'front' => 'To give up', 'back' => 'To stop trying', 'sort_order' => 1,
