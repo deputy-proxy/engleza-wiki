@@ -16,6 +16,7 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\VocabularyReviewController;
+use App\Http\Controllers\WritingSubmissionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -88,8 +89,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/my-tests', [DashboardController::class, 'tests'])->name('dashboard.tests');
     Route::get('/my-resources', [DashboardController::class, 'resources'])->name('dashboard.resources');
     Route::get('/my-writing', [DashboardController::class, 'writing'])->name('dashboard.writing');
+    Route::get('/my-writing/{submission}', [WritingSubmissionController::class, 'show'])->name('dashboard.writing.show');
+    Route::post('/my-writing/{submission}/revise', [WritingSubmissionController::class, 'revise'])->name('dashboard.writing.revise');
     Route::post('/resources/{resource:slug}/save', [DashboardController::class, 'toggleSave'])->name('resources.toggle-save');
-    Route::post('/resources/{resource:slug}/writing/submit', [LearningController::class, 'submitWriting'])->name('resources.writing.submit')->middleware('throttle:30,1');
+    Route::post('/resources/{resource:slug}/writing/submit', [WritingSubmissionController::class, 'store'])->name('resources.writing.submit')->middleware('throttle:30,1');
+    Route::post('/classes/{group}/writing/{resource:slug}/submit', [WritingSubmissionController::class, 'storeForClass'])->name('classes.writing.submit')->middleware('throttle:30,1')->withoutScopedBindings();
+    Route::get('/classes/{group}/writing', [WritingSubmissionController::class, 'teacherIndex'])->name('classes.writing.index');
+    Route::get('/classes/{group}/writing/{submission}', [WritingSubmissionController::class, 'teacherShow'])->name('classes.writing.show')->withoutScopedBindings();
+    Route::post('/classes/{group}/writing/{submission}/review', [WritingSubmissionController::class, 'beginReview'])->name('classes.writing.begin-review')->withoutScopedBindings();
+    Route::post('/classes/{group}/writing/{submission}/feedback', [WritingSubmissionController::class, 'publishFeedback'])->name('classes.writing.feedback')->withoutScopedBindings();
+    Route::post('/classes/{group}/writing/{submission}/request-revision', [WritingSubmissionController::class, 'requestRevision'])->name('classes.writing.request-revision')->withoutScopedBindings();
+    Route::post('/classes/{group}/writing/{submission}/complete', [WritingSubmissionController::class, 'complete'])->name('classes.writing.complete')->withoutScopedBindings();
 });
 
 // Learning attempts (listening/reading) — anonymous allowed

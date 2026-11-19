@@ -38,6 +38,11 @@ class PersonalDataExport
             $records[$table] = $this->ownedRows($table, 'user_id', $user->getKey());
         }
 
+        $writingSubmissionIds = collect($records['writing_submissions'])->pluck('id')->all();
+        $records['writing_submission_versions'] = $this->relatedRows('writing_submission_versions', 'writing_submission_id', $writingSubmissionIds);
+        $records['writing_submission_reviews'] = $this->relatedRows('writing_submission_reviews', 'writing_submission_id', $writingSubmissionIds);
+        $records['teacher_writing_reviews'] = $this->ownedRows('writing_submission_reviews', 'teacher_id', $user->getKey());
+
         $testAttemptIds = collect($records['test_attempts'])->pluck('id')->all();
         $learningAttemptIds = collect($records['learning_attempts'])->pluck('id')->all();
         $practiceSessionIds = collect($records['adaptive_practice_sessions'])->pluck('id')->all();
@@ -50,10 +55,16 @@ class PersonalDataExport
         $records['teaching_class_groups'] = $this->ownedRows('class_groups', 'teacher_id', $user->getKey(), [
             'id', 'name', 'test_id', 'description', 'is_active', 'created_at', 'updated_at',
         ]);
+        $teachingClassGroupIds = collect($records['teaching_class_groups'])->pluck('id')->all();
+        $records['teaching_class_writing_assignments'] = $this->relatedRows('class_group_writing_resource', 'class_group_id', $teachingClassGroupIds);
+
+        $learnerClassGroupIds = collect($records['test_attempts'])->pluck('class_group_id')
+            ->merge(collect($records['writing_submissions'])->pluck('class_group_id'))
+            ->filter()->unique()->values()->all();
         $records['learner_class_groups'] = $this->relatedRows(
             'class_groups',
             'id',
-            collect($records['test_attempts'])->pluck('class_group_id')->filter()->unique()->values()->all(),
+            $learnerClassGroupIds,
             ['id', 'name', 'test_id', 'description', 'is_active', 'created_at', 'updated_at'],
         );
         $records['privacy_data_requests'] = DB::table('privacy_data_requests')
@@ -63,7 +74,7 @@ class PersonalDataExport
             ->all();
 
         return [
-            'export_version' => '1.0',
+            'export_version' => '1.1',
             'exported_at' => now()->toIso8601String(),
             'account' => [
                 'name' => $user->name,

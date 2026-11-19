@@ -229,12 +229,6 @@ parameters:
 			path: app/Http/Controllers/DashboardController.php
 
 		-
-			message: '#^Relation ''writingResource'' is not found in App\\Models\\WritingSubmission model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Http/Controllers/DashboardController.php
-
-		-
 			message: '#^Method App\\Http\\Controllers\\HomeController\:\:index\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -254,12 +248,6 @@ parameters:
 
 		-
 			message: '#^Method App\\Http\\Controllers\\LearningController\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Http/Controllers/LearningController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\LearningController\:\:submitWriting\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
 			path: app/Http/Controllers/LearningController.php
@@ -587,30 +575,6 @@ parameters:
 			identifier: missingType.return
 			count: 1
 			path: app/Models/User.php
-
-		-
-			message: '#^Method App\\Models\\WritingResource\:\:resource\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/WritingResource.php
-
-		-
-			message: '#^Method App\\Models\\WritingResource\:\:submissions\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/WritingResource.php
-
-		-
-			message: '#^Method App\\Models\\WritingSubmission\:\:user\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/WritingSubmission.php
-
-		-
-			message: '#^Method App\\Models\\WritingSubmission\:\:writingResource\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/WritingSubmission.php
 
 		-
 			message: '#^Parameter \#1 \$string of function rtrim expects string, bool\|string given\.$#'

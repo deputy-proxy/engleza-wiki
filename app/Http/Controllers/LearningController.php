@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\LearningAttempt;
 use App\Models\Resource;
-use App\Models\WritingSubmission;
 use App\Services\Learning\LearningAttemptService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -66,25 +65,5 @@ class LearningController extends Controller
         }
 
         return view('pages.resources.types.result', compact('resource', 'attempt', 'showCorrectAnswers', 'questions'));
-    }
-
-    // Writing submissions
-    public function submitWriting(Resource $resource, Request $r)
-    {
-        abort_unless($resource->type === 'writing', 404);
-        $wr = $resource->writingResource;
-        abort_unless($wr !== null, 404);
-        $data = $r->validate(['content' => 'required|string|max:20000', 'status' => 'nullable|in:draft,submitted']);
-        $words = str_word_count(strip_tags($data['content']));
-        $sub = WritingSubmission::create([
-            'writing_resource_id' => $wr->id,
-            'user_id' => auth()->id(),
-            'content' => $data['content'],
-            'word_count' => $words,
-            'status' => $data['status'] ?? 'submitted',
-            'submitted_at' => ($data['status'] ?? 'submitted') === 'submitted' ? now() : null,
-        ]);
-
-        return redirect()->route('resources.show', $resource->slug)->with('writing_submission_id', $sub->id);
     }
 }

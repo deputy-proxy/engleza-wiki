@@ -6,7 +6,10 @@
       <h1 class="mt-2 text-3xl font-extrabold text-navy-900">{{ $group->name }}</h1>
       <div class="mt-1 text-navy-600">{{ __('Join code: ') }}<span class="font-mono font-bold text-navy-900">{{ $group->join_code }}</span></div>
     </div>
-    <a href="{{ route('classes.show', $group->join_code) }}" class="btn-outline">{{ __('Student view →') }}</a>
+    <div class="flex flex-wrap gap-3">
+      <a href="{{ route('classes.writing.index', $group) }}" class="btn-primary">{{ __('Review writing') }} ({{ $writingSubmissionCount }})</a>
+      <a href="{{ route('classes.show', $group->join_code) }}" class="btn-outline">{{ __('Student view →') }}</a>
+    </div>
   </div>
 
   <div class="mt-8 grid gap-6 md:grid-cols-3">

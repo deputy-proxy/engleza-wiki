@@ -3,8 +3,6 @@
 namespace App\Filament\Resources\WritingSubmissions;
 
 use App\Filament\Resources\Concerns\AdminOnlyLearnerData;
-use App\Filament\Resources\WritingSubmissions\Pages\CreateWritingSubmission;
-use App\Filament\Resources\WritingSubmissions\Pages\EditWritingSubmission;
 use App\Filament\Resources\WritingSubmissions\Pages\ListWritingSubmissions;
 use App\Filament\Resources\WritingSubmissions\Schemas\WritingSubmissionForm;
 use App\Filament\Resources\WritingSubmissions\Tables\WritingSubmissionsTable;
@@ -14,6 +12,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class WritingSubmissionResource extends Resource
 {
@@ -26,6 +25,26 @@ class WritingSubmissionResource extends Resource
     protected static string|\UnitEnum|null $navigationGroup = 'Assessments';
 
     protected static ?string $navigationLabel = 'Writing Submissions';
+
+    public static function canCreate(): bool
+    {
+        return false;
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return false;
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return false;
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return false;
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -48,8 +67,6 @@ class WritingSubmissionResource extends Resource
     {
         return [
             'index' => ListWritingSubmissions::route('/'),
-            'create' => CreateWritingSubmission::route('/create'),
-            'edit' => EditWritingSubmission::route('/{record}/edit'),
         ];
     }
 }

@@ -120,13 +120,17 @@ class PublicFlowTest extends TestCase
             'tests',
             'topics',
             'users',
-            'writing-submissions',
         ];
 
         foreach ($resources as $resource) {
             $this->get('/admin/'.$resource)->assertOk();
             $this->get('/admin/'.$resource.'/create')->assertOk();
         }
+
+        // Writing records are read-only so state transitions and version history
+        // cannot be bypassed or destroyed through Filament.
+        $this->get('/admin/writing-submissions')->assertOk();
+        $this->get('/admin/writing-submissions/create')->assertNotFound();
     }
 
     public function test_registration_creates_learner(): void

@@ -4,7 +4,7 @@
   <p class="mt-2 text-navy-600">{{ __('All your writing drafts and submissions.') }}</p>
   <div class="mt-8 space-y-3">
     @forelse($submissions as $s)
-      <a href="{{ route('resources.show',$s->writingResource->resource->slug) }}" class="card p-5 flex items-center justify-between hover:shadow-lg" data-testid="writing-item-{{ $s->id }}">
+      <a href="{{ route('dashboard.writing.show',$s) }}" class="card p-5 flex items-center justify-between hover:shadow-lg" data-testid="writing-item-{{ $s->id }}">
         <div><div class="font-bold text-navy-900">{{ $s->writingResource->resource->translated('title') }}</div><div class="text-sm text-navy-500">{{ $s->created_at->translatedFormat('j M Y') }}</div></div>
         <div class="text-right"><div class="font-bold">{{ $s->word_count }} {{ __('words') }}</div><div class="text-sm text-brand-600">{{ __(str_replace('_', ' ', ucfirst($s->status))) }}</div></div>
       </a>
