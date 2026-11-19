@@ -26,6 +26,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class AuditTranslations extends Command
 {
+    private const REVIEW_WORKFLOW_STARTED_AT = '2026-11-18 00:00:04';
     protected $signature = 'translations:audit {--locale=ro : Locale to audit}';
 
     protected $description = 'List published content fields with missing or unreviewed translations.';
@@ -37,29 +38,29 @@ class AuditTranslations extends Command
     {
         $locale = (string) $this->option('locale');
 
-        $this->audit(Resource::query()->where('status', 'published')->get(), ['title', 'excerpt', 'content', 'seo_title', 'seo_description', 'og_title', 'og_description'], $locale);
-        $this->audit(Test::query()->where('status', 'published')->get(), ['title', 'description', 'instructions'], $locale);
-        $this->audit(Category::query()->where('is_active', true)->get(), ['name', 'description'], $locale);
-        $this->audit(Audience::query()->get(), ['name'], $locale);
-        $this->audit(Topic::query()->get(), ['name', 'description'], $locale);
-        $this->audit(Level::query()->get(), ['name', 'description'], $locale);
-        $this->audit(Skill::query()->get(), ['name', 'description'], $locale);
-        $this->audit(Tag::query()->get(), ['name'], $locale);
-        $this->audit(TestSection::query()->whereHas('test', fn ($query) => $query->where('status', 'published'))->get(), ['title', 'description', 'instructions'], $locale);
-        $this->audit(Question::query()->where(function ($query): void {
+        $this->audit(Resource::query()->where('created_at', '>=', self::REVIEW_WORKFLOW_STARTED_AT)->where('status', 'published')->get(), ['title', 'excerpt', 'content', 'seo_title', 'seo_description', 'og_title', 'og_description'], $locale);
+        $this->audit(Test::query()->where('created_at', '>=', self::REVIEW_WORKFLOW_STARTED_AT)->where('status', 'published')->get(), ['title', 'description', 'instructions'], $locale);
+        $this->audit(Category::query()->where('created_at', '>=', self::REVIEW_WORKFLOW_STARTED_AT)->where('is_active', true)->get(), ['name', 'description'], $locale);
+        $this->audit(Audience::query()->where('created_at', '>=', self::REVIEW_WORKFLOW_STARTED_AT)->get(), ['name'], $locale);
+        $this->audit(Topic::query()->where('created_at', '>=', self::REVIEW_WORKFLOW_STARTED_AT)->get(), ['name', 'description'], $locale);
+        $this->audit(Level::query()->where('created_at', '>=', self::REVIEW_WORKFLOW_STARTED_AT)->get(), ['name', 'description'], $locale);
+        $this->audit(Skill::query()->where('created_at', '>=', self::REVIEW_WORKFLOW_STARTED_AT)->get(), ['name', 'description'], $locale);
+        $this->audit(Tag::query()->where('created_at', '>=', self::REVIEW_WORKFLOW_STARTED_AT)->get(), ['name'], $locale);
+        $this->audit(TestSection::query()->where('created_at', '>=', self::REVIEW_WORKFLOW_STARTED_AT)->whereHas('test', fn ($query) => $query->where('status', 'published'))->get(), ['title', 'description', 'instructions'], $locale);
+        $this->audit(Question::query()->where('created_at', '>=', self::REVIEW_WORKFLOW_STARTED_AT)->where(function ($query): void {
             $query->whereHas('section.test', fn ($test) => $test->where('status', 'published'))
                 ->orWhereHas('listeningResource.resource', fn ($resource) => $resource->where('status', 'published'))
                 ->orWhereHas('readingResource.resource', fn ($resource) => $resource->where('status', 'published'));
         })->get(), ['explanation'], $locale);
-        $publishedResourceIds = Resource::query()->where('status', 'published')->pluck('id');
-        $this->audit(CardResource::query()->whereIn('resource_id', $publishedResourceIds)->get(), ['instructions'], $locale);
-        $this->audit(ListeningResource::query()->whereIn('resource_id', $publishedResourceIds)->get(), ['instructions'], $locale);
-        $this->audit(ReadingResource::query()->whereIn('resource_id', $publishedResourceIds)->get(), ['title', 'instructions'], $locale);
-        $this->audit(WritingResource::query()->whereIn('resource_id', $publishedResourceIds)->get(), ['prompt', 'instructions', 'rubric'], $locale);
-        $this->audit(LearningPath::query()->where('status', 'published')->get(), ['title', 'description'], $locale);
-        $this->audit(LearningUnit::query()->where('is_published', true)->whereHas('path', fn ($query) => $query->where('status', 'published'))->get(), ['title', 'description'], $locale);
-        $this->audit(LearningLesson::query()->where('status', 'published')->whereHas('unit.path', fn ($query) => $query->where('status', 'published'))->get(), ['title', 'description', 'objectives'], $locale);
-        $this->audit(LessonActivity::query()->whereHas('lesson', fn ($query) => $query->where('status', 'published'))->get(), ['title', 'instructions'], $locale);
+        $publishedResourceIds = Resource::query()->where('created_at', '>=', self::REVIEW_WORKFLOW_STARTED_AT)->where('status', 'published')->pluck('id');
+        $this->audit(CardResource::query()->where('created_at', '>=', self::REVIEW_WORKFLOW_STARTED_AT)->whereIn('resource_id', $publishedResourceIds)->get(), ['instructions'], $locale);
+        $this->audit(ListeningResource::query()->where('created_at', '>=', self::REVIEW_WORKFLOW_STARTED_AT)->whereIn('resource_id', $publishedResourceIds)->get(), ['instructions'], $locale);
+        $this->audit(ReadingResource::query()->where('created_at', '>=', self::REVIEW_WORKFLOW_STARTED_AT)->whereIn('resource_id', $publishedResourceIds)->get(), ['title', 'instructions'], $locale);
+        $this->audit(WritingResource::query()->where('created_at', '>=', self::REVIEW_WORKFLOW_STARTED_AT)->whereIn('resource_id', $publishedResourceIds)->get(), ['prompt', 'instructions', 'rubric'], $locale);
+        $this->audit(LearningPath::query()->where('created_at', '>=', self::REVIEW_WORKFLOW_STARTED_AT)->where('status', 'published')->get(), ['title', 'description'], $locale);
+        $this->audit(LearningUnit::query()->where('created_at', '>=', self::REVIEW_WORKFLOW_STARTED_AT)->where('is_published', true)->whereHas('path', fn ($query) => $query->where('status', 'published'))->get(), ['title', 'description'], $locale);
+        $this->audit(LearningLesson::query()->where('created_at', '>=', self::REVIEW_WORKFLOW_STARTED_AT)->where('status', 'published')->whereHas('unit.path', fn ($query) => $query->where('status', 'published'))->get(), ['title', 'description', 'objectives'], $locale);
+        $this->audit(LessonActivity::query()->where('created_at', '>=', self::REVIEW_WORKFLOW_STARTED_AT)->whereHas('lesson', fn ($query) => $query->where('status', 'published'))->get(), ['title', 'instructions'], $locale);
 
         if ($this->issues === []) {
             $this->info("All published {$locale} content fields have reviewed translations.");
