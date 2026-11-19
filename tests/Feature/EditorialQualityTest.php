@@ -144,6 +144,7 @@ class EditorialQualityTest extends TestCase
     public function test_audit_command_exports_published_resources_and_tests_with_review_dispositions(): void
     {
         Resource::factory()->create(['title' => 'Editorial audit sample']);
+        Resource::factory()->create(['title' => 'Legacy demo content excluded', 'created_at' => '2026-11-18 00:00:03']);
         Assessment::factory()->create(['title' => 'Editorial test sample']);
         $path = storage_path('framework/testing/editorial-audit.csv');
 
@@ -154,6 +155,7 @@ class EditorialQualityTest extends TestCase
         $this->assertIsString($csv);
         $this->assertStringContainsString('Editorial audit sample', $csv);
         $this->assertStringContainsString('Editorial test sample', $csv);
+        $this->assertStringNotContainsString('Legacy demo content excluded', $csv);
         $this->assertStringContainsString('recommended_decision', $csv);
     }
 
