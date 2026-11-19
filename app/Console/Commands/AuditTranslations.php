@@ -20,7 +20,7 @@ class AuditTranslations extends Command
 {
     protected $signature = 'translations:audit {--locale=ro : Locale to audit}';
 
-    protected $description = 'List published content fields with missing or unreviewed translations.';
+    protected $description = 'List non-grandfathered published content fields with missing or unreviewed translations.';
 
     /** @var array<int, array{type: string, id: int|string, title: string, field: string, status: string, source: string, translation: string}> */
     private array $issues = [];
@@ -46,7 +46,7 @@ class AuditTranslations extends Command
         $this->audit(LessonActivity::query()->whereHas('lesson', fn ($query) => $query->where('status', 'published')->where('editorial_status', '!=', 'grandfathered'))->get(), ['title', 'instructions'], $locale);
 
         if ($this->issues === []) {
-            $this->info("All published {$locale} content fields have reviewed translations.");
+            $this->info("All non-grandfathered published {$locale} content fields have reviewed translations.");
 
             return self::SUCCESS;
         }
@@ -55,7 +55,7 @@ class AuditTranslations extends Command
             fn (array $issue): array => [$issue['type'], $issue['id'], $issue['title'], $issue['field'], $issue['status'], $issue['source'], $issue['translation']],
             $this->issues,
         ));
-        $this->error(count($this->issues).' published content translation(s) are missing or not reviewed.');
+        $this->error(count($this->issues).' non-grandfathered published content translation(s) are missing or not reviewed.');
 
         return self::FAILURE;
     }
