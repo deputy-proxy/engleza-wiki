@@ -189,7 +189,6 @@ The following items remain open until supported by live evidence:
 
 - [x] Backup schedule, retention, access controls, independent storage and restore test verified (confirmed by repository owner).
 - [x] Verify public/private media storage and backup coverage (confirmed by repository owner).
-- [ ] Configure Resend API key and verified sender in Hostinger; verify SPF/DKIM and test verification/password-reset delivery.
 - [x] Verify log access, rotation, retention and sensitive-data redaction in production (confirmed by repository owner).
 - [x] Implement application liveness and database/schema readiness endpoints with failure-safe responses and automated tests.
 - [ ] Configure external uptime monitors and verify end-to-end alert delivery to the production owner.
@@ -199,4 +198,4 @@ The following items remain open until supported by live evidence:
 - [x] Controlled production recovery and smoke-test procedures verified by repository owner; retain route-level results in production operations records.
 - [ ] Record production owner and escalation contacts.
 
-**The application-side monitoring implementation is complete. External monitor/alert setup and Resend live delivery are owner-operated follow-ups; do not represent them as completed until provider-side evidence exists.**
+**The application-side monitoring implementation is complete. External monitor/alert setup is the remaining operational acceptance item for issue #24. Resend API-key deployment, sender authentication and real delivery are a separate, non-blocking owner follow-up planned for tomorrow; they are explicitly excluded from issue #24 closure criteria. Do not represent either provider-side action as completed until evidence exists.**
