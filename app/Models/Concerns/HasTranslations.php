@@ -15,7 +15,7 @@ trait HasTranslations
         return $this->morphMany(ContentTranslation::class, 'translatable');
     }
 
-    /** Return a reviewed translation only while its source text is unchanged. */
+    /** Return an approved or grandfathered translation only while its source text is unchanged. */
     public function translated(string $field, ?string $locale = null): mixed
     {
         $locale ??= App::getLocale();
@@ -66,7 +66,11 @@ trait HasTranslations
             return 'stale';
         }
 
-        if (! in_array($translation->editorial_status, ['approved', 'grandfathered'], true)) {
+        if ($translation->editorial_status === 'grandfathered') {
+            return 'grandfathered';
+        }
+
+        if ($translation->editorial_status !== 'approved') {
             return 'editorial_'.$translation->editorial_status;
         }
 
