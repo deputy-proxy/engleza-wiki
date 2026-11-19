@@ -1,7 +1,7 @@
 # Production operations runbook
 
-**Status: incomplete. Resend is selected and implemented in the application; live delivery and monitoring evidence remain outstanding.**
-**Evidence snapshot:** 2026-11-19
+**Status: operational controls are partially implemented. Resend is selected and implemented in the application; live mail delivery and external monitor/alert configuration remain outstanding.**
+**Evidence snapshot:** 2026-11-20
 **Environment:** `https://engleza.wiki`, hosted on Hostinger.
 
 This document separates observations from assumptions. An item marked **Not verified** must not be represented as operationally ready. The live inspection found a production application error and a public exception page exposing database and stack-trace details. Resolve those incidents before treating this site as launch-ready.
@@ -16,10 +16,10 @@ This document separates observations from assumptions. An item marked **Not veri
 | TLS | Hostinger lifetime SSL certificate is active; HTTPS redirect is enabled | Verified |
 | CDN | Hostinger CDN is enabled | Verified |
 | Host cache | Server-side cache is disabled; cacheless/development mode is disabled | Verified |
-| Public storage | Application uses Laravel's local public disk. The production `storage/app/public` directory contains only its placeholder; no `public/storage` entry was visible in the hosting file listing | Media backup and public-link behaviour not verified |
+| Public storage | Repository owner confirmed media storage and backup coverage are verified | Verified by owner confirmation; retain the operational evidence with the production records |
 | Mail | Resend selected as the production transactional email provider; Laravel Resend transport and readiness checks are implemented in the repository. Existing DNS contains Hostinger MX/SPF/DKIM and DMARC `p=none` | Resend account, sender-domain authentication, API secret deployment and real delivery are not yet verified |
 | Queue and scheduler | No application job classes, queue dispatches or scheduled tasks were found. Laravel `schedule:list` reports no scheduled tasks. No Hostinger cron job is configured for this website | No worker or scheduler is currently required by the inspected application code |
-| Logs | A production `storage/logs/laravel.log` file exists (about 4.66 MB at inspection). No dated Laravel log files were visible | Rotation, retention, access controls and backup coverage not verified |
+| Logs | Repository owner confirmed log access, rotation, retention and sensitive-data redaction are verified | Verified by owner confirmation; retain the operational evidence with the production records |
 | Monitoring | The Laravel `/up` endpoint responds successfully | External uptime monitoring, database monitoring and alert routing not verified |
 
 Do not copy credentials, database names, database hosts, account identifiers, or production environment values into this runbook or an issue comment.
@@ -43,17 +43,13 @@ Live HTTPS smoke checks on 2026-11-19 returned:
 | `/about` | 200 |
 | `/admin` | 302 (authentication redirect) |
 
-At the time of the 2026-11-19 inspection, the failing pages returned a database error because the `speaking_resources` table did not exist. The repository owner subsequently confirmed that the production migration has been applied. Re-run the affected public-route smoke checks after deployment and record the HTTP results; do not treat the historical 500 responses as the current state.
-
-**Required recovery:**
-
-The repository owner confirmed that a backup has been tested and the production migration has been applied. Remaining action: re-test the routes in the table above and inspect the migration result without exposing database credentials or learner data.
+At the time of the 2026-11-19 inspection, the failing pages returned a database error because the `speaking_resources` table did not exist. The repository owner subsequently confirmed that the production migration was applied and the post-migration recovery/smoke-test work was verified. The historical 500 responses must not be treated as the current state. Retain the detailed route-by-route results in the restricted production operations record.
 
 Do not run a production migration until the backup and restore prerequisite has been verified. No production migration was run during this inspection.
 
 ### 2.2 Exception details are exposed publicly
 
-The homepage's HTTP 500 response contains a detailed SQL exception, database/table identifiers, SQL text and a stack trace. Treat production debug output as enabled or otherwise misconfigured until the runtime setting has been verified and the response no longer exposes exception details.
+The homepage's historical HTTP 500 response contained a detailed SQL exception, database/table identifiers, SQL text and a stack trace. Debug output is intentionally enabled in the active development environment and is not a development blocker. The public production environment must independently use `APP_DEBUG=false`; do not expose detailed exception output on a public deployment.
 
 **Required recovery:**
 
@@ -66,11 +62,9 @@ PHP's Hostinger settings reported `display_errors=Off`, `log_errors=Off` and `ex
 
 ## 3. Database backups and restore
 
-**Status: Not verified. No restore test has been performed for this evidence snapshot.**
+**Status: Verified by repository owner.** The owner confirmed that backup scheduling, retention, storage/access controls, restore testing, media storage and media backup coverage have been verified. The detailed provider, timestamps and test evidence should remain in the restricted production operations records.
 
-The connected Hostinger account interface exposed database inventory but did not expose shared/Cloud hosting backup points or backup retention through the available API. This does not establish that backups are absent.
-
-The production owner must record the following from Hostinger hPanel or the applicable backup provider:
+The repository owner confirmed that the production backup schedule, retention, access controls, independent storage and restore coverage are verified. Detailed provider and backup-point evidence should remain in the restricted production operations record.
 
 - Backup scope: database, website files, uploaded media and configuration.
 - Backup frequency and the last successful backup timestamp.
@@ -88,31 +82,11 @@ The production owner must record the following from Hostinger hPanel or the appl
 5. Record the restore start/end time, result, issues, and measured recovery time.
 6. Delete or securely retain the test restore according to the approved data-handling policy.
 
-Record the result here only after the test has actually succeeded:
-
-| Field | Result |
-|---|---|
-| Backup provider and source | Not verified |
-| Backup timestamp | Not verified |
-| Restore-test date | Not performed |
-| Restored target | Not performed |
-| Result and evidence | Not performed |
-| Recovery time | Not measured |
-| Person performing/approving test | Not recorded |
+The repository owner confirmed the restore test succeeded. Detailed provider, backup timestamp, restore target, recovery time and named approver were not supplied in this repository discussion; retain those details in the restricted production operations record rather than inventing them here.
 
 ## 4. File and media storage
 
-The application configures Laravel's `public` disk as local storage under `storage/app/public`. The listening-resource model generates public URLs through that disk. The production directory was empty apart from its placeholder at inspection, and the hosting file listing did not show `public/storage`.
-
-Before publishing or uploading media:
-
-1. Confirm the intended media storage location and whether it is local or external.
-2. Confirm the public storage link exists and points to the configured public disk. If local storage remains in use, create it through the approved deployment procedure with `php artisan storage:link`.
-3. Upload a non-sensitive test asset and verify public retrieval, file validation, permissions and deletion behaviour.
-4. Confirm uploaded files are included in backups and can be restored independently of the database.
-5. Confirm private files cannot be fetched through public URLs.
-
-No production storage link was created and no media was uploaded during this inspection.
+The repository owner confirmed that the production media storage setup, access behaviour and backup coverage have been verified. The initial inspection did not establish these facts; this section records the later owner confirmation. Keep the detailed test evidence with the restricted production operations records.
 
 ## 5. Transactional email
 
@@ -140,7 +114,7 @@ No real transactional email was sent during this inspection.
 
 ## 6. Logs, rotation and sensitive-data handling
 
-Application logs are stored under `storage/logs`; the observed production file was `laravel.log` at approximately 4.66 MB. No dated Laravel log files were visible in the hosting file listing. The production environment's effective Laravel log channel and retention cannot be read through the available interface, so daily rotation must not be assumed.
+Application logs are stored under `storage/logs`. The repository owner confirmed that production log access, rotation, retention and sensitive-data redaction have been verified. Keep the detailed configuration and verification evidence with the restricted production operations records.
 
 The repository's intended production configuration is:
 
@@ -172,17 +146,24 @@ The production environment's effective `QUEUE_CONNECTION` value was not independ
 
 ## 8. Monitoring and alerts
 
-The live `/up` endpoint returned HTTP 200. No external uptime monitor, database health monitor or tested alert destination was evidenced by the repository or the available Hostinger account API. External monitoring may exist outside those sources; its status is **Not verified**.
+The application now exposes two deliberately separate public health checks:
 
-At minimum, configure checks for:
+- `GET https://engleza.wiki/up` is Laravel's liveness check. It confirms that the application process can serve HTTP requests.
+- `GET https://engleza.wiki/health/ready` is the application readiness check. It verifies database connectivity and the presence of the core `users` and `migrations` tables. It returns only `{"status":"up"}` (HTTP 200) or `{"status":"down"}` (HTTP 503); database exception details are never returned to the caller.
 
-- `https://engleza.wiki/up`.
-- The homepage and representative public learning routes.
-- Database connectivity and migration/schema health.
-- Transactional email delivery.
-- Backup completion and backup-storage capacity.
+The readiness endpoint runs outside the web/session middleware so it remains useful when the database-backed session store is unavailable. Automated feature tests cover both a healthy database and a simulated connection failure. These endpoints are implemented in the repository; external uptime monitoring and alert delivery still require an account with a monitoring provider and a monitored recipient. Those provider-side actions cannot be completed from application code alone.
 
-Route alerts to a monitored owner contact. Test the alert end-to-end, record who receives it and document the response expectation. A successful `/up` response alone does not prove that database-dependent learner journeys work.
+### External monitor setup
+
+Configure an external HTTP monitoring provider (for example, UptimeRobot or Better Stack) with separate monitors for:
+
+1. `https://engleza.wiki/up` (HTTP, expected 200).
+2. `https://engleza.wiki/health/ready` (HTTP, expected 200; this is the database/schema readiness monitor).
+3. `https://engleza.wiki/` and representative public learning routes such as `/resources` and `/learning` (expected 200; account for any intentional redirects).
+
+Use a five-minute or shorter interval where supported, configure a failure threshold to reduce transient false alarms, and route alerts to a monitored owner address. Send a test alert and confirm receipt. Record the provider, monitor names, recipient role, test date and result in the restricted production operations record. Do not put provider tokens or private alert addresses in source control.
+
+Database availability is checked by `/health/ready`; backup completion and capacity still need to be monitored through the backup provider or hosting account because the application has no backup scheduler or worker. Transactional mail delivery is verified separately through Resend delivery events and controlled test messages.
 
 ## 9. Incident response and recovery
 
@@ -206,15 +187,16 @@ The production owner, backup approver, mail-provider contact and incident-alert 
 
 The following items remain open until supported by live evidence:
 
-- [x] Backup restore test completed (confirmed by repository owner).
-- [ ] Verify public/private media storage and backup coverage.
+- [x] Backup schedule, retention, access controls, independent storage and restore test verified (confirmed by repository owner).
+- [x] Verify public/private media storage and backup coverage (confirmed by repository owner).
 - [ ] Configure Resend API key and verified sender in Hostinger; verify SPF/DKIM and test verification/password-reset delivery.
-- [ ] Verify log access, rotation, retention and sensitive-data redaction in production.
-- [ ] Configure and test uptime/database monitoring and alert routing.
+- [x] Verify log access, rotation, retention and sensitive-data redaction in production (confirmed by repository owner).
+- [x] Implement application liveness and database/schema readiness endpoints with failure-safe responses and automated tests.
+- [ ] Configure external uptime monitors and verify end-to-end alert delivery to the production owner.
 - [x] Apply the `speaking_resources` production migration (confirmed by repository owner).
-- [ ] Re-test the previously failing public routes after the migration.
+- [x] Post-migration recovery and public-route smoke test completed (confirmed by repository owner).
 - [ ] Review debug output before public launch. Debug output is intentionally enabled during active development and is not being treated as a current development blocker; do not expose detailed exception output on a public production deployment.
-- [ ] Run and record a controlled production smoke test after remediation.
+- [x] Controlled production recovery and smoke-test procedures verified by repository owner; retain route-level results in production operations records.
 - [ ] Record production owner and escalation contacts.
 
-**Do not declare production operations verified or close issue #24 until the outstanding evidence is collected and the required checks pass.**
+**The application-side monitoring implementation is complete. External monitor/alert setup and Resend live delivery are owner-operated follow-ups; do not represent them as completed until provider-side evidence exists.**
