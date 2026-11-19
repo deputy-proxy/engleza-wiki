@@ -12,7 +12,10 @@ class ClassGroupController extends Controller
     public function show(string $code)
     {
         $group = ClassGroup::where('join_code', strtoupper($code))->where('is_active', true)->firstOrFail();
-        $group->load(['test.translations', 'test.level.translations', 'teacher']);
+        $group->load(['test.translations', 'test.level.translations', 'teacher', 'writingResources.resource.translations', 'writingResources.resource.level.translations']);
+        $group->setRelation('writingResources', $group->writingResources->filter(
+            fn ($writing) => $writing->resource->status === 'published' && $writing->resource->isEditorialVisible()
+        )->values());
 
         return view('pages.classes.show', compact('group'));
     }
@@ -27,7 +30,8 @@ class ClassGroupController extends Controller
         $avg = $completed->count() ? round($completed->avg('percentage'), 1) : 0;
         $levels = $completed->groupBy('level_result')->map->count();
         $learnerProgress = $progress->classGroupSummary($group);
+        $writingSubmissionCount = $group->writingSubmissions()->count();
 
-        return view('pages.classes.results', compact('group', 'attempts', 'completed', 'avg', 'levels', 'learnerProgress'));
+        return view('pages.classes.results', compact('group', 'attempts', 'completed', 'avg', 'levels', 'learnerProgress', 'writingSubmissionCount'));
     }
 }

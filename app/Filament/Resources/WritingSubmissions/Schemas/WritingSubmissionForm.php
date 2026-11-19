@@ -18,7 +18,11 @@ class WritingSubmissionForm
                     ->getOptionLabelFromRecordUsing(fn ($r) => $r->resource?->title ?? "#{$r->id}")->searchable()->required(),
                 Select::make('user_id')->label('User')->relationship('user', 'email')->searchable()->required(),
                 TextInput::make('word_count')->numeric()->readOnly(),
-                Select::make('status')->native(false)->options(['draft' => 'Draft', 'submitted' => 'Submitted'])->required(),
+                Select::make('status')->native(false)->options([
+                    'draft' => 'Draft', 'submitted' => 'Submitted', 'under_review' => 'Under review',
+                    'feedback_published' => 'Feedback published', 'revision_requested' => 'Revision requested',
+                    'resubmitted' => 'Resubmitted', 'completed' => 'Completed',
+                ])->required(),
             ]),
             Section::make('Content')->schema([
                 Textarea::make('content')->rows(16)->columnSpanFull()->required(),

@@ -23,5 +23,32 @@
   @else
     <div class="mt-6 card p-5 bg-navy-50/60 text-navy-700">{{ __('No specific test has been assigned to this class yet. Ask your teacher for details.') }}</div>
   @endif
+
+  @if($group->writingResources->isNotEmpty())
+    <h2 class="mt-10 text-2xl font-bold text-navy-900">{{ __('Writing assignments') }}</h2>
+    <div class="mt-4 space-y-4">
+      @foreach($group->writingResources as $writing)
+        <article class="card p-6" data-testid="class-writing-{{ $writing->id }}">
+          <div class="text-xs uppercase tracking-wide text-sky-700 font-semibold">{{ $writing->resource->level?->translated('name') ?? __('Writing') }}</div>
+          <h3 class="mt-2 text-xl font-bold text-navy-900">{{ $writing->resource->translated('title') }}</h3>
+          <p class="mt-2 text-navy-600">{{ $writing->resource->translated('excerpt') }}</p>
+          <p class="mt-3 text-navy-700">{{ $writing->translated('prompt') }}</p>
+          @auth
+            <form method="POST" action="{{ route('classes.writing.submit', [$group, $writing->resource]) }}" class="mt-5" data-testid="class-writing-form-{{ $writing->id }}">
+              @csrf
+              <label class="block text-sm font-semibold text-navy-700" for="class-writing-content-{{ $writing->id }}">{{ __('Your response') }}</label>
+              <textarea id="class-writing-content-{{ $writing->id }}" name="content" rows="8" required maxlength="20000" class="mt-2 w-full rounded-xl border border-navy-200 p-4 text-navy-900">{{ old('content') }}</textarea>
+              <div class="mt-3 flex justify-end gap-3">
+                <button name="status" value="draft" class="btn-outline">{{ __('Save draft') }}</button>
+                <button name="status" value="submitted" class="btn-primary">{{ __('Submit to teacher') }}</button>
+              </div>
+            </form>
+          @else
+            <p class="mt-4 text-sm text-navy-600"><a class="font-semibold text-brand-700" href="{{ route('login') }}">{{ __('Log in') }}</a> {{ __('to submit this assignment.') }}</p>
+          @endauth
+        </article>
+      @endforeach
+    </div>
+  @endif
 </section>
 </x-layout>

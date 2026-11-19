@@ -22,6 +22,10 @@ class ClassGroupForm
                 Select::make('teacher_id')->label('Teacher')->relationship('teacher', 'email')->searchable()->required()
                     ->default(fn () => auth()->id()),
                 Select::make('test_id')->label('Assigned test')->relationship('test', 'title')->searchable()->preload(),
+                Select::make('writingResources')->label('Assigned writing tasks')->multiple()
+                    ->relationship('writingResources', 'id')
+                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->resource->title ?? "Writing task #{$record->id}")
+                    ->searchable()->preload()->columnSpanFull(),
                 Toggle::make('is_active')->default(true),
                 Textarea::make('description')->rows(3)->columnSpanFull(),
             ]),

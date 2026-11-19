@@ -11,7 +11,7 @@
 
 ## Access and export
 
-The application generates a JSON export after re-authentication. It includes the account profile and account-owned learning, assessment, writing, class-teacher, vocabulary, progress, engagement and request records. It excludes authentication secrets, raw session payloads, internal staff notes, other learners' records, server logs, infrastructure backups and processor-held copies. Recheck scope whenever new personal-data tables or processors are added.
+The application generates a JSON export after re-authentication. It includes the account profile and account-owned learning, assessment, writing submissions, immutable writing versions, published teacher feedback, teacher-authored feedback records, class assignments, class-teacher, vocabulary, progress, engagement and request records. It excludes authentication secrets, raw session payloads, internal staff notes, other learners' records, server logs, infrastructure backups and processor-held copies. Recheck scope whenever new personal-data tables or processors are added.
 
 ## Rectification
 

@@ -9,7 +9,7 @@
 | Sessions | Laravel session lifetime and cleanup | Expire inactive sessions; verify production scheduler and database cleanup | No new job in this issue |
 | Tests, answers and results | Persist; some content FKs cascade; user references may null on delete | Decide retention by educational purpose, certificate/appeal needs and legal obligations | No |
 | Learning attempts and answers | Persist; user reference nullable | Same as tests; separately review technical identifiers | No |
-| Writing submissions | Persist as learner text; FK to user cascades on delete | Purpose-limited retention with review window; check class/appeal/legal needs | No |
+| Writing submissions, versions and reviews | Persist as learner text and teacher feedback; versions and reviews are linked to the parent submission; learner deletion is blocked while protected learning records exist | Purpose-limited retention with review window; check class/appeal/legal needs; controller and counsel must approve exact periods and any destructive action | No |
 | Class groups and results | Teacher owns group; deleting teacher currently cascades group deletion | Transfer ownership or anonymise group/results before closure | No |
 | Progress, vocabulary and engagement | Persist as account-owned history | Delete or anonymise with closure, subject to approved exceptions | No |
 | Privacy requests | Request record retained; after approved account closure, requester link, description and internal notes are cleared | Keep minimal anonymised accountability record for counsel-approved period | No |

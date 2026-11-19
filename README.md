@@ -228,3 +228,7 @@ php artisan translations:audit --locale=ro
 ```
 
 The command exits non-zero when a published content field is missing a reviewed Romanian translation or its source has changed since review. Public search includes reviewed Romanian translations. The public layout emits Romanian language and social metadata, canonical and `hreflang` links; `/sitemap.xml` lists public content and is referenced by `robots.txt`.
+
+## Writing feedback workflow
+
+See [docs/writing-feedback-workflow.md](docs/writing-feedback-workflow.md) for class assignment setup, teacher permissions, submission lifecycle, rubric, learner revisions and retention treatment.

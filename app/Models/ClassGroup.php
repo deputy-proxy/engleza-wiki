@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 class ClassGroup extends Model
@@ -42,6 +44,18 @@ class ClassGroup extends Model
     public function attempts()
     {
         return $this->hasMany(TestAttempt::class);
+    }
+
+    /** @return BelongsToMany<WritingResource, $this> */
+    public function writingResources()
+    {
+        return $this->belongsToMany(WritingResource::class, 'class_group_writing_resource')->withTimestamps();
+    }
+
+    /** @return HasMany<WritingSubmission, $this> */
+    public function writingSubmissions(): HasMany
+    {
+        return $this->hasMany(WritingSubmission::class);
     }
 
     public function getRouteKeyName(): string
