@@ -138,7 +138,7 @@ class LearningPathService
         $lesson->load('unit.path', 'activities.resource', 'activities.test');
         $unit = $lesson->unit;
         $path = $unit?->path;
-        if (! $unit || ! $unit->is_published || ! $path || $path->status !== 'published' || $lesson->editorial_status !== 'approved'
+        if (! $unit || ! $unit->is_published || ! $path || $path->status !== 'published' || ! in_array($lesson->editorial_status, ['approved', 'grandfathered'], true)
             || $path->published_at === null || $path->published_at->gt(now())
             || $lesson->status !== 'published' || $lesson->published_at === null || $lesson->published_at->gt(now())) {
             return false;
