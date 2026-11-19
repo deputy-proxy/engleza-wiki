@@ -6,16 +6,15 @@ use Illuminate\Support\Facades\DB;
 return new class extends Migration
 {
     /**
-     * Existing records predate editorial review and are demo content.
-     * The original editorial migration was timestamped 2026-11-18 00:00:04.
-     * Only records created before that rollout are grandfathered; records created
-     * after rollout remain pending and must pass the new review workflow.
+     * Records already present when the editorial workflow is deployed are demo
+     * content. Preserve their current public behavior without claiming they were
+     * reviewed. The model hook marks every record created after this migration
+     * as pending, so only pre-existing records are grandfathered here.
      */
     public function up(): void
     {
         foreach (['resources', 'tests', 'learning_lessons', 'content_translations'] as $table) {
             DB::table($table)
-                ->where('created_at', '<', '2026-11-18 00:00:04')
                 ->where('editorial_status', 'pending')
                 ->update([
                     'editorial_status' => 'grandfathered',
