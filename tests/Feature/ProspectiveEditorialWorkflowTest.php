@@ -42,6 +42,14 @@ class ProspectiveEditorialWorkflowTest extends TestCase
         $this->assertSame('Traducere demo', $resource->fresh()->translated('title', 'ro'));
     }
 
+    public function test_translation_audit_skips_grandfathered_demo_content(): void
+    {
+        $resource = Resource::factory()->create(['title' => 'Legacy demo translation source']);
+        $resource->forceFill(['editorial_status' => 'grandfathered'])->saveQuietly();
+
+        $this->artisan('translations:audit', ['--locale' => 'ro'])->assertExitCode(0);
+    }
+
     public function test_new_resource_requires_approval_before_publication(): void
     {
         $resource = Resource::factory()->create();
