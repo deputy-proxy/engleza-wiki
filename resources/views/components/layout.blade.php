@@ -220,6 +220,7 @@
       @auth
         <a href="{{ route('dashboard') }}" class="btn-ghost" data-testid="nav-dashboard">{{ __('Dashboard') }}</a>
         <a href="{{ route('dashboard.learning') }}" class="btn-ghost" data-testid="nav-my-learning">{{ __('My learning') }}</a>
+        @if(auth()->user()->isAdmin() || auth()->user()->role === 'teacher')<a href="{{ route('teaching.index') }}" class="btn-ghost" data-testid="nav-teaching">{{ __('Teaching') }}</a>@endif
         <form method="POST" action="{{ route('logout') }}">@csrf<button class="btn-outline" data-testid="nav-logout">{{ __('Log out') }}</button></form>
       @else
         <a href="{{ route('login') }}" class="btn-ghost" data-testid="nav-login">{{ __('Log in') }}</a>

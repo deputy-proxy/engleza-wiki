@@ -189,8 +189,9 @@ class LearnerProgressService
         $attempts = TestAttempt::query()
             ->where('class_group_id', $group->id)
             ->whereNotNull('user_id')
+            ->whereHas('user.classGroupMemberships', fn ($query) => $query->where('class_group_id', $group->id)->whereNull('removed_at'))
             ->where('status', 'completed')
-            ->with(['user', 'test.translations', 'test.skill.translations', 'answers.question.translations', 'answers.question.topics.translations'])
+            ->with(['user:id,name', 'test.translations', 'test.skill.translations', 'answers.question.translations', 'answers.question.topics.translations'])
             ->orderBy('completed_at')
             ->get()
             ->groupBy('user_id');

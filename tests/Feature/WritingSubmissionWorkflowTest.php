@@ -4,13 +4,16 @@ namespace Tests\Feature;
 
 use App\Filament\Resources\WritingSubmissions\WritingSubmissionResource;
 use App\Models\ClassGroup;
+use App\Models\ClassGroupMembership;
 use App\Models\Resource;
 use App\Models\User;
 use App\Models\WritingSubmission;
 use App\Models\WritingSubmissionReview;
+use App\Services\Learning\ClassGroupService;
 use App\Services\Privacy\PersonalDataExport;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 class WritingSubmissionWorkflowTest extends TestCase
@@ -40,12 +43,14 @@ class WritingSubmissionWorkflowTest extends TestCase
             'name' => 'Writing class', 'join_code' => 'WRITE01', 'teacher_id' => $this->teacher->id,
         ]);
         $this->writingResource = Resource::query()->where('type', 'writing')->where('status', 'published')->firstOrFail();
+        $this->writingResource->approveEditorialReview(User::factory()->create(['role' => 'admin']));
         $this->group->writingResources()->attach($this->writingResource->writingResource->id);
+        app(ClassGroupService::class)->join($this->learner, $this->group);
     }
 
     public function test_class_assignment_is_available_to_learners_and_submission_is_linked_to_class(): void
     {
-        $this->get(route('classes.show', $this->group))->assertOk()->assertSee('Teme de scriere');
+        $this->actingAs($this->learner)->get(route('classes.show', $this->group))->assertOk()->assertSee($this->writingResource->translated('title'));
 
         $this->actingAs($this->learner)->post(route('classes.writing.submit', [$this->group, $this->writingResource]), [
             'content' => 'A short sample response for the class assignment.',
@@ -84,6 +89,18 @@ class WritingSubmissionWorkflowTest extends TestCase
             ->assertOk()->assertDontSee('Private draft text.');
         $this->actingAs($this->teacher)->get(route('classes.writing.show', [$this->group, $draft]))->assertNotFound();
         $this->actingAs($this->learner)->get(route('dashboard.writing.show', $draft))->assertOk()->assertSee('Private draft text.');
+    }
+
+    public function test_removed_learner_writing_is_hidden_from_teacher_lists_and_direct_review_routes(): void
+    {
+        $submission = $this->createClassSubmission();
+        $membership = ClassGroupMembership::query()->where('class_group_id', $this->group->id)->where('user_id', $this->learner->id)->whereNull('removed_at')->firstOrFail();
+        app(ClassGroupService::class)->remove($this->group, $membership, $this->teacher);
+        $this->actingAs($this->teacher)->get(route('classes.writing.index', $this->group))->assertOk()->assertDontSee($this->learner->name);
+        $this->actingAs($this->teacher)->get(route('classes.writing.show', [$this->group, $submission]))->assertNotFound();
+        $this->actingAs($this->teacher)->post(route('classes.writing.begin-review', [$this->group, $submission]))->assertNotFound();
+        $this->actingAs($this->teacher)->post(route('classes.writing.request-revision', [$this->group, $submission]))->assertNotFound();
+        $this->actingAs($this->teacher)->post(route('classes.writing.complete', [$this->group, $submission]))->assertNotFound();
     }
 
     public function test_learner_cannot_view_another_learners_submission_or_teacher_review_screen(): void
@@ -197,7 +214,7 @@ class WritingSubmissionWorkflowTest extends TestCase
         try {
             $this->group->delete();
             $this->fail('A class with retained writing submissions must not be deleted.');
-        } catch (QueryException) {
+        } catch (ValidationException) {
             $this->assertDatabaseHas('class_groups', ['id' => $this->group->id]);
         }
 

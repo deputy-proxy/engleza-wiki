@@ -3,10 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
+/**
+ * @property-read User|null $teacher
+ * @property-read Test|null $test
+ */
 class ClassGroup extends Model
 {
     protected $fillable = ['name', 'join_code', 'teacher_id', 'test_id', 'description', 'is_active'];
@@ -15,6 +21,10 @@ class ClassGroup extends Model
 
     protected static function booted(): void
     {
+        static::deleting(function (): never {
+            throw ValidationException::withMessages(['class' => 'Classes must be archived rather than deleted.']);
+        });
+
         static::creating(function (self $g) {
             if (empty($g->join_code)) {
                 $g->join_code = self::generateCode();
@@ -31,12 +41,32 @@ class ClassGroup extends Model
         return $code;
     }
 
-    public function teacher()
+    /** @return HasMany<ClassGroupMembership, $this> */
+    public function memberships(): HasMany
+    {
+        return $this->hasMany(ClassGroupMembership::class);
+    }
+
+    /** @return HasMany<ClassGroupMembership, $this> */
+    public function activeMemberships(): HasMany
+    {
+        return $this->memberships()->whereNull('removed_at');
+    }
+
+    /** @return HasMany<ClassGroupTransfer, $this> */
+    public function transfers(): HasMany
+    {
+        return $this->hasMany(ClassGroupTransfer::class);
+    }
+
+    /** @return BelongsTo<User, $this> */
+    public function teacher(): BelongsTo
     {
         return $this->belongsTo(User::class, 'teacher_id');
     }
 
-    public function test()
+    /** @return BelongsTo<Test, $this> */
+    public function test(): BelongsTo
     {
         return $this->belongsTo(Test::class);
     }
@@ -56,6 +86,13 @@ class ClassGroup extends Model
     public function writingSubmissions(): HasMany
     {
         return $this->hasMany(WritingSubmission::class);
+    }
+
+    /** @return HasMany<TestAttempt, $this> */
+    public function activeAttempts(): HasMany
+    {
+        return $this->attempts()->whereNotNull('user_id')
+            ->whereHas('user.classGroupMemberships', fn ($query) => $query->whereColumn('class_group_memberships.class_group_id', 'test_attempts.class_group_id')->whereNull('removed_at'));
     }
 
     public function getRouteKeyName(): string

@@ -14,6 +14,7 @@ use App\Http\Controllers\PrivacyController;
 use App\Http\Controllers\ResourceController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\TeachingController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\VocabularyReviewController;
 use App\Http\Controllers\WritingSubmissionController;
@@ -67,6 +68,18 @@ Route::get('/tests/{test:slug}/certificate/{attempt}', [CertificateController::c
 // Teacher class join codes (public join, teacher-only results)
 Route::get('/classes/{code}', [ClassGroupController::class, 'show'])->name('classes.show');
 Route::get('/classes/{code}/results', [ClassGroupController::class, 'results'])->name('classes.results')->middleware('auth');
+Route::middleware('auth')->group(function (): void {
+    Route::post('/classes/{code}/join', [ClassGroupController::class, 'join'])->name('classes.join')->middleware('throttle:20,1');
+    Route::get('/teaching', [TeachingController::class, 'index'])->name('teaching.index');
+    Route::get('/teaching/create', [TeachingController::class, 'create'])->name('teaching.create');
+    Route::post('/teaching', [TeachingController::class, 'store'])->name('teaching.store');
+    Route::get('/teaching/{group}', [TeachingController::class, 'show'])->name('teaching.show');
+    Route::put('/teaching/{group}', [TeachingController::class, 'update'])->name('teaching.update');
+    Route::post('/teaching/{group}/members', [TeachingController::class, 'addMember'])->name('teaching.members.add');
+    Route::delete('/teaching/{group}/members/{membership}', [TeachingController::class, 'removeMember'])->name('teaching.members.remove')->withoutScopedBindings();
+    Route::post('/teaching/{group}/transfer', [TeachingController::class, 'transfer'])->name('teaching.transfer');
+    Route::post('/teaching/{group}/toggle-active', [TeachingController::class, 'toggleActive'])->name('teaching.toggle-active');
+});
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');

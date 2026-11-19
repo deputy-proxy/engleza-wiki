@@ -11,7 +11,7 @@
 
 ## Access and export
 
-The application generates a JSON export after re-authentication. It includes the account profile and account-owned learning, assessment, writing submissions, immutable writing versions, published teacher feedback, teacher-authored feedback records, class assignments, class-teacher, vocabulary, progress, engagement and request records. It excludes authentication secrets, raw session payloads, internal staff notes, other learners' records, server logs, infrastructure backups and processor-held copies. Recheck scope whenever new personal-data tables or processors are added.
+The application generates a JSON export after re-authentication. It includes the account profile and account-owned learning, assessment, writing submissions, immutable writing versions, published teacher feedback, teacher-authored feedback records, class assignments, the account holder’s own class membership history, teacher-owned class membership events, membership actions and ownership-transfer history, class-teacher, vocabulary, progress, engagement and request records. Teacher exports omit other learners’ identifiers. It excludes authentication secrets, raw session payloads, internal staff notes, other learners' records, server logs, infrastructure backups and processor-held copies. Recheck scope whenever new personal-data tables or processors are added.
 
 ## Rectification
 
@@ -19,7 +19,7 @@ Record the exact fields and requested correction. Verify the source of truth and
 
 ## Erasure and account closure
 
-Do not perform automatic deletion. Map tests/answers/results, certificates, writing, class groups, progress, vocabulary, XP, logs, exports, backups and processors. Identify statutory retention, disputes, safeguarding and educational-record obligations with counsel. Decide record-by-record whether to delete, irreversibly anonymise, restrict or retain under a documented exception. Transfer teacher-owned classes before closure where appropriate. Execute only after controller approval and verify active database, file storage and processor actions; record backup expiry separately. When the user account is deleted after all learning records have been handled, the application anonymises the retained request record by clearing its user link, description and internal notes while preserving minimal request type/status/timestamps.
+Do not perform automatic deletion. Map tests/answers/results, certificates, writing, class groups, the account holder's own membership history, teacher-owned class membership events, membership actions and ownership-transfer history, progress, vocabulary, XP, logs, exports, backups and processors. Identify statutory retention, disputes, safeguarding and educational-record obligations with counsel. Decide record-by-record whether to delete, irreversibly anonymise, restrict or retain under a documented exception. Transfer teacher-owned classes before closure where appropriate. Membership removals and class transfers are retained as audit history; removing a learner hides their records from current class reports but does not delete educational records. Execute only after controller approval and verify active database, file storage and processor actions; record backup expiry separately. When the user account is deleted after all learning records have been handled, the application anonymises the retained request record by clearing its user link, description and internal notes while preserving minimal request type/status/timestamps.
 
 ## Tracking and response
 
