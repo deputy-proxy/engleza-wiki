@@ -21,6 +21,12 @@ class ProspectiveEditorialWorkflowTest extends TestCase
         $resource = Resource::factory()->create([
             'editorial_status' => 'pending',
         ]);
+        $assessment = Assessment::factory()->create();
+        $path = LearningPath::create(['title' => 'Legacy demo path', 'slug' => 'legacy-demo-path', 'status' => 'draft']);
+        $unit = LearningUnit::create(['learning_path_id' => $path->id, 'title' => 'Legacy demo unit', 'sort_order' => 1]);
+        $lesson = LearningLesson::create([
+            'learning_unit_id' => $unit->id, 'title' => 'Legacy demo lesson', 'slug' => 'legacy-demo-lesson', 'status' => 'draft',
+        ]);
         $translation = ContentTranslation::create([
             'translatable_type' => $resource->getMorphClass(),
             'translatable_id' => $resource->id,
@@ -37,6 +43,10 @@ class ProspectiveEditorialWorkflowTest extends TestCase
         $this->assertSame('grandfathered', $resource->fresh()->editorial_status);
         $this->assertNull($resource->fresh()->editorial_reviewed_by);
         $this->assertSame('grandfathered', $translation->fresh()->editorial_status);
+        $this->assertSame('grandfathered', $assessment->fresh()->editorial_status);
+        $this->assertSame('grandfathered', $lesson->fresh()->editorial_status);
+        $this->assertTrue(Assessment::published()->whereKey($assessment->id)->exists());
+        $this->assertTrue($lesson->fresh()->isEditorialVisible());
         $this->assertTrue(Resource::published()->whereKey($resource->id)->exists());
         $this->get(route('resources.show', $resource))->assertOk();
         $this->assertSame('Traducere demo', $resource->fresh()->translated('title', 'ro'));
