@@ -1,5 +1,7 @@
 # Production configuration and operations
 
+> This document describes the intended production configuration. It does not prove the live environment currently matches it. Use the [production operations runbook](operations-runbook.md) for the latest observed hosting state, smoke-test evidence, recovery procedures and outstanding verification.
+
 This checklist describes the production deployment of `engleza.wiki` on Hostinger web hosting. It is intentionally specific to the verified hosting topology; do not copy proxy settings from a generic Laravel example.
 
 ## Verified hosting topology
