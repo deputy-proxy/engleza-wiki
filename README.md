@@ -134,7 +134,7 @@ Run `php artisan migrate --force` during deployment. The assessment-integrity mi
 
 ## Production readiness
 
-Before deploying to production, follow the [production configuration checklist](docs/production-configuration.md). It covers the verified Hostinger CDN/origin topology, environment variables, HTTPS and session cookies, database/cache persistence, Resend transactional email, safe administrator bootstrap, seeding boundaries, logging redaction, and post-deployment checks. For the live service inventory, operational evidence, backup/restore procedure, incident response and outstanding verification, see the [production operations runbook](docs/operations-runbook.md).
+Before deploying to production, follow the [production deployment runbook](docs/deployment-runbook.md), which documents the verified Hostinger Git auto-deployment setup, release preflight, manual dependency/assets/migration steps, post-deployment verification, migration safety and rollback decisions. Use the [production configuration checklist](docs/production-configuration.md) for environment variables, HTTPS/session cookies, database/cache persistence, Resend, administrator bootstrap and logging redaction. For the live service inventory, backup/restore evidence, incident response and outstanding operational verification, see the [production operations runbook](docs/operations-runbook.md).
 
 Run the fail-closed readiness check after configuring the production environment and applying migrations:
 

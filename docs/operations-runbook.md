@@ -4,6 +4,8 @@
 **Evidence snapshot:** 2026-11-20
 **Environment:** `https://engleza.wiki`, hosted on Hostinger.
 
+**Latest live smoke check (2026-11-20):** `/up` returned HTTP 200, `/health/ready` returned HTTP 503, and `/` returned HTTP 500. The cause of this latest failure has not been established. This supersedes any assumption that the earlier post-migration smoke-test result proves the site is currently healthy. Do not run a production migration or restore based on these status codes alone; diagnose the current failure using authorized, redacted operational evidence.
+
 This document separates observations from assumptions. An item marked **Not verified** must not be represented as operationally ready. The initial live inspection found a production application error and a public exception page exposing database and stack-trace details. The repository owner subsequently confirmed the missing migration was applied and the post-migration smoke/recovery checks succeeded. Public production must still keep detailed exception output disabled.
 
 ## 1. Service inventory
@@ -44,6 +46,8 @@ Live HTTPS smoke checks on 2026-11-19 returned:
 | `/admin` | 302 (authentication redirect) |
 
 At the time of the 2026-11-19 inspection, the failing pages returned a database error because the `speaking_resources` table did not exist. The repository owner subsequently confirmed that the production migration was applied and the post-migration recovery/smoke-test work was verified. The historical 500 responses must not be treated as the current state. Retain the detailed route-by-route results in the restricted production operations record.
+
+A separate live check on 2026-11-20 found `/health/ready` returning HTTP 503 and `/` returning HTTP 500 while `/up` returned HTTP 200. The current cause was not determined during the deployment-runbook work; do not assume it is the same missing-table incident. The response body of the homepage was not inspected. Treat the site as unhealthy until the current failure is diagnosed and all readiness/public-route checks pass.
 
 Do not run a production migration until the backup and restore prerequisite has been verified. No production migration was run during this inspection.
 
