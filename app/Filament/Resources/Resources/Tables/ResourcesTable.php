@@ -27,7 +27,7 @@ class ResourcesTable
             TextColumn::make('level.name')->badge()->color('primary')->placeholder('—')->sortable(),
             TextColumn::make('skills.name')->badge()->separator(', ')->limitList(3),
             TextColumn::make('status')->badge()->colors(['gray' => 'draft', 'success' => 'published', 'danger' => 'archived']),
-            TextColumn::make('editorial_status')->label('Editorial review')->badge()->colors(['success' => 'approved', 'warning' => ['pending', 'revise'], 'danger' => ['unpublish', 'remove'], 'gray' => 'noindex'])->sortable(),
+            TextColumn::make('editorial_status')->label('Editorial review')->badge()->colors(['success' => 'approved', 'warning' => ['pending', 'revise'], 'danger' => ['unpublish', 'remove'], 'gray' => ['noindex', 'grandfathered']])->sortable(),
             TextColumn::make('editorialReviewer.name')->label('Reviewer')->placeholder('—')->toggleable(),
             TextColumn::make('editorial_reviewed_at')->label('Reviewed')->dateTime()->placeholder('—')->toggleable(),
             IconColumn::make('featured')->boolean()->sortable(),
