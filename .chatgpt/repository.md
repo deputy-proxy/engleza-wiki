@@ -28,4 +28,4 @@ Source: `.github/workflows/tests.yml`.
 
 ## Repository-specific notes
 - Do not replace Yarn with npm or regenerate the lockfile using another package manager without an explicit migration task.
-- Speaking practice uses guided prompts and self-reflection; it does not record audio or access the microphone. Timer logic is unit-tested, and a no-JavaScript fallback is rendered. Manual cross-browser/device verification remains a separate QA task.
+- Speaking practice uses guided prompts and self-reflection; it does not record audio or access the microphone. Timer logic is unit-tested, and a no-JavaScript fallback is rendered. Playwright browser verification passed in Chromium, Firefox and WebKit desktop engines, plus iPhone 13 emulation in Chromium/WebKit; physical iOS Safari and Android Chrome remain unverified.
