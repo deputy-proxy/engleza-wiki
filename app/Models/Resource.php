@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property-read ListeningResource|null $listeningResource
  * @property-read ReadingResource|null $readingResource
  * @property-read WritingResource|null $writingResource
+ * @property-read SpeakingResource|null $speakingResource
  * @property-read Level|null $level
  * @property-read Collection<int, Skill> $skills
  * @property-read Collection<int, Topic> $topics
@@ -114,6 +115,12 @@ class Resource extends Model implements EditorialReviewable
         return $this->hasOne(WritingResource::class);
     }
 
+    /** @return HasOne<SpeakingResource, $this> */
+    public function speakingResource()
+    {
+        return $this->hasOne(SpeakingResource::class);
+    }
+
     /** @return HasMany<LearningAttempt, $this> */
     public function learningAttempts()
     {
@@ -128,7 +135,8 @@ class Resource extends Model implements EditorialReviewable
 
     public function scopePublished($q)
     {
-        return $q->where('status', 'published')->where('published_at', '<=', now())->editorialVisible();
+        return $q->where('status', 'published')->where('published_at', '<=', now())->editorialVisible()
+            ->where(fn ($query) => $query->where('type', '!=', 'speaking')->orWhereHas('speakingResource'));
     }
 
     /** @return array<int, string> */

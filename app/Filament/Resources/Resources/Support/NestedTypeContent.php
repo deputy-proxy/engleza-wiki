@@ -6,12 +6,13 @@ use App\Models\CardResource;
 use App\Models\ListeningResource;
 use App\Models\ReadingResource;
 use App\Models\Resource;
+use App\Models\SpeakingResource;
 use App\Models\WritingResource;
 use Illuminate\Support\Facades\Storage;
 
 class NestedTypeContent
 {
-    private const KEYS = ['cardResource', 'listeningResource', 'readingResource', 'writingResource'];
+    private const KEYS = ['cardResource', 'listeningResource', 'readingResource', 'writingResource', 'speakingResource'];
 
     public static function extract(array $data): array
     {
@@ -58,6 +59,9 @@ class NestedTypeContent
         }
         if ($record->type === 'writing' && isset($nested['writingResource'])) {
             WritingResource::updateOrCreate(['resource_id' => $record->id], $nested['writingResource'] ?? []);
+        }
+        if ($record->type === 'speaking' && isset($nested['speakingResource'])) {
+            SpeakingResource::updateOrCreate(['resource_id' => $record->id], $nested['speakingResource']);
         }
     }
 }

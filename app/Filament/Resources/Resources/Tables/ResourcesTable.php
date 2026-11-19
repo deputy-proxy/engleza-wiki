@@ -22,7 +22,7 @@ class ResourcesTable
             TextColumn::make('type')->badge()->colors([
                 'primary' => 'article', 'info' => 'grammar', 'success' => 'vocabulary',
                 'warning' => ['worksheet', 'lesson_plan', 'activity', 'guide', 'exercise'],
-                'gray' => 'card', 'purple' => 'listening', 'danger' => 'reading', 'sky' => 'writing',
+                'gray' => 'card', 'purple' => 'listening', 'danger' => 'reading', 'sky' => 'writing', 'emerald' => 'speaking',
             ])->sortable(),
             TextColumn::make('level.name')->badge()->color('primary')->placeholder('—')->sortable(),
             TextColumn::make('skills.name')->badge()->separator(', ')->limitList(3),
@@ -38,7 +38,7 @@ class ResourcesTable
                 SelectFilter::make('type')->options([
                     'article' => 'Article', 'grammar' => 'Grammar', 'vocabulary' => 'Vocabulary', 'worksheet' => 'Worksheet',
                     'lesson_plan' => 'Lesson plan', 'activity' => 'Activity', 'guide' => 'Guide', 'exercise' => 'Exercise',
-                    'card' => 'Card', 'listening' => 'Listening', 'reading' => 'Reading', 'writing' => 'Writing',
+                    'card' => 'Card', 'listening' => 'Listening', 'reading' => 'Reading', 'writing' => 'Writing', 'speaking' => 'Speaking',
                 ]),
                 SelectFilter::make('status')->options(['draft' => 'Draft', 'published' => 'Published', 'archived' => 'Archived']),
                 SelectFilter::make('level')->relationship('level', 'name'),

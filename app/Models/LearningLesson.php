@@ -57,7 +57,7 @@ class LearningLesson extends Model implements EditorialReviewable
             $issues[] = 'The parent unit must be published and belong to a learning path.';
         }
 
-        $activities = $this->activities()->with(['resource', 'test'])->get();
+        $activities = $this->activities()->with(['resource.speakingResource', 'test'])->get();
         if ($activities->isEmpty()) {
             $issues[] = 'Add at least one activity before publishing this lesson.';
         }
@@ -68,6 +68,10 @@ class LearningLesson extends Model implements EditorialReviewable
                 if ($activity->resource_id === null || $activity->test_id !== null || $resource === null
                     || $resource->status !== 'published' || ! $resource->isEditorialVisible() || ($resource->published_at !== null && $resource->published_at->gt(now()))) {
                     $issues[] = 'Every resource activity must reference a currently published resource.';
+                    break;
+                }
+                if ($resource->type === 'speaking' && ($resource->speakingResource === null || $resource->speakingResource->publicationIssues() !== [])) {
+                    $issues[] = 'Every speaking activity must include a complete, valid speaking practice task.';
                     break;
                 }
                 if (in_array($resource->type, ['listening', 'reading'], true)) {

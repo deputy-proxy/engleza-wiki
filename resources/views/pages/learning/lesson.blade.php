@@ -43,7 +43,8 @@
             <form method="POST" action="{{ route('learning.activities.complete', $activity) }}" class="flex flex-wrap items-center gap-2">
               @csrf
               @if($attemptId)<input type="hidden" name="attempt_id" value="{{ $attemptId }}">@endif
-              <button class="btn-primary" @disabled(!($activityCompletionReady[$activity->id] ?? false))>{{ __('Mark complete') }}</button>
+              @if($activity->type === 'resource' && $activity->resource?->type === 'speaking')<input type="hidden" name="self_attested" value="1">@endif
+              <button class="btn-primary" @disabled(!($activityCompletionReady[$activity->id] ?? false))>{{ $activity->type === 'resource' && $activity->resource?->type === 'speaking' ? __('I practised this aloud') : __('Mark complete') }}</button>
               @unless($activityCompletionReady[$activity->id] ?? false)<span class="text-xs text-navy-500">{{ __('Complete and submit this activity first.') }}</span>@endunless
             </form>
           @endif

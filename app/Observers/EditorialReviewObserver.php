@@ -19,6 +19,7 @@ use App\Models\ReadingResource;
 use App\Models\Resource;
 use App\Models\ResourceCard;
 use App\Models\Skill;
+use App\Models\SpeakingResource;
 use App\Models\Tag;
 use App\Models\Test;
 use App\Models\TestSection;
@@ -55,6 +56,7 @@ class EditorialReviewObserver
             $model instanceof ListeningResource,
             $model instanceof ReadingResource,
             $model instanceof WritingResource,
+            $model instanceof SpeakingResource,
             $model instanceof CardResource => $model->resource,
             $model instanceof ResourceCard => $model->cardResource->resource,
             $model instanceof LessonActivity => $model->lesson,
@@ -121,6 +123,7 @@ class EditorialReviewObserver
             $translatable instanceof ListeningResource,
             $translatable instanceof ReadingResource,
             $translatable instanceof WritingResource,
+            $translatable instanceof SpeakingResource,
             $translatable instanceof CardResource => $translatable->resource,
             $translatable instanceof ResourceCard => $translatable->cardResource->resource,
             $translatable instanceof LessonActivity => $translatable->lesson,

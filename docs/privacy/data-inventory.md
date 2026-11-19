@@ -38,3 +38,7 @@
 5. Production log destination, access, rotation and backup inclusion.
 6. Operator-managed exports and copies.
 7. Counsel approval of purposes, legal bases, retention, child-user considerations, international transfers and policy wording.
+
+## Speaking practice MVP
+
+Guided speaking tasks do not access the microphone or create audio, transcripts or free-text learner reflections. A learner who completes a speaking activity inside a learning path creates only the existing `lesson_activity_progress` record (learner, activity, status and completion timestamp). Public standalone practice is not persisted. No audio processor, recording storage or new retention period is introduced.

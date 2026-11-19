@@ -59,7 +59,7 @@ class EditorialAudit extends Command
     {
         Resource::query()->where('editorial_status', '!=', 'grandfathered')->whereIn('status', ['published', 'draft'])->with([
             'level', 'skills', 'topics', 'media', 'listeningResource.questions.options',
-            'readingResource.questions.options', 'writingResource', 'cardResource.cards',
+            'readingResource.questions.options', 'writingResource', 'speakingResource', 'cardResource.cards',
         ])->orderBy('id')->each(function (Resource $resource): void {
             $notes = [];
             $recommendation = 'revise';
@@ -92,6 +92,15 @@ class EditorialAudit extends Command
                 $notes[] = $writing?->rubric ? 'Writing rubric supplied; assess criteria and model response.' : 'Writing task has no assessment rubric.';
                 if (! $writing?->rubric) {
                     $notes[] = 'Add task-specific assessment criteria before publication.';
+                }
+            } elseif ($resource->type === 'speaking') {
+                $speaking = $resource->speakingResource;
+                $issues = $speaking?->publicationIssues() ?? ['A structured speaking task is missing.'];
+                $notes[] = $issues === []
+                    ? 'Structured speaking task supplied. Verify CEFR fit, target-skill alignment, instructions and self-check criteria; no automated score is used.'
+                    : implode(' ', $issues);
+                if ($issues !== []) {
+                    $recommendation = 'unpublish';
                 }
             } elseif ($resource->type === 'card') {
                 $count = $resource->cardResource?->cards->count() ?? 0;
@@ -144,6 +153,7 @@ class EditorialAudit extends Command
                 'Listening item' => $resource->listeningResource,
                 'Reading item' => $resource->readingResource,
                 'Writing item' => $resource->writingResource,
+                'Speaking item' => $resource->speakingResource,
                 'Flashcard set' => $resource->cardResource,
             ] as $type => $child) {
                 if ($child !== null) {

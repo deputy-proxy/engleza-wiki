@@ -76,7 +76,9 @@ class LearningPathController extends Controller
                     ->where('writing_resource_id', $writingResourceId)->where('user_id', auth()->id())
                     ->where('status', 'submitted')->exists();
             } else {
-                $activityCompletionReady[$activity->id] = true;
+                $activityCompletionReady[$activity->id] = $activity->type === 'resource' && $activity->resource?->type === 'speaking'
+                    ? ($activity->resource->speakingResource !== null && $activity->resource->speakingResource->publicationIssues() === [])
+                    : true;
             }
         }
 
@@ -85,8 +87,8 @@ class LearningPathController extends Controller
 
     public function completeActivity(Request $request, LessonActivity $activity, LearningPathService $learning): RedirectResponse
     {
-        $data = $request->validate(['attempt_id' => ['nullable', 'integer']]);
-        $learning->completeActivity($activity, (int) auth()->id(), isset($data['attempt_id']) ? (int) $data['attempt_id'] : null);
+        $data = $request->validate(['attempt_id' => ['nullable', 'integer'], 'self_attested' => ['sometimes', 'accepted']]);
+        $learning->completeActivity($activity, (int) auth()->id(), isset($data['attempt_id']) ? (int) $data['attempt_id'] : null, (bool) ($data['self_attested'] ?? false));
 
         return back()->with('status', __('Activity completed.'));
     }
