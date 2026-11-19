@@ -1,31 +1,23 @@
 # Repository-specific development configuration
 
-Last verified: 2026-11-19. Re-check the live workflows and manifests before every implementation; this file is a snapshot, not a substitute for inspection.
+Last verified: 2026-11-19. Exact resolved versions are recorded in the cross-repository matrix at [Cr8or](https://github.com/deputy-proxy/cr8or/blob/main/.chatgpt/repository-versions.md). Re-check manifests, lockfiles, and workflows before each implementation.
 
-## Runtime and framework
-- Composer PHP requirement: `^8.3`; CI currently runs PHP 8.4.
-- Laravel: 13.x.
-- Filament: 5.x.
-- Livewire: 4.x.
-- Node.js: 22.
-- Frontend package manager: Yarn Classic 1.22.22, using committed `yarn.lock`.
-- CI database: MySQL 8.4.
+## Runtime and resolved framework versions
+- PHP constraint: `^8.3`; CI uses PHP 8.4.
+- Laravel 13.42.0; Filament 5.11.4; Livewire 4.4.8.
+- PHPUnit 12.5.44; Larastan 3.15.0; Pint 1.32.3.
+- Node.js 22; Yarn Classic 1.22.22.
+- Yarn lockfile resolves Tailwind CSS 4.3.3 and Laravel Vite plugin 3.2.0. The exact Vite package version was not found in the retrieved lockfile; manifest declares `^8.0.0`.
+- Pest is not currently installed.
 
 ## Current CI validation
 Source: `.github/workflows/tests.yml`.
-
-- PHP job: prepare `.env.testing`, install Composer dependencies, run MySQL migrations, then `composer ci:check`.
-- `composer ci:check` runs Composer security audit, Pint formatting validation, PHPStan/Larastan, and Laravel tests.
-- Frontend job: install PHP dependencies needed for Filament assets, enable Corepack and Yarn 1.22.22, run `yarn install --frozen-lockfile`, run `yarn test`, then `yarn build`.
-- Frontend unit tests use Node.js built-in test runner (`node --test tests/js/*.test.js`); no third-party frontend test dependency is required. No npm audit job is defined.
-- CI caches Composer and Yarn dependencies and cancels obsolete runs.
+- PHP job: prepare `.env.testing`, install Composer dependencies, run MySQL 8.4 migrations, then `composer ci:check` (Composer security audit, Pint, PHPStan/Larastan, Laravel tests).
+- Frontend job: install PHP dependencies for Filament assets, enable Corepack/Yarn 1.22.22, run `yarn install --frozen-lockfile`, then `yarn build`.
+- No separate frontend interaction-test or npm-audit job is defined.
 
 ## Local validation
 - PHP: `composer ci:check`.
-- Database: use MySQL 8.4 for workflow-equivalent migration and integration validation.
-- Frontend: `corepack enable && corepack prepare yarn@1.22.22 --activate`, `yarn install --frozen-lockfile`, `yarn test`, `yarn build`.
-- Use focused Laravel tests while iterating, then run the complete workflow-equivalent validation before PR.
-
-## Repository-specific notes
-- Do not replace Yarn with npm or regenerate the lockfile using another package manager without an explicit migration task.
-- Speaking practice uses guided prompts and self-reflection; it does not record audio or access the microphone. Timer logic is unit-tested, and a no-JavaScript fallback is rendered. Playwright browser verification passed in Chromium, Firefox and WebKit desktop engines, plus iPhone 13 emulation in Chromium/WebKit; physical iOS Safari and Android Chrome remain unverified.
+- Database: MySQL 8.4 for workflow-equivalent migration/integration checks.
+- Frontend: `corepack enable && corepack prepare yarn@1.22.22 --activate`, `yarn install --frozen-lockfile`, `yarn build`.
+- Do not replace Yarn with npm or regenerate its lockfile using another package manager without an explicit migration task.
