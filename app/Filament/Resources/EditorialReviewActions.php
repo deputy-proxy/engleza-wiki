@@ -3,11 +3,13 @@
 namespace App\Filament\Resources;
 
 use App\Models\ContentTranslation;
+use App\Models\Resource;
 use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Validation\ValidationException;
 
 class EditorialReviewActions
 {
@@ -23,6 +25,14 @@ class EditorialReviewActions
             ->schema([Textarea::make('editorial_notes')->label('Review evidence and rationale')->required()->rows(4)])
             ->action(function (Model $record, array $data): void {
                 $reviewer = User::query()->findOrFail(auth()->id());
+
+                if ($record instanceof Resource && $record->type === 'speaking') {
+                    $speaking = $record->speakingResource;
+                    $issues = $speaking?->publicationIssues() ?? ['A structured speaking task is required before approval.'];
+                    if ($issues !== []) {
+                        throw ValidationException::withMessages(['editorial_status' => implode(' ', $issues)]);
+                    }
+                }
 
                 if ($record instanceof ContentTranslation) {
                     $record->approveTranslation($reviewer, $data['editorial_notes']);

@@ -25,12 +25,12 @@ class ResourceForm
                 Select::make('type')->required()->native(false)->default('article')->options([
                     'article' => 'Article', 'grammar' => 'Grammar', 'vocabulary' => 'Vocabulary', 'worksheet' => 'Worksheet',
                     'lesson_plan' => 'Lesson plan', 'activity' => 'Activity', 'guide' => 'Guide', 'exercise' => 'Exercise',
-                    'card' => 'Card / Flashcards', 'listening' => 'Listening exercise', 'reading' => 'Reading exercise', 'writing' => 'Writing assignment',
+                    'card' => 'Card / Flashcards', 'listening' => 'Listening exercise', 'reading' => 'Reading exercise', 'writing' => 'Writing assignment', 'speaking' => 'Speaking practice',
                 ])->reactive(),
                 Select::make('status')->required()->native(false)->default('draft')->options(['draft' => 'Draft', 'published' => 'Published', 'archived' => 'Archived']),
                 Textarea::make('excerpt')->rows(2)->columnSpanFull(),
                 Textarea::make('content')->rows(8)->columnSpanFull()
-                    ->visible(fn (callable $get) => ! in_array($get('type'), ['card', 'listening', 'reading', 'writing'])),
+                    ->visible(fn (callable $get) => ! in_array($get('type'), ['card', 'listening', 'reading', 'writing', 'speaking'])),
                 Toggle::make('featured'),
                 DateTimePicker::make('published_at'),
             ])->columns(2),
@@ -84,6 +84,22 @@ class ResourceForm
                     Textarea::make('readingResource.content')->label('Reading passage')->rows(12)->columnSpanFull(),
                 ])
                 ->visible(fn (callable $get) => $get('type') === 'reading'),
+
+            // Type-specific: Speaking
+            Section::make('Speaking practice')
+                ->description('Guided spoken practice. This MVP does not record audio, request microphone access or score pronunciation.')
+                ->schema([
+                    Textarea::make('speakingResource.prompt')->label('Speaking prompt')->required()->rows(3)->columnSpanFull(),
+                    TextInput::make('speakingResource.target_skill')->label('Target skill')->required()->maxLength(120)
+                        ->helperText('For example: giving opinions, narrative fluency, word stress or connected speech.'),
+                    TextInput::make('speakingResource.preparation_time_seconds')->label('Preparation time (seconds)')->numeric()->required()->default(30)->minValue(0)->maxValue(300),
+                    TextInput::make('speakingResource.response_time_seconds')->label('Speaking time (seconds)')->numeric()->required()->default(90)->minValue(15)->maxValue(600),
+                    Textarea::make('speakingResource.instructions')->label('Learner instructions')->required()->rows(3)->columnSpanFull(),
+                    Textarea::make('speakingResource.response_expectation')->label('Expected response')->required()->rows(2)->columnSpanFull(),
+                    Textarea::make('speakingResource.success_criteria')->label('Self-check criteria')->required()->rows(4)->helperText('One criterion per line.'),
+                    Textarea::make('speakingResource.reflection_prompt')->label('Reflection prompt')->required()->rows(2)->columnSpanFull(),
+                ])->columns(2)
+                ->visible(fn (callable $get) => $get('type') === 'speaking'),
 
             // Type-specific: Writing
             Section::make('Writing task')

@@ -15,6 +15,7 @@ use App\Models\QuestionOption;
 use App\Models\ReadingResource;
 use App\Models\ResourceCard;
 use App\Models\Skill;
+use App\Models\SpeakingResource;
 use App\Models\Tag;
 use App\Models\TestSection;
 use App\Models\Topic;
@@ -51,6 +52,7 @@ class AppServiceProvider extends ServiceProvider
             ReadingResource::class,
             ResourceCard::class,
             Skill::class,
+            SpeakingResource::class,
             Tag::class,
             Topic::class,
             TestSection::class,

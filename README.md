@@ -232,3 +232,8 @@ The command exits non-zero when a published content field is missing a reviewed 
 ## Writing feedback workflow
 
 See [docs/teacher/class-workflows.md](docs/teacher/class-workflows.md) for teacher onboarding, role boundaries, membership lifecycle, assignment/reporting rules, transfer/archive procedures and privacy treatment. See [docs/writing-feedback-workflow.md](docs/writing-feedback-workflow.md) for the writing submission lifecycle, rubric, learner revisions and retention treatment.
+
+## Speaking practice
+
+- [Speaking practice MVP and decision record](docs/speaking-practice/mvp.md)
+- [Speaking practice technology decision](docs/speaking-practice/decision-record.md)

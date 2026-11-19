@@ -1,7 +1,7 @@
 <x-layout :title="__('Resources – engleza.wiki')">
 <section class="mx-auto max-w-7xl px-6 py-12">
   <h1 class="text-4xl font-extrabold text-navy-900">{{ __('All resources') }}</h1>
-  <p class="mt-2 text-navy-600">{{ __('Articles, cards, listening, reading, writing, worksheets and lesson plans.') }}</p>
+  <p class="mt-2 text-navy-600">{{ __('Articles, cards, listening, reading, writing, speaking, worksheets and lesson plans.') }}</p>
   <form method="GET" class="mt-6 flex flex-wrap gap-3 items-end">
     <div><label class="block text-xs font-semibold text-navy-700 mb-1">{{ __('Type') }}</label>
       <select name="type" class="rounded-full border border-navy-200 px-4 py-2 text-sm" data-testid="filter-type">
@@ -25,6 +25,7 @@
       'listening'=>['bg-purple-50 text-purple-700','LISTENING'],
       'reading'=>['bg-rose-50 text-rose-700','READING'],
       'writing'=>['bg-sky-50 text-sky-700','WRITING'],
+      'speaking'=>['bg-emerald-50 text-emerald-700','SPEAKING'],
     ];
   @endphp
   <div class="mt-10 grid md:grid-cols-2 lg:grid-cols-3 gap-6">

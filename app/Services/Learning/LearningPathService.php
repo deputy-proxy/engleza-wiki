@@ -21,7 +21,7 @@ class LearningPathService
     public function availablePaths(): Collection
     {
         return LearningPath::query()->published()
-            ->with(['translations', 'level.translations', 'skills.translations', 'topics.translations', 'units.lessons.translations', 'units.lessons.level.translations', 'units.lessons.skills.translations', 'units.lessons.topics.translations', 'units.lessons.activities.translations', 'units.lessons.activities.resource.translations', 'units.lessons.activities.resource.level.translations', 'units.lessons.activities.test.translations', 'units.lessons.activities.test.level.translations', 'units.lessons.activities.test.skill.translations'])
+            ->with(['translations', 'level.translations', 'skills.translations', 'topics.translations', 'units.lessons.translations', 'units.lessons.level.translations', 'units.lessons.skills.translations', 'units.lessons.topics.translations', 'units.lessons.activities.translations', 'units.lessons.activities.resource.translations', 'units.lessons.activities.resource.level.translations', 'units.lessons.activities.resource.speakingResource.translations', 'units.lessons.activities.test.translations', 'units.lessons.activities.test.level.translations', 'units.lessons.activities.test.skill.translations'])
             ->get()
             ->filter(fn (LearningPath $path): bool => $path->units->contains(fn ($unit): bool => $unit->is_published
                 && $unit->lessons->contains(fn (LearningLesson $lesson): bool => $this->isLessonAvailable($lesson))))
@@ -34,7 +34,7 @@ class LearningPathService
             ? $path
             : LearningPath::query()->where('slug', $path)->firstOrFail();
         abort_unless($path->status === 'published' && $path->published_at !== null && $path->published_at->lte(now()), 404);
-        $path->load(['translations', 'level.translations', 'skills.translations', 'topics.translations', 'units.lessons.translations', 'units.lessons.level.translations', 'units.lessons.skills.translations', 'units.lessons.topics.translations', 'units.lessons.activities.translations', 'units.lessons.activities.resource.translations', 'units.lessons.activities.resource.level.translations', 'units.lessons.activities.test.translations', 'units.lessons.activities.test.level.translations', 'units.lessons.activities.test.skill.translations']);
+        $path->load(['translations', 'level.translations', 'skills.translations', 'topics.translations', 'units.lessons.translations', 'units.lessons.level.translations', 'units.lessons.skills.translations', 'units.lessons.topics.translations', 'units.lessons.activities.translations', 'units.lessons.activities.resource.translations', 'units.lessons.activities.resource.level.translations', 'units.lessons.activities.resource.speakingResource.translations', 'units.lessons.activities.test.translations', 'units.lessons.activities.test.level.translations', 'units.lessons.activities.test.skill.translations']);
         abort_unless($path->units->contains(fn ($unit): bool => $unit->is_published
             && $unit->lessons->contains(fn (LearningLesson $lesson): bool => $this->isLessonAvailable($lesson))), 404);
 
@@ -46,7 +46,7 @@ class LearningPathService
         $lesson = $lesson instanceof LearningLesson
             ? $lesson
             : LearningLesson::query()->where('slug', $lesson)->firstOrFail();
-        $lesson->load(['translations', 'unit.path.translations', 'level.translations', 'skills.translations', 'topics.translations', 'activities.translations', 'activities.resource.translations', 'activities.resource.level.translations', 'activities.resource.skills.translations', 'activities.resource.topics.translations', 'activities.test.translations', 'activities.test.level.translations', 'activities.test.skill.translations']);
+        $lesson->load(['translations', 'unit.path.translations', 'level.translations', 'skills.translations', 'topics.translations', 'activities.translations', 'activities.resource.translations', 'activities.resource.level.translations', 'activities.resource.skills.translations', 'activities.resource.topics.translations', 'activities.resource.speakingResource.translations', 'activities.test.translations', 'activities.test.level.translations', 'activities.test.skill.translations']);
         abort_unless($this->isLessonAvailable($lesson), 404);
         $this->assertEnrolledAndUnlocked($lesson, $userId);
 
@@ -78,7 +78,7 @@ class LearningPathService
         );
     }
 
-    public function completeActivity(LessonActivity $activity, int $userId, ?int $attemptId = null): LessonActivityProgress
+    public function completeActivity(LessonActivity $activity, int $userId, ?int $attemptId = null, bool $selfAttested = false): LessonActivityProgress
     {
         $lesson = $activity->lesson()->with(['translations', 'unit.path.translations'])->firstOrFail();
         $this->assertEnrolledAndUnlocked($lesson, $userId);
@@ -94,6 +94,9 @@ class LearningPathService
             $writingResourceId = $activity->resource->writingResource?->id;
             abort_unless($writingResourceId !== null && WritingSubmission::query()
                 ->where('writing_resource_id', $writingResourceId)->where('user_id', $userId)->where('status', 'submitted')->exists(), 403);
+        } elseif ($activity->type === 'resource' && $activity->resource?->type === 'speaking') {
+            abort_unless($selfAttested && $activity->resource->speakingResource !== null
+                && $activity->resource->speakingResource->publicationIssues() === [], 403);
         }
 
         return LessonActivityProgress::query()->firstOrCreate(
@@ -135,7 +138,7 @@ class LearningPathService
 
     public function isLessonAvailable(LearningLesson $lesson): bool
     {
-        $lesson->load('unit.path', 'activities.resource', 'activities.test');
+        $lesson->load('unit.path', 'activities.resource.speakingResource', 'activities.resource', 'activities.test');
         $unit = $lesson->unit;
         $path = $unit?->path;
         if (! $unit || ! $unit->is_published || ! $path || $path->status !== 'published' || ! in_array($lesson->editorial_status, ['approved', 'grandfathered'], true)
@@ -155,6 +158,9 @@ class LearningPathService
                 if ($resource === null || $resource->status !== 'published' || ! $resource->isEditorialVisible()
                     || ($resource->published_at !== null && $resource->published_at->gt(now()))
                     || ! $this->hasValidQuestionsForActivity($activity)) {
+                    return false;
+                }
+                if ($resource->type === 'speaking' && ($resource->speakingResource === null || $resource->speakingResource->publicationIssues() !== [])) {
                     return false;
                 }
             } elseif ($activity->type === 'test') {

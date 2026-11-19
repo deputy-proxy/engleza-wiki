@@ -29,7 +29,7 @@ class ResourceController extends Controller
         $resources = $q->latest('published_at')->paginate(12)->withQueryString();
         $levels = Level::with('translations')->orderBy('sort_order')->get();
         $skills = Skill::with('translations')->orderBy('name')->get();
-        $types = ['article' => 'Articles', 'grammar' => 'Grammar', 'vocabulary' => 'Vocabulary', 'worksheet' => 'Worksheets', 'lesson_plan' => 'Lesson Plans', 'activity' => 'Activities', 'guide' => 'Guides', 'exercise' => 'Exercises', 'card' => 'Cards', 'listening' => 'Listening', 'reading' => 'Reading', 'writing' => 'Writing'];
+        $types = ['article' => 'Articles', 'grammar' => 'Grammar', 'vocabulary' => 'Vocabulary', 'worksheet' => 'Worksheets', 'lesson_plan' => 'Lesson Plans', 'activity' => 'Activities', 'guide' => 'Guides', 'exercise' => 'Exercises', 'card' => 'Cards', 'listening' => 'Listening', 'reading' => 'Reading', 'writing' => 'Writing', 'speaking' => 'Speaking'];
 
         return view('pages.resources.index', compact('resources', 'levels', 'skills', 'types'));
     }
@@ -47,6 +47,7 @@ class ResourceController extends Controller
             'listening' => 'pages.resources.types.listening',
             'reading' => 'pages.resources.types.reading',
             'writing' => 'pages.resources.types.writing',
+            'speaking' => 'pages.resources.types.speaking',
             default => 'pages.resources.show',
         };
         // Eager-load type-specific children
@@ -67,6 +68,10 @@ class ResourceController extends Controller
         }
         if ($resource->type === 'writing') {
             $resource->load('writingResource.translations');
+        }
+        if ($resource->type === 'speaking') {
+            abort_unless($resource->speakingResource !== null && $resource->speakingResource->publicationIssues() === [], 404);
+            $resource->load('speakingResource.translations');
         }
 
         $learningActivities = $resource->lessonActivities()->with(['lesson.translations', 'lesson.unit.path.translations'])->get()

@@ -41,6 +41,7 @@ Score each applicable criterion from 0 to 2: **0 = fails/missing**, **1 = partia
 - **Listening:** playable media, transcript or equivalent accessible support, documented media rights, clear task purpose, questions answerable from the audio and validated answer keys.
 - **Reading:** authentic or clearly labelled adapted text, appropriate length and vocabulary, coherent text structure, questions supported by the passage and validated keys.
 - **Writing:** communicative purpose, audience/register, clear task constraints, useful planning guidance, word range/time where appropriate, task-specific rubric and a level-appropriate model response when it helps.
+- **Speaking:** one explicit communicative or pronunciation target, a level-appropriate prompt, practical learner instructions, preparation/speaking time, a clear expected response, observable self-check criteria and a reflection prompt. Do not imply that self-reflection or completion is an objective pronunciation assessment; any automated score requires a separately validated method.
 - **Tests:** blueprint aligned to level and skill, balanced coverage, reliable difficulty, no duplicated/ambiguous items, valid options and teacher-validated keys/explanations.
 - **Lessons:** measurable objectives, CEFR/skill/topic alignment, purposeful activity order, prerequisites and complete referenced activities.
 - **Translations:** source hash current, correct terminology and diacritics, no machine-literal phrasing that changes meaning, and a verified source-language fallback.
