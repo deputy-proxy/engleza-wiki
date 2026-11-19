@@ -14,7 +14,10 @@ class HealthController
         try {
             DB::connection()->getPdo();
 
-            if (! Schema::hasTable('users') || ! Schema::hasTable('migrations')) {
+            if (! Schema::hasTable('users')
+                || ! Schema::hasTable('migrations')
+                || ! Schema::hasTable('resources')
+                || ! Schema::hasTable('speaking_resources')) {
                 return response()->json(['status' => 'down'], 503);
             }
         } catch (Throwable) {

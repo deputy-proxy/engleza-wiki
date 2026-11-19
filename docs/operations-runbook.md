@@ -4,7 +4,7 @@
 **Evidence snapshot:** 2026-11-20
 **Environment:** `https://engleza.wiki`, hosted on Hostinger.
 
-This document separates observations from assumptions. An item marked **Not verified** must not be represented as operationally ready. The live inspection found a production application error and a public exception page exposing database and stack-trace details. Resolve those incidents before treating this site as launch-ready.
+This document separates observations from assumptions. An item marked **Not verified** must not be represented as operationally ready. The initial live inspection found a production application error and a public exception page exposing database and stack-trace details. The repository owner subsequently confirmed the missing migration was applied and the post-migration smoke/recovery checks succeeded. Public production must still keep detailed exception output disabled.
 
 ## 1. Service inventory
 
@@ -149,9 +149,9 @@ The production environment's effective `QUEUE_CONNECTION` value was not independ
 The application now exposes two deliberately separate public health checks:
 
 - `GET https://engleza.wiki/up` is Laravel's liveness check. It confirms that the application process can serve HTTP requests.
-- `GET https://engleza.wiki/health/ready` is the application readiness check. It verifies database connectivity and the presence of the core `users` and `migrations` tables. It returns only `{"status":"up"}` (HTTP 200) or `{"status":"down"}` (HTTP 503); database exception details are never returned to the caller.
+- `GET https://engleza.wiki/health/ready` is the application readiness check. It verifies database connectivity and the presence of the core `users`, `migrations`, `resources` and `speaking_resources` tables. It returns only `{"status":"up"}` (HTTP 200) or `{"status":"down"}` (HTTP 503); database exception details are never returned to the caller.
 
-The readiness endpoint runs outside the web/session middleware so it remains useful when the database-backed session store is unavailable. Automated feature tests cover both a healthy database and a simulated connection failure. These endpoints are implemented in the repository; external uptime monitoring and alert delivery still require an account with a monitoring provider and a monitored recipient. Those provider-side actions cannot be completed from application code alone.
+The readiness endpoint runs outside the web/session middleware so it remains useful when the database-backed session store is unavailable. Automated feature tests cover a healthy database, a missing required application table and a simulated database connection failure. These endpoints are implemented in the repository; external uptime monitoring and alert delivery still require an account with a monitoring provider and a monitored recipient. Those provider-side actions cannot be completed from application code alone.
 
 ### External monitor setup
 
