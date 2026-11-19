@@ -50,6 +50,7 @@ class ProspectiveEditorialWorkflowTest extends TestCase
         $this->assertTrue(Resource::published()->whereKey($resource->id)->exists());
         $this->get(route('resources.show', $resource))->assertOk();
         $this->assertSame('Traducere demo', $resource->fresh()->translated('title', 'ro'));
+        $this->assertSame('grandfathered', $resource->fresh()->translationStatus('title', 'ro'));
     }
 
     public function test_translation_audit_skips_grandfathered_demo_content(): void
