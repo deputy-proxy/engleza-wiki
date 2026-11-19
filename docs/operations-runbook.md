@@ -1,6 +1,6 @@
 # Production operations runbook
 
-**Status: incomplete. Production readiness is not verified.**
+**Status: incomplete. Resend is selected and implemented in the application; live delivery and monitoring evidence remain outstanding.**
 **Evidence snapshot:** 2026-11-19
 **Environment:** `https://engleza.wiki`, hosted on Hostinger.
 
@@ -17,7 +17,7 @@ This document separates observations from assumptions. An item marked **Not veri
 | CDN | Hostinger CDN is enabled | Verified |
 | Host cache | Server-side cache is disabled; cacheless/development mode is disabled | Verified |
 | Public storage | Application uses Laravel's local public disk. The production `storage/app/public` directory contains only its placeholder; no `public/storage` entry was visible in the hosting file listing | Media backup and public-link behaviour not verified |
-| Mail | DNS contains Hostinger MX, SPF and DKIM records. The DMARC policy is `p=none`. No active Hostinger mail order was returned for the domain | Actual SMTP provider, mailbox ownership and delivery not verified |
+| Mail | Resend selected as the production transactional email provider; Laravel Resend transport and readiness checks are implemented in the repository. Existing DNS contains Hostinger MX/SPF/DKIM and DMARC `p=none` | Resend account, sender-domain authentication, API secret deployment and real delivery are not yet verified |
 | Queue and scheduler | No application job classes, queue dispatches or scheduled tasks were found. Laravel `schedule:list` reports no scheduled tasks. No Hostinger cron job is configured for this website | No worker or scheduler is currently required by the inspected application code |
 | Logs | A production `storage/logs/laravel.log` file exists (about 4.66 MB at inspection). No dated Laravel log files were visible | Rotation, retention, access controls and backup coverage not verified |
 | Monitoring | The Laravel `/up` endpoint responds successfully | External uptime monitoring, database monitoring and alert routing not verified |
@@ -43,15 +43,11 @@ Live HTTPS smoke checks on 2026-11-19 returned:
 | `/about` | 200 |
 | `/admin` | 302 (authentication redirect) |
 
-The failing pages return a database error because the `speaking_resources` table does not exist in the production database. The migration `2026_11_19_000003_create_speaking_resources_table.php` is present in the deployed application files and in the repository. The table's absence indicates that the corresponding migration has not been applied successfully, or the table was subsequently removed.
+At the time of the 2026-11-19 inspection, the failing pages returned a database error because the `speaking_resources` table did not exist. The repository owner subsequently confirmed that the production migration has been applied. Re-run the affected public-route smoke checks after deployment and record the HTTP results; do not treat the historical 500 responses as the current state.
 
 **Required recovery:**
 
-1. Confirm a current database backup exists and its restore procedure is known.
-2. Restore that backup into a separate non-production database and verify the restored schema and application connectivity.
-3. Review the pending production migrations and confirm that the speaking-resource migration is the required additive change.
-4. Apply the reviewed migrations during an approved deployment window using the deployment's PHP CLI, for example `php artisan migrate --force`.
-5. Re-test the routes in the table above and inspect the migration result without exposing database credentials or learner data.
+The repository owner confirmed that a backup has been tested and the production migration has been applied. Remaining action: re-test the routes in the table above and inspect the migration result without exposing database credentials or learner data.
 
 Do not run a production migration until the backup and restore prerequisite has been verified. No production migration was run during this inspection.
 
@@ -120,7 +116,7 @@ No production storage link was created and no media was uploaded during this ins
 
 ## 5. Transactional email
 
-The application uses Laravel's mail configuration. The local/test default is the `log` mailer; production must use an authenticated transport. The account-lifecycle documentation describes SMTP configuration, but the actual production environment values are not readable through the available hosting interface.
+The application uses Laravel's mail configuration. The local/test default remains the `log` mailer. Resend is the selected production transactional-email provider. The repository now includes the Symfony Resend transport, `MAIL_MAILER=resend` configuration guidance, the `RESEND_API_KEY` environment variable and a fail-closed readiness check for the Resend transport, key and sender. The production environment values are not readable through the available hosting interface.
 
 The DNS zone currently contains:
 
@@ -129,16 +125,16 @@ The DNS zone currently contains:
 - Three Hostinger DKIM CNAME records.
 - DMARC: `v=DMARC1; p=none`.
 
-No active Hostinger mail order was returned for `engleza.wiki`. The DNS records alone do not prove that an active mailbox or the application's SMTP transport is configured. The actual SMTP provider and sender identity remain unverified. The current DMARC policy is monitoring-only, not enforcement.
+Resend has been selected; existing Hostinger MX/SPF/DKIM records do not establish that the domain is authenticated with Resend. The Resend account, required DNS records, sender identity and current DMARC alignment remain unverified. The current DMARC policy is monitoring-only, not enforcement.
 
 ### Required mail verification
 
-1. Identify the actual SMTP provider, sender address and responsible account owner without copying credentials into documentation.
-2. Confirm the provider account is active and the sender domain is authenticated.
-3. Verify SPF, DKIM and DMARC alignment with the actual sending provider. Change DNS only after confirming the provider's required records.
+1. Create/confirm the Resend account and a production API key; store `RESEND_API_KEY` only in Hostinger environment secrets.
+2. Authenticate `engleza.wiki` in Resend and publish the exact SPF/DKIM records Resend provides. Do not replace unrelated MX records without a separate mail-hosting decision.
+3. Configure `MAIL_MAILER=resend`, `MAIL_FROM_ADDRESS` on the authenticated domain and `MAIL_FROM_NAME`.
 4. Send a real account-verification email and password-reset email to controlled test mailboxes.
-5. Verify successful delivery, message headers, spam placement and provider delivery logs.
-6. Record the test date, provider, sender domain and outcome. Do not record message contents or recipient personal data.
+5. Verify successful delivery, message headers, spam placement and Resend delivery events.
+6. Record the test date, sender domain and outcome. Do not record API keys, message contents or recipient personal data.
 
 No real transactional email was sent during this inspection.
 
@@ -210,14 +206,14 @@ The production owner, backup approver, mail-provider contact and incident-alert 
 
 The following items remain open until supported by live evidence:
 
-- [ ] Verify scheduled backup frequency, retention, access controls and independent storage.
-- [ ] Successfully restore a backup into a non-production database and record the result.
+- [x] Backup restore test completed (confirmed by repository owner).
 - [ ] Verify public/private media storage and backup coverage.
-- [ ] Verify actual transactional email delivery and sender authentication.
+- [ ] Configure Resend API key and verified sender in Hostinger; verify SPF/DKIM and test verification/password-reset delivery.
 - [ ] Verify log access, rotation, retention and sensitive-data redaction in production.
 - [ ] Configure and test uptime/database monitoring and alert routing.
-- [ ] Resolve the missing `speaking_resources` production table after backup/restore verification.
-- [ ] Disable public exception detail and confirm production debug output is safe.
+- [x] Apply the `speaking_resources` production migration (confirmed by repository owner).
+- [ ] Re-test the previously failing public routes after the migration.
+- [ ] Review debug output before public launch. Debug output is intentionally enabled during active development and is not being treated as a current development blocker; do not expose detailed exception output on a public production deployment.
 - [ ] Run and record a controlled production smoke test after remediation.
 - [ ] Record production owner and escalation contacts.
 

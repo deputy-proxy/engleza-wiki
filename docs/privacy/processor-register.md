@@ -6,7 +6,7 @@
 |---|---|---|---|
 | Hostinger hosting and CDN | Production site hosted on Hostinger; CDN enabled; deployment audit verified CDN/origin topology | Account/database, uploaded media, requests, IP/technical logs and backups | Legal entity, hosting region, DPA, subprocessors, support access, CDN processing, backup locations/retention and deletion support |
 | Bunny Fonts | Public layout requests fonts from fonts.bunny.net | Browser IP, user-agent and font request metadata | Legal entity, terms/DPA, region, retention and self-hosting option |
-| SMTP provider | Authenticated SMTP is configurable; actual production provider is not identifiable from source | Account email, verification/reset message metadata and content | Identify provider from production configuration without exposing credentials; verify DPA, region and retention |
+| Transactional email provider | Resend is the selected production provider; actual production account, region and DPA status require confirmation | Account email, verification/reset message metadata and content | Confirm the Resend account owner, processing region, DPA and message retention; verify sender-domain authentication without exposing credentials |
 | Laravel/database/storage | MySQL/MariaDB, sessions/cache/queues and local/public storage are application-configured | Account, learning, assessment, writing, class, session and operational data | Verify actual production locations, encryption, access, backup and log policies |
 | Analytics/advertising | No analytics or advertising tags found in this repository revision | No data through repository-installed tags at this revision | Inspect production GTM and injected scripts before launch; repository absence alone does not prove production absence |
 

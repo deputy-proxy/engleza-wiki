@@ -62,12 +62,8 @@ LOG_STACK=daily
 LOG_LEVEL=warning
 LOG_DAILY_DAYS=14
 
-MAIL_MAILER=smtp
-MAIL_HOST=<authenticated SMTP host>
-MAIL_PORT=587
-MAIL_USERNAME=<SMTP username>
-MAIL_PASSWORD=<SMTP password>
-MAIL_SCHEME=smtp
+MAIL_MAILER=resend
+RESEND_API_KEY=<Resend API key>
 MAIL_FROM_ADDRESS=<verified sender address>
 MAIL_FROM_NAME="${APP_NAME}"
 ```
@@ -81,7 +77,7 @@ Notes:
 - `SESSION_ENCRYPT=true` encrypts session payloads stored by Laravel. Enabling it invalidates sessions created before the setting was enabled; schedule this as a one-time sign-out.
 - The repository's sample `.env.example` keeps `SESSION_SECURE_COOKIE=null` so local HTTP development continues to work. Production must explicitly set it to `true`.
 - Keep the Laravel web middleware's CSRF protection enabled. Do not exclude authentication, account, or state-changing routes from CSRF verification.
-- Use an authenticated production mail transport. The `log` mailer is for local development only and does not deliver verification or password-reset messages.
+- Use Resend for production transactional email. Set `MAIL_MAILER=resend`, provide `RESEND_API_KEY` as a deployment secret, and use a sender address on the domain authenticated in Resend. The `log` mailer is for local development only and does not deliver verification or password-reset messages. Publish the exact SPF/DKIM records Resend provides; do not assume the existing Hostinger mail records authenticate Resend.
 - Use daily logs with a bounded retention period. A Monolog processor redacts common sensitive context keys (including passwords, tokens, API keys, cookies and authorization data) and labelled secret values in messages before placeholder interpolation. This is a safety net, not permission to log secrets: never put credentials or unlabelled secret values into free-form messages. Log identifiers and outcomes instead.
 
 ## Administrator bootstrap and database seeding
@@ -132,7 +128,7 @@ The readiness command checks, without printing secret values:
 - Database-backed session storage and the `sessions` table.
 - Encrypted session payloads and Secure, HttpOnly, SameSite session-cookie settings.
 - Database-backed cache storage and the `cache` table.
-- Authenticated SMTP transport and sender address.
+- Resend API transport, API key and sender address.
 - Enabled application logging with the sensitive-data redaction processor on the default channel.
 - An existing administrator, absence of the four known development accounts, and removal of temporary bootstrap credentials.
 

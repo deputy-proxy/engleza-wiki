@@ -50,14 +50,12 @@ class ProductionReadiness extends Command
 
         $mailer = (string) config('mail.default');
         $mailConfig = config("mail.mailers.$mailer", []);
-        $mailReady = $mailer === 'smtp'
+        $mailReady = $mailer === 'resend'
             && is_array($mailConfig)
-            && filter_var((string) config('mail.from.address'), FILTER_VALIDATE_EMAIL) !== false
-            && filled($mailConfig['host'] ?? null)
-            && filled($mailConfig['port'] ?? null)
-            && filled($mailConfig['username'] ?? null)
-            && filled($mailConfig['password'] ?? null);
-        $this->check('Authenticated SMTP transport and sender are configured', $mailReady);
+            && ($mailConfig['transport'] ?? null) === 'resend'
+            && filled(config('services.resend.key'))
+            && filter_var((string) config('mail.from.address'), FILTER_VALIDATE_EMAIL) !== false;
+        $this->check('Resend API transport, API key and sender are configured', $mailReady);
 
         $logChannel = (string) config('logging.default');
         $this->check('Application logging is enabled', ! in_array($logChannel, ['', 'null', 'emergency'], true));
