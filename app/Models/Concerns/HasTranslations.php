@@ -15,7 +15,7 @@ trait HasTranslations
         return $this->morphMany(ContentTranslation::class, 'translatable');
     }
 
-    /** Return a reviewed translation only while its source text is unchanged. */
+    /** Return an approved or grandfathered translation only while its source text is unchanged. */
     public function translated(string $field, ?string $locale = null): mixed
     {
         $locale ??= App::getLocale();
@@ -30,8 +30,8 @@ trait HasTranslations
 
         if (! $translations instanceof Collection) {
             $translations = $this->relationLoaded('translations')
-                ? $this->getRelation('translations')->where('locale', $locale)->where('status', 'reviewed')->where('editorial_status', 'approved')->keyBy('field')
-                : $this->translations()->where('locale', $locale)->where('status', 'reviewed')->where('editorial_status', 'approved')->get()->keyBy('field');
+                ? $this->getRelation('translations')->where('locale', $locale)->where('status', 'reviewed')->whereIn('editorial_status', ['approved', 'grandfathered'])->keyBy('field')
+                : $this->translations()->where('locale', $locale)->where('status', 'reviewed')->whereIn('editorial_status', ['approved', 'grandfathered'])->get()->keyBy('field');
             $this->setRelation('localizedFields', $translations);
         }
 
@@ -64,6 +64,10 @@ trait HasTranslations
 
         if ($translation->status === 'reviewed' && ! hash_equals((string) $translation->source_hash, $this->translationSourceHash($source))) {
             return 'stale';
+        }
+
+        if ($translation->editorial_status === 'grandfathered') {
+            return 'grandfathered';
         }
 
         if ($translation->editorial_status !== 'approved') {

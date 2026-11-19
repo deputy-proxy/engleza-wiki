@@ -61,6 +61,7 @@ class LearnerProgressTest extends TestCase
             $question->topics()->attach($topic);
             $questions->push([$question, $correct]);
         }
+        $test->refresh()->approveEditorialReview(User::factory()->create(['role' => 'admin']));
 
         $attempts = app(TestAttemptService::class);
         $first = $attempts->start($test, [
@@ -138,6 +139,7 @@ class LearnerProgressTest extends TestCase
             'question_id' => $question->id, 'value' => 'Wrong', 'label' => 'Wrong', 'is_correct' => false,
         ]);
         $question->topics()->attach($topic);
+        $test->refresh()->approveEditorialReview(User::factory()->create(['role' => 'admin']));
         $group = ClassGroup::query()->create(['name' => 'Group A', 'teacher_id' => $teacher->id]);
         $attemptService = app(TestAttemptService::class);
         $groupAttempt = $attemptService->start($test, [
@@ -164,6 +166,7 @@ class LearnerProgressTest extends TestCase
         $path = LearningPath::query()->create(['title' => 'A1 path', 'slug' => 'a1-path', 'status' => 'draft']);
         $unit = LearningUnit::query()->create(['learning_path_id' => $path->id, 'title' => 'Unit', 'sort_order' => 1, 'is_published' => true]);
         $resource = Resource::factory()->create(['type' => 'article', 'status' => 'published', 'published_at' => now()]);
+        $resource->approveEditorialReview(User::factory()->create(['role' => 'admin']));
         $lesson = LearningLesson::query()->create([
             'learning_unit_id' => $unit->id, 'title' => 'First lesson', 'slug' => 'first-lesson',
             'objectives' => ['Use greetings'], 'status' => 'draft', 'published_at' => now(), 'sort_order' => 1,
@@ -196,6 +199,7 @@ class LearnerProgressTest extends TestCase
         ResourceCard::query()->create([
             'card_resource_id' => $deck->id, 'front' => 'To give up', 'back' => 'To stop trying', 'sort_order' => 1,
         ]);
+        $resource->refresh()->approveEditorialReview(User::factory()->create(['role' => 'admin']));
 
         $service = app(VocabularyReviewService::class);
         $service->encounterResource($user, $resource);
@@ -208,6 +212,7 @@ class LearnerProgressTest extends TestCase
         ResourceCard::query()->create([
             'card_resource_id' => $duplicateDeck->id, 'front' => 'To give up', 'back' => 'To stop trying', 'sort_order' => 1,
         ]);
+        $duplicateResource->refresh()->approveEditorialReview(User::factory()->create(['role' => 'admin']));
         $service->encounterResource($user, $duplicateResource);
 
         $this->assertSame(1, LearnerVocabularyItem::query()->where('user_id', $user->id)->count());
@@ -234,6 +239,7 @@ class LearnerProgressTest extends TestCase
             'metadata' => ['pairs' => [['left' => 'bonjour', 'right' => 'hello']]],
             'points' => 1, 'difficulty' => 'easy', 'sort_order' => 1,
         ]);
+        $vocabularyTest->refresh()->approveEditorialReview(User::factory()->create(['role' => 'admin']));
         LessonActivity::query()->create([
             'learning_lesson_id' => $lesson->id, 'type' => 'test', 'test_id' => $vocabularyTest->id,
             'title' => 'Matching exercise', 'sort_order' => 2,
@@ -263,6 +269,7 @@ class LearnerProgressTest extends TestCase
         $skill = Skill::query()->create(['name' => 'Grammar', 'slug' => 'grammar']);
         $topic = Topic::query()->create(['name' => 'Articles', 'slug' => 'articles']);
         $test = Assessment::factory()->create(['skill_id' => $skill->id]);
+        $test->approveEditorialReview(User::factory()->create(['role' => 'admin']));
         $section = TestSection::query()->create(['test_id' => $test->id, 'title' => 'Practice']);
         $questions = collect();
 

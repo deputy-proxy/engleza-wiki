@@ -41,6 +41,7 @@ class EditorialQualityTest extends TestCase
     public function test_editing_reviewed_source_content_invalidates_approval_and_public_visibility(): void
     {
         $resource = Resource::factory()->create();
+        $resource->approveEditorialReview(User::factory()->create(['role' => 'admin']));
         $this->assertTrue($resource->isEditorialApproved());
 
         $resource->update(['content' => 'A materially changed explanation.']);
@@ -143,6 +144,8 @@ class EditorialQualityTest extends TestCase
     public function test_audit_command_exports_published_resources_and_tests_with_review_dispositions(): void
     {
         Resource::factory()->create(['title' => 'Editorial audit sample']);
+        $legacy = Resource::factory()->create(['title' => 'Legacy demo content excluded']);
+        $legacy->forceFill(['editorial_status' => 'grandfathered'])->saveQuietly();
         Assessment::factory()->create(['title' => 'Editorial test sample']);
         $path = storage_path('framework/testing/editorial-audit.csv');
 
@@ -153,6 +156,7 @@ class EditorialQualityTest extends TestCase
         $this->assertIsString($csv);
         $this->assertStringContainsString('Editorial audit sample', $csv);
         $this->assertStringContainsString('Editorial test sample', $csv);
+        $this->assertStringNotContainsString('Legacy demo content excluded', $csv);
         $this->assertStringContainsString('recommended_decision', $csv);
     }
 

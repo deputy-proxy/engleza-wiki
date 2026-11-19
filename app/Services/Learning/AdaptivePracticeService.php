@@ -195,7 +195,7 @@ class AdaptivePracticeService
         return Question::query()
             ->where(function ($query): void {
                 $query->whereHas('section.test', function ($test): void {
-                    $test->where('status', 'published')->where('editorial_status', 'approved')->where('is_public', true)
+                    $test->where('status', 'published')->whereIn('editorial_status', ['approved', 'grandfathered'])->where('is_public', true)
                         ->whereIn('access_type', ['free', 'registered'])
                         ->where(fn ($published) => $published->whereNull('published_at')->orWhere('published_at', '<=', now()));
                 })->orWhereHas('readingResource.resource', fn ($resource) => $resource->published())

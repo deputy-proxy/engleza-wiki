@@ -29,7 +29,7 @@ class ContentTranslationsTable
             SelectFilter::make('locale')->options(['ro' => 'Romanian']),
             SelectFilter::make('status')->options(['draft' => 'Draft', 'reviewed' => 'Reviewed']),
             SelectFilter::make('editorial_status')->options([
-                'pending' => 'Pending', 'approved' => 'Approved', 'revise' => 'Revision required',
+                'pending' => 'Pending', 'approved' => 'Approved', 'grandfathered' => 'Legacy/demo', 'revise' => 'Revision required',
                 'unpublish' => 'Unpublished', 'remove' => 'Remove',
             ]),
         ])->recordActions([

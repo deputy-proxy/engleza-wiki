@@ -62,19 +62,11 @@ Only `admin` and `editor` roles can access `/admin`. User management is admin-on
 
 ## Editorial quality and publication review
 
-Published resources, tests and learning lessons require explicit editorial approval before they are served publicly. New content starts as `pending`; edits to source content, answer keys, interactive child records or translations invalidate the affected review. Pending/revision content is excluded from public listings, direct routes, adaptive practice, search and the sitemap. `noindex` content may remain accessible but is excluded from the sitemap and receives a noindex directive.
+New resources, tests, lessons and translations require explicit editorial approval before they are served publicly. New content starts as `pending`; edits to source content, answer keys, interactive child records or translations invalidate the affected review. Content that existed when the workflow was deployed is marked `grandfathered`: it remains available as demo content, is not represented as reviewed, and is excluded from editorial and translation audits. Pending/revision content is excluded from public listings, direct routes, adaptive practice, search and the sitemap. `noindex` content may remain accessible but is excluded from the sitemap and receives a noindex directive.
 
-Editors manage decisions in the existing Filament Content area. The Translations resource supports Romanian translation editing and approval. A translation is displayed only when its translation status is `reviewed`, its editorial status is `approved`, and its source hash is current. Otherwise the original English source is used as the fallback.
+Editors manage decisions in the existing Filament Content area. The Translations resource supports Romanian translation editing and approval. A new translation is displayed only when its translation status is `reviewed`, its editorial status is `approved`, and its source hash is current. Grandfathered demo translations retain their previous behavior. Otherwise the original English source is used as the fallback.
 
-The rubric, CEFR content standards, publication workflow and reviewer responsibilities are documented in `docs/editorial/`. Generate the current inventory from the target database before a content release:
-
-```bash
-php artisan content:editorial-audit --output=docs/editorial/audit-register.csv
-php artisan translations:audit --locale=ro
-```
-
-The committed `docs/editorial/audit-register.csv` is a point-in-time snapshot from the repository's seeded development dataset, not a production export. Regenerate it against the deployment database for operational review. Automated checks identify structural and completeness issues; qualified English-language teachers must validate core grammar, CEFR placement and assessment answer keys before approval. High-impact grammar/CEFR material requires a second independent review.
-
+The rubric, CEFR content standards, publication workflow and reviewer responsibilities are documented in `docs/editorial/`. Editorial audits are prospective: they only inspect records created after the workflow rollout. Existing demo content is grandfathered and is not retroactively audited or blocked. New records remain unpublished until editorial approval. Translation checks follow the same prospective boundary.
 ## Assessment and learning attempts
 
 Anonymous visitors can take free tests without registering. Attempts are owned by the authenticated learner or the originating anonymous session. Test and learning attempts persist their assigned question IDs at start, so questions added later cannot silently join an in-progress attempt and shuffled navigation remains stable. An interrupted started attempt can be reopened through its existing attempt URL; its saved answers and question order are restored.

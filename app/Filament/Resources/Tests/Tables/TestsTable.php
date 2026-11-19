@@ -21,7 +21,7 @@ class TestsTable
             TextColumn::make('level.name')->badge()->color('primary')->sortable(),
             TextColumn::make('skill.name')->badge()->color('success')->placeholder('—'),
             TextColumn::make('status')->badge()->colors(['gray' => 'draft', 'success' => 'published', 'danger' => 'archived']),
-            TextColumn::make('editorial_status')->label('Editorial review')->badge()->colors(['success' => 'approved', 'warning' => ['pending', 'revise'], 'danger' => ['unpublish', 'remove']])->sortable(),
+            TextColumn::make('editorial_status')->label('Editorial review')->badge()->colors(['success' => 'approved', 'warning' => ['pending', 'revise'], 'danger' => ['unpublish', 'remove'], 'gray' => 'grandfathered'])->sortable(),
             TextColumn::make('editorialReviewer.name')->label('Reviewer')->placeholder('—')->toggleable(),
             TextColumn::make('editorial_reviewed_at')->label('Reviewed')->dateTime()->placeholder('—')->toggleable(),
             TextColumn::make('access_type')->badge()->colors(['success' => 'free', 'warning' => 'registered', 'danger' => 'premium']),

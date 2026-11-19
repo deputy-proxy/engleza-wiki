@@ -24,18 +24,7 @@
 - A `noindex` resource may remain accessible to learners but is excluded from the sitemap and receives a noindex directive.
 - `revise` and `pending` content is hidden; `unpublish` moves it to draft; `remove` archives it.
 
-## Audit register
+## Scope of automated checks
 
-Generate the current inventory from the connected application database:
+The editorial workflow is prospective. Existing demo content is grandfathered and remains available without being marked as editorially approved. It is not retroactively audited, modified or blocked. New content created after the editorial workflow rollout enters review automatically. The audit commands, when run manually, only include records created after the rollout timestamp; they do not inventory legacy demo content.
 
-```bash
-php artisan content:editorial-audit --output=docs/editorial/audit-register.csv
-```
-
-The register includes published resources, tests, lessons, interactive child items, questions and Romanian translations, with current review state, recommended disposition, reviewer and review date. It is a point-in-time snapshot; regenerate it after content changes and before release. The committed baseline register is generated from the repository's seeded development dataset, not a production database export. Its numeric IDs belong to that local snapshot and must be regenerated against the target environment before operational review; slugs and record types are the stable identifiers across environments.
-
-The existing translation-only audit remains available:
-
-```bash
-php artisan translations:audit --locale=ro
-```

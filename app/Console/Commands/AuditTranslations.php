@@ -2,24 +2,16 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Audience;
 use App\Models\CardResource;
-use App\Models\Category;
 use App\Models\ContentTranslation;
 use App\Models\LearningLesson;
-use App\Models\LearningPath;
-use App\Models\LearningUnit;
 use App\Models\LessonActivity;
-use App\Models\Level;
 use App\Models\ListeningResource;
 use App\Models\Question;
 use App\Models\ReadingResource;
 use App\Models\Resource;
-use App\Models\Skill;
-use App\Models\Tag;
 use App\Models\Test;
 use App\Models\TestSection;
-use App\Models\Topic;
 use App\Models\WritingResource;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
@@ -28,7 +20,7 @@ class AuditTranslations extends Command
 {
     protected $signature = 'translations:audit {--locale=ro : Locale to audit}';
 
-    protected $description = 'List published content fields with missing or unreviewed translations.';
+    protected $description = 'List non-grandfathered published content fields with missing or unreviewed translations.';
 
     /** @var array<int, array{type: string, id: int|string, title: string, field: string, status: string, source: string, translation: string}> */
     private array $issues = [];
@@ -37,32 +29,24 @@ class AuditTranslations extends Command
     {
         $locale = (string) $this->option('locale');
 
-        $this->audit(Resource::query()->where('status', 'published')->get(), ['title', 'excerpt', 'content', 'seo_title', 'seo_description', 'og_title', 'og_description'], $locale);
-        $this->audit(Test::query()->where('status', 'published')->get(), ['title', 'description', 'instructions'], $locale);
-        $this->audit(Category::query()->where('is_active', true)->get(), ['name', 'description'], $locale);
-        $this->audit(Audience::query()->get(), ['name'], $locale);
-        $this->audit(Topic::query()->get(), ['name', 'description'], $locale);
-        $this->audit(Level::query()->get(), ['name', 'description'], $locale);
-        $this->audit(Skill::query()->get(), ['name', 'description'], $locale);
-        $this->audit(Tag::query()->get(), ['name'], $locale);
-        $this->audit(TestSection::query()->whereHas('test', fn ($query) => $query->where('status', 'published'))->get(), ['title', 'description', 'instructions'], $locale);
+        $this->audit(Resource::query()->where('editorial_status', '!=', 'grandfathered')->where('status', 'published')->get(), ['title', 'excerpt', 'content', 'seo_title', 'seo_description', 'og_title', 'og_description'], $locale);
+        $this->audit(Test::query()->where('editorial_status', '!=', 'grandfathered')->where('status', 'published')->get(), ['title', 'description', 'instructions'], $locale);
+        $this->audit(TestSection::query()->whereHas('test', fn ($query) => $query->where('status', 'published')->where('editorial_status', '!=', 'grandfathered'))->get(), ['title', 'description', 'instructions'], $locale);
         $this->audit(Question::query()->where(function ($query): void {
-            $query->whereHas('section.test', fn ($test) => $test->where('status', 'published'))
-                ->orWhereHas('listeningResource.resource', fn ($resource) => $resource->where('status', 'published'))
-                ->orWhereHas('readingResource.resource', fn ($resource) => $resource->where('status', 'published'));
+            $query->whereHas('section.test', fn ($test) => $test->where('status', 'published')->where('editorial_status', '!=', 'grandfathered'))
+                ->orWhereHas('listeningResource.resource', fn ($resource) => $resource->where('status', 'published')->where('editorial_status', '!=', 'grandfathered'))
+                ->orWhereHas('readingResource.resource', fn ($resource) => $resource->where('status', 'published')->where('editorial_status', '!=', 'grandfathered'));
         })->get(), ['explanation'], $locale);
-        $publishedResourceIds = Resource::query()->where('status', 'published')->pluck('id');
+        $publishedResourceIds = Resource::query()->where('editorial_status', '!=', 'grandfathered')->where('status', 'published')->pluck('id');
         $this->audit(CardResource::query()->whereIn('resource_id', $publishedResourceIds)->get(), ['instructions'], $locale);
         $this->audit(ListeningResource::query()->whereIn('resource_id', $publishedResourceIds)->get(), ['instructions'], $locale);
         $this->audit(ReadingResource::query()->whereIn('resource_id', $publishedResourceIds)->get(), ['title', 'instructions'], $locale);
         $this->audit(WritingResource::query()->whereIn('resource_id', $publishedResourceIds)->get(), ['prompt', 'instructions', 'rubric'], $locale);
-        $this->audit(LearningPath::query()->where('status', 'published')->get(), ['title', 'description'], $locale);
-        $this->audit(LearningUnit::query()->where('is_published', true)->whereHas('path', fn ($query) => $query->where('status', 'published'))->get(), ['title', 'description'], $locale);
-        $this->audit(LearningLesson::query()->where('status', 'published')->whereHas('unit.path', fn ($query) => $query->where('status', 'published'))->get(), ['title', 'description', 'objectives'], $locale);
-        $this->audit(LessonActivity::query()->whereHas('lesson', fn ($query) => $query->where('status', 'published'))->get(), ['title', 'instructions'], $locale);
+        $this->audit(LearningLesson::query()->where('editorial_status', '!=', 'grandfathered')->where('status', 'published')->whereHas('unit.path', fn ($query) => $query->where('status', 'published'))->get(), ['title', 'description', 'objectives'], $locale);
+        $this->audit(LessonActivity::query()->whereHas('lesson', fn ($query) => $query->where('status', 'published')->where('editorial_status', '!=', 'grandfathered'))->get(), ['title', 'instructions'], $locale);
 
         if ($this->issues === []) {
-            $this->info("All published {$locale} content fields have reviewed translations.");
+            $this->info("All non-grandfathered published {$locale} content fields have reviewed translations.");
 
             return self::SUCCESS;
         }
@@ -71,7 +55,7 @@ class AuditTranslations extends Command
             fn (array $issue): array => [$issue['type'], $issue['id'], $issue['title'], $issue['field'], $issue['status'], $issue['source'], $issue['translation']],
             $this->issues,
         ));
-        $this->error(count($this->issues).' published content translation(s) are missing or not reviewed.');
+        $this->error(count($this->issues).' non-grandfathered published content translation(s) are missing or not reviewed.');
 
         return self::FAILURE;
     }

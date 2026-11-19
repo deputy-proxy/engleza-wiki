@@ -171,6 +171,7 @@ class LearningPathTest extends TestCase
                 'status' => 'draft', 'published_at' => now(), 'sort_order' => $i,
             ]);
             $resource = Resource::factory()->create(['type' => 'article', 'status' => 'published']);
+            $resource->approveEditorialReview(User::factory()->create(['role' => 'admin']));
             $activity = LessonActivity::create([
                 'learning_lesson_id' => $lesson->id, 'type' => 'resource', 'resource_id' => $resource->id,
                 'title' => 'Read article '.$i, 'sort_order' => 1, 'is_required' => true,
