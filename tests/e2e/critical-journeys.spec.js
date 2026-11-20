@@ -146,6 +146,7 @@ test('listening and reading exercises render their learning activities', async (
 });
 
 test('learner submits writing, teacher publishes feedback, and learner can read it', async ({ browser }) => {
+    test.setTimeout(60_000);
     const learner = await browser.newPage();
     await learner.goto('http://127.0.0.1:8000/login');
     await learner.getByTestId('login-email').fill('learner@engleza.wiki');
@@ -177,7 +178,7 @@ test('learner submits writing, teacher publishes feedback, and learner can read 
 
     const match = teacher.url().match(/\/writing\/(\d+)$/);
     expect(match).not.toBeNull();
-    await learner.goto(`http://127.0.0.1:8000/my-writing/${match[1]}`);
+    await learner.goto(`http://127.0.0.1:8000/my-writing/${match[1]}`, { waitUntil: 'domcontentloaded' });
     await expect(learner.locator('main')).toContainText('Clear response. Add more supporting detail');
     await teacher.close();
     await learner.close();

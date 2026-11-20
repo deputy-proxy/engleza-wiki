@@ -27,6 +27,6 @@ Source: `.github/workflows/tests.yml`.
 ## Browser end-to-end tests
 - Playwright + Chromium; config: `playwright.config.js`; tests: `tests/e2e/`.
 - Commands: `yarn test:e2e`, `yarn test:e2e:debug`, `yarn playwright:install` (`yarn playwright:install:ci` in Linux CI).
-- CI uses a separate MySQL 8.4 service, runs `migrate:fresh --seed`, then `BrowserTestSeeder`, builds assets, installs Chromium, and runs the browser suite.
+- CI uses a separate MySQL 8.4 service, runs `migrate:fresh --seed`, builds assets, installs Chromium, and runs the browser suite. Playwright global setup invokes `BrowserTestSeeder` before each suite.
 - `BrowserTestSeeder` is testing-environment-only. It approves seeded demo content for deterministic browsing and creates the E2E writing-class and two-lesson curriculum fixtures.
 - Details and covered journeys: `docs/browser-e2e-testing.md`.

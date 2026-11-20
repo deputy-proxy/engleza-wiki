@@ -13,11 +13,10 @@ yarn install --frozen-lockfile
 yarn playwright:install
 cp .env.testing .env
 APP_ENV=testing php artisan migrate:fresh --seed --force
-APP_ENV=testing php artisan db:seed --class=BrowserTestSeeder --force
 yarn test:e2e
 ```
 
-The browser fixture seeder also creates a deterministic writing class (join code `E2E26A`), assigns a published writing task, enrolls the seeded learner, and publishes a two-lesson learning path for progression checks. The fixture seeder refuses to run outside `APP_ENV=testing`.
+Playwright runs the browser fixture seeder automatically before each suite. It creates a deterministic writing class (join code `E2E26A`), assigns a published writing task, enrolls the seeded learner, and publishes a two-lesson learning path for progression checks. The fixture seeder refuses to run outside `APP_ENV=testing`.
 
 The seeded development accounts are:
 - Admin: `admin@engleza.wiki`
