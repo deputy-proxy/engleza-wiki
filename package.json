@@ -5,9 +5,14 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
-        "test": "node --test tests/js/*.test.js"
+        "test": "node --test tests/js/*.test.js",
+        "test:e2e": "playwright test",
+        "test:e2e:debug": "playwright test --debug",
+        "playwright:install": "playwright install chromium",
+        "playwright:install:ci": "playwright install --with-deps chromium"
     },
     "devDependencies": {
+        "@playwright/test": "^1.65.1",
         "@tailwindcss/vite": "^4.0.0",
         "concurrently": "^10.0.3",
         "laravel-vite-plugin": "^3.1",

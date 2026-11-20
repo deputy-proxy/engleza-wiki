@@ -22,3 +22,11 @@ Source: `.github/workflows/tests.yml`.
 - Frontend: `corepack enable && corepack prepare yarn@1.22.22 --activate`, `yarn install --frozen-lockfile`, `yarn test`, `yarn build`.
 - Production deployment: Hostinger GitHub auto-deployment is enabled for `main` into the website document root. Production PHP was verified as 8.3.36; CI uses PHP 8.4 and Node.js 22. Hostinger CLI Composer/Node/Yarn versions and automatic build hooks were not exposed. Follow `docs/deployment-runbook.md`; do not assume Hostinger refreshes `vendor/` or `public/build/` on Git deploy.
 - Do not replace Yarn with npm or regenerate its lockfile using another package manager without an explicit migration task.
+
+
+## Browser end-to-end tests
+- Playwright + Chromium; config: `playwright.config.js`; tests: `tests/e2e/`.
+- Commands: `yarn test:e2e`, `yarn test:e2e:debug`, `yarn playwright:install` (`yarn playwright:install:ci` in Linux CI).
+- CI uses a separate MySQL 8.4 service, runs `migrate:fresh --seed`, then `BrowserTestSeeder`, builds assets, installs Chromium, and runs the browser suite.
+- `BrowserTestSeeder` is testing-environment-only. It approves seeded demo content for deterministic browsing and creates the E2E writing-class and two-lesson curriculum fixtures.
+- Details and covered journeys: `docs/browser-e2e-testing.md`.

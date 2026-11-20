@@ -31,3 +31,6 @@ Homestead.yaml
 Thumbs.db
 package-lock.json
 yarn.lock
+
+/playwright-report/
+/test-results/
