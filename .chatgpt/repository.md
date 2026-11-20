@@ -1,6 +1,6 @@
 # Repository-specific development configuration
 
-Last verified: 2026-11-19. Exact resolved versions are recorded in the cross-repository matrix at [Cr8or](https://github.com/deputy-proxy/cr8or/blob/main/.chatgpt/repository-versions.md). Re-check manifests, lockfiles, and workflows before each implementation.
+Last verified: 2026-11-20. Exact resolved versions are recorded in the cross-repository matrix at [Cr8or](https://github.com/deputy-proxy/cr8or/blob/main/.chatgpt/repository-versions.md). Re-check manifests, lockfiles, and workflows before each implementation.
 
 ## Runtime and resolved framework versions
 - PHP constraint: `^8.3`; CI uses PHP 8.4.
@@ -13,11 +13,12 @@ Last verified: 2026-11-19. Exact resolved versions are recorded in the cross-rep
 ## Current CI validation
 Source: `.github/workflows/tests.yml`.
 - PHP job: prepare `.env.testing`, install Composer dependencies, run MySQL 8.4 migrations, then `composer ci:check` (Composer security audit, Pint, PHPStan/Larastan, Laravel tests).
-- Frontend job: install PHP dependencies for Filament assets, enable Corepack/Yarn 1.22.22, run `yarn install --frozen-lockfile`, then `yarn build`.
-- No separate frontend interaction-test or npm-audit job is defined.
+- Frontend job: install PHP dependencies for Filament assets, set up Node.js 22, enable Corepack/Yarn 1.22.22, run `yarn install --frozen-lockfile`, `yarn test` (Node.js unit tests), then `yarn build`.
+- No browser end-to-end test job or npm audit job is defined.
 
 ## Local validation
 - PHP: `composer ci:check`.
 - Database: MySQL 8.4 for workflow-equivalent migration/integration checks.
-- Frontend: `corepack enable && corepack prepare yarn@1.22.22 --activate`, `yarn install --frozen-lockfile`, `yarn build`.
+- Frontend: `corepack enable && corepack prepare yarn@1.22.22 --activate`, `yarn install --frozen-lockfile`, `yarn test`, `yarn build`.
+- Production deployment: Hostinger GitHub auto-deployment is enabled for `main` into the website document root. Production PHP was verified as 8.3.36; CI uses PHP 8.4 and Node.js 22. Hostinger CLI Composer/Node/Yarn versions and automatic build hooks were not exposed. Follow `docs/deployment-runbook.md`; do not assume Hostinger refreshes `vendor/` or `public/build/` on Git deploy.
 - Do not replace Yarn with npm or regenerate its lockfile using another package manager without an explicit migration task.
