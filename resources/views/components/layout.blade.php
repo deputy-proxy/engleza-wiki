@@ -44,8 +44,8 @@
 </head>
 <body class="min-h-screen bg-white text-navy-900" data-testid="app-body">
 <header class="border-b border-navy-100/70 bg-white/95 backdrop-blur sticky top-0 z-40">
-  <div class="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between gap-8">
-    <a href="{{ route('home') }}" class="flex items-center gap-2" data-testid="brand-link">
+  <div class="mx-auto max-w-7xl px-6 py-4 flex flex-wrap items-center justify-between gap-3 sm:flex-nowrap sm:gap-8">
+    <a href="{{ route('home') }}" class="flex shrink-0 items-center gap-2" data-testid="brand-link">
       <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl">
           <svg width="100%" height="100%" viewBox="0 0 512 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
               <g>
@@ -213,15 +213,15 @@
       <a href="{{ route('for-teachers') }}" class="hover:text-brand-600" data-testid="nav-for-teachers">{{ __('For Teachers') }}</a>
       <a href="{{ route('about') }}" class="hover:text-brand-600" data-testid="nav-about">{{ __('About') }}</a>
     </nav>
-    <div class="flex items-center gap-3">
+    <div class="flex shrink-0 items-center gap-2 sm:gap-3">
       <a href="{{ route('search') }}" class="p-2 text-navy-700 hover:text-brand-600" data-testid="search-icon" aria-label="{{ __('Search') }}">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
       </a>
       @auth
-        <a href="{{ route('dashboard') }}" class="btn-ghost" data-testid="nav-dashboard">{{ __('Dashboard') }}</a>
-        <a href="{{ route('dashboard.learning') }}" class="btn-ghost" data-testid="nav-my-learning">{{ __('My learning') }}</a>
-        @if(auth()->user()->isAdmin() || auth()->user()->role === 'teacher')<a href="{{ route('teaching.index') }}" class="btn-ghost" data-testid="nav-teaching">{{ __('Teaching') }}</a>@endif
-        <form method="POST" action="{{ route('logout') }}">@csrf<button class="btn-outline" data-testid="nav-logout">{{ __('Log out') }}</button></form>
+        <a href="{{ route('dashboard') }}" class="btn-ghost hidden sm:inline-flex" data-testid="nav-dashboard">{{ __('Dashboard') }}</a>
+        <a href="{{ route('dashboard.learning') }}" class="btn-ghost whitespace-nowrap" data-testid="nav-my-learning">{{ __('My learning') }}</a>
+        @if(auth()->user()->isAdmin() || auth()->user()->role === 'teacher')<a href="{{ route('teaching.index') }}" class="btn-ghost hidden sm:inline-flex" data-testid="nav-teaching">{{ __('Teaching') }}</a>@endif
+        <form method="POST" action="{{ route('logout') }}" class="shrink-0">@csrf<button class="btn-outline whitespace-nowrap" data-testid="nav-logout">{{ __('Log out') }}</button></form>
       @else
         <a href="{{ route('login') }}" class="btn-ghost" data-testid="nav-login">{{ __('Log in') }}</a>
         <a href="{{ route('tests.index') }}" class="btn-primary" data-testid="nav-cta-test">{{ __('Test your English') }}</a>

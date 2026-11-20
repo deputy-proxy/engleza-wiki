@@ -109,3 +109,80 @@ jobs:
 
       - name: Build frontend assets
         run: yarn build
+
+  e2e:
+    name: Browser end-to-end tests
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: engleza_wiki_e2e
+          MYSQL_USER: engleza
+          MYSQL_PASSWORD: engleza_pass
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    env:
+      APP_ENV: testing
+      APP_KEY: base64:k+SX28InTT1czAx5TnnNdA2W3jSA8gXFsr/9sTwdmXw=
+      APP_DEBUG: true
+      APP_URL: http://127.0.0.1:8000
+      DB_CONNECTION: mysql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_DATABASE: engleza_wiki_e2e
+      DB_USERNAME: engleza
+      DB_PASSWORD: engleza_pass
+      CACHE_STORE: array
+      SESSION_DRIVER: database
+      QUEUE_CONNECTION: sync
+      MAIL_MAILER: log
+      E2E_BASE_URL: http://127.0.0.1:8000
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Setup PHP
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
+        with:
+          php-version: '8.4'
+          extensions: curl, dom, intl, mbstring, pdo_mysql, xml, zip
+          tools: composer:v2
+          coverage: none
+      - name: Install PHP dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+      - name: Prepare test database
+        run: php artisan migrate:fresh --seed --force
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+          cache: yarn
+          cache-dependency-path: yarn.lock
+      - name: Setup Yarn
+        run: corepack enable && corepack prepare yarn@1.22.22 --activate
+      - name: Install frontend dependencies
+        run: yarn install --frozen-lockfile
+      - name: Build frontend assets
+        run: yarn build
+      - name: Install Playwright Chromium
+        run: yarn playwright:install:ci
+      - name: Run browser journeys
+        run: yarn test:e2e
+      - name: Upload browser diagnostics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: playwright-diagnostics
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+          if-no-files-found: ignore

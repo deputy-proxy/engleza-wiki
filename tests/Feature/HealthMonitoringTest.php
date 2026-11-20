@@ -33,6 +33,8 @@ class HealthMonitoringTest extends TestCase
 
     public function test_readiness_endpoint_returns_generic_unavailable_response_when_database_is_unreachable(): void
     {
+        config(['session.driver' => 'array']);
+
         DB::shouldReceive('connection')
             ->once()
             ->andThrow(new PDOException('sensitive database connection detail'));
