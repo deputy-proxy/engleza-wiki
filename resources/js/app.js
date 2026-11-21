@@ -4,8 +4,10 @@ import './bootstrap';
 // which breaks wire:click, wire:model and other Livewire directives.
 
 import { speakingPractice } from './speaking-practice';
+import { assessmentTimer } from './assessment-timer';
 
 // Livewire v4 owns the Alpine instance. Register without importing a second runtime.
 document.addEventListener('alpine:init', () => {
     window.Alpine.data('speakingPractice', speakingPractice);
+    window.Alpine.data('assessmentTimer', assessmentTimer);
 });
