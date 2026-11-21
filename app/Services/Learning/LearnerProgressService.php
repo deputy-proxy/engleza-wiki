@@ -449,9 +449,18 @@ class LearnerProgressService
                 'path.units.lessons.activities.translations',
                 'path.units.lessons.activities.resource.translations',
                 'path.units.lessons.activities.resource.level.translations',
+                'path.units.lessons.activities.resource.listeningResource.questions.translations',
+                'path.units.lessons.activities.resource.listeningResource.questions.options',
+                'path.units.lessons.activities.resource.listeningResource.questions.topics.translations',
+                'path.units.lessons.activities.resource.readingResource.questions.translations',
+                'path.units.lessons.activities.resource.readingResource.questions.options',
+                'path.units.lessons.activities.resource.readingResource.questions.topics.translations',
                 'path.units.lessons.activities.test.translations',
                 'path.units.lessons.activities.test.level.translations',
                 'path.units.lessons.activities.test.skill.translations',
+                'path.units.lessons.activities.test.sections.questions.translations',
+                'path.units.lessons.activities.test.sections.questions.options',
+                'path.units.lessons.activities.test.sections.questions.topics.translations',
                 'path.units.lessons.progress' => fn ($query) => $query->where('user_id', $user->id),
             ])
             ->latest('activated_at')
@@ -466,7 +475,7 @@ class LearnerProgressService
 
             $availableLessons = $path->units->where('is_published', true)
                 ->flatMap(fn ($unit) => $unit->lessons)
-                ->filter(fn (LearningLesson $lesson): bool => app(LearningPathService::class)->isLessonAvailable($lesson))
+                ->filter(fn (LearningLesson $lesson): bool => app(LearningPathService::class)->isLessonAvailable($lesson, true))
                 ->values();
             $completedCount = $availableLessons->filter(fn (LearningLesson $lesson): bool => $lesson->progress
                 ->contains(fn ($progress): bool => $progress->status === 'completed'))->count();
@@ -501,29 +510,57 @@ class LearnerProgressService
     private function recommendations(User $user, array $topics, array $learningPaths): array
     {
         $recommendations = [];
-        $weakTopics = collect($topics)->where('mastery_state', 'needs_practice')->take(3);
+        $weakTopics = collect($topics)->where('mastery_state', 'needs_practice')->take(3)->values();
 
-        foreach ($weakTopics as $topic) {
-            $recentResourceIds = LearningAttempt::query()
+        if ($weakTopics->isNotEmpty()) {
+            $weakTopicIds = $weakTopics->pluck('id');
+            $recentResourcesByTopic = [];
+
+            LearningAttempt::query()
                 ->where('user_id', $user->id)
                 ->where('completed_at', '>=', now()->subDays(14))
-                ->whereHas('resource.topics', fn ($query) => $query->whereKey($topic['id']))
-                ->pluck('resource_id');
+                ->whereHas('resource.topics', fn ($query) => $query->whereIn('topics.id', $weakTopicIds))
+                ->with('resource.topics:id')
+                ->get(['id', 'resource_id'])
+                ->each(function (LearningAttempt $attempt) use (&$recentResourcesByTopic): void {
+                    foreach ($attempt->resource->topics as $topic) {
+                        $recentResourcesByTopic[$topic->id][$attempt->resource_id] = true;
+                    }
+                });
 
-            $resource = Resource::query()->published()
-                ->whereHas('topics', fn ($query) => $query->whereKey($topic['id']))
-                ->whereNotIn('id', $recentResourceIds)
-                ->with(['translations', 'level.translations'])
-                ->orderBy('id')
-                ->first();
+            $resourcesByTopic = [];
+            Resource::query()->published()
+                ->whereHas('topics', fn ($query) => $query->whereIn('topics.id', $weakTopicIds))
+                ->with(['translations', 'level.translations', 'topics:id'])
+                ->chunkById(100, function ($candidateResources) use ($weakTopics, $recentResourcesByTopic, &$resourcesByTopic): bool {
+                    foreach ($weakTopics as $topic) {
+                        if (isset($resourcesByTopic[$topic['id']])) {
+                            continue;
+                        }
 
-            if ($resource !== null) {
-                $recommendations[] = [
-                    'type' => 'topic',
-                    'title' => $resource->translated('title'),
-                    'reason' => __('Practise :topic (:percentage% demonstrated mastery).', ['topic' => $topic['name'], 'percentage' => $topic['mastery_percentage']]),
-                    'url' => route('resources.show', $resource),
-                ];
+                        $recentResourceIds = $recentResourcesByTopic[$topic['id']] ?? [];
+                        $resource = $candidateResources->first(fn (Resource $candidate): bool => $candidate->topics->contains('id', $topic['id'])
+                            && ! isset($recentResourceIds[$candidate->id])
+                        );
+
+                        if ($resource !== null) {
+                            $resourcesByTopic[$topic['id']] = $resource;
+                        }
+                    }
+
+                    return count($resourcesByTopic) < $weakTopics->count();
+                });
+
+            foreach ($weakTopics as $topic) {
+                $resource = $resourcesByTopic[$topic['id']] ?? null;
+                if ($resource instanceof Resource) {
+                    $recommendations[] = [
+                        'type' => 'topic',
+                        'title' => $resource->translated('title'),
+                        'reason' => __('Practise :topic (:percentage% demonstrated mastery).', ['topic' => $topic['name'], 'percentage' => $topic['mastery_percentage']]),
+                        'url' => route('resources.show', $resource),
+                    ];
+                }
             }
         }
 

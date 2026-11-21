@@ -136,9 +136,26 @@ class LearningPathService
         });
     }
 
-    public function isLessonAvailable(LearningLesson $lesson): bool
+    public function isLessonAvailable(LearningLesson $lesson, bool $useLoadedRelations = false): bool
     {
-        $lesson->load('unit.path', 'activities.resource.speakingResource', 'activities.resource', 'activities.test');
+        if ($useLoadedRelations) {
+            $lesson->loadMissing([
+                'unit.path',
+                'activities.resource.speakingResource',
+                'activities.resource.listeningResource.questions.translations',
+                'activities.resource.listeningResource.questions.options',
+                'activities.resource.listeningResource.questions.topics.translations',
+                'activities.resource.readingResource.questions.translations',
+                'activities.resource.readingResource.questions.options',
+                'activities.resource.readingResource.questions.topics.translations',
+                'activities.test.sections.questions.translations',
+                'activities.test.sections.questions.options',
+                'activities.test.sections.questions.topics.translations',
+            ]);
+        } else {
+            $lesson->load('unit.path', 'activities.resource.speakingResource', 'activities.resource', 'activities.test');
+        }
+
         $unit = $lesson->unit;
         $path = $unit?->path;
         if (! $unit || ! $unit->is_published || ! $path || $path->status !== 'published' || ! in_array($lesson->editorial_status, ['approved', 'grandfathered'], true)
@@ -205,16 +222,20 @@ class LearningPathService
             if ($resource === null || ! in_array($resource->type, ['listening', 'reading'], true)) {
                 return true;
             }
-            $interactive = $resource->type === 'listening'
-                ? $resource->listeningResource()->with(['translations', 'questions.translations', 'questions.options', 'questions.topics.translations'])->first()
-                : $resource->readingResource()->with(['translations', 'questions.translations', 'questions.options', 'questions.topics.translations'])->first();
+            $relation = $resource->type === 'listening' ? 'listeningResource' : 'readingResource';
+            $interactive = $resource->relationLoaded($relation)
+                ? $resource->getRelation($relation)
+                : $resource->{$relation}()->with(['translations', 'questions.translations', 'questions.options', 'questions.topics.translations'])->first();
             $questions = $interactive === null ? collect() : $interactive->questions;
         } else {
             $test = $activity->test;
             if ($test === null) {
                 return false;
             }
-            $questions = $test->sections()->with(['questions.translations', 'questions.options', 'questions.topics.translations'])->get()->flatMap(fn ($section) => $section->questions);
+            $sections = $test->relationLoaded('sections')
+                ? $test->sections
+                : $test->sections()->with(['questions.translations', 'questions.options', 'questions.topics.translations'])->get();
+            $questions = $sections->flatMap(fn ($section) => $section->questions);
         }
 
         if ($questions->isEmpty()) {
