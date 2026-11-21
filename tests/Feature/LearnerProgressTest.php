@@ -7,6 +7,7 @@ use App\Models\CardResource;
 use App\Models\ClassGroup;
 use App\Models\ExperiencePointAward;
 use App\Models\LearnerVocabularyItem;
+use App\Models\LearningAttempt;
 use App\Models\LearningLesson;
 use App\Models\LearningPath;
 use App\Models\LearningPathEnrollment;
@@ -29,6 +30,7 @@ use App\Services\Learning\LearnerProgressService;
 use App\Services\Learning\VocabularyReviewService;
 use App\Services\Test\TestAttemptService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class LearnerProgressTest extends TestCase
@@ -98,6 +100,59 @@ class LearnerProgressTest extends TestCase
         $this->assertSame(2, $topicProgress['attempt_count']);
         $this->assertSame(5, $topicProgress['unique_questions']);
         $this->assertSame('A2', $profile['cefr']['level']);
+    }
+
+    public function test_topic_recommendations_batch_recent_history_and_candidate_resource_queries(): void
+    {
+        $user = User::factory()->create();
+        $firstTopic = Topic::query()->create(['name' => 'Articles', 'slug' => 'articles']);
+        $secondTopic = Topic::query()->create(['name' => 'Prepositions', 'slug' => 'prepositions']);
+        $thirdTopic = Topic::query()->create(['name' => 'Conditionals', 'slug' => 'conditionals']);
+
+        $recentResource = Resource::factory()->create(['type' => 'article', 'status' => 'published', 'published_at' => now()]);
+        $recentResource->topics()->attach($firstTopic);
+        $recentResource->approveEditorialReview(User::factory()->create(['role' => 'admin']));
+
+        $recommendedResource = Resource::factory()->create(['type' => 'article', 'status' => 'published', 'published_at' => now()]);
+        $recommendedResource->topics()->attach($firstTopic);
+        $recommendedResource->approveEditorialReview(User::factory()->create(['role' => 'admin']));
+
+        $secondTopicResource = Resource::factory()->create(['type' => 'article', 'status' => 'published', 'published_at' => now()]);
+        $secondTopicResource->topics()->attach($secondTopic);
+        $secondTopicResource->approveEditorialReview(User::factory()->create(['role' => 'admin']));
+
+        $thirdTopicResource = Resource::factory()->create(['type' => 'article', 'status' => 'published', 'published_at' => now()]);
+        $thirdTopicResource->topics()->attach($thirdTopic);
+        $thirdTopicResource->approveEditorialReview(User::factory()->create(['role' => 'admin']));
+
+        LearningAttempt::query()->create([
+            'user_id' => $user->id,
+            'resource_id' => $recentResource->id,
+            'status' => 'completed',
+            'completed_at' => now()->subDay(),
+        ]);
+
+        $connection = DB::connection();
+        $connection->enableQueryLog();
+
+        $method = new \ReflectionMethod(LearnerProgressService::class, 'recommendations');
+        $recommendations = $method->invoke(app(LearnerProgressService::class), $user, [
+            ['id' => $firstTopic->id, 'name' => 'Articles', 'mastery_state' => 'needs_practice', 'mastery_percentage' => 50.0],
+            ['id' => $secondTopic->id, 'name' => 'Prepositions', 'mastery_state' => 'needs_practice', 'mastery_percentage' => 55.0],
+            ['id' => $thirdTopic->id, 'name' => 'Conditionals', 'mastery_state' => 'needs_practice', 'mastery_percentage' => 60.0],
+        ], []);
+        $queries = count($connection->getQueryLog());
+        $connection->flushQueryLog();
+        if (getenv('PERFORMANCE_PROFILE_OUTPUT') === '1') {
+            fwrite(STDOUT, 'RECOMMENDATION_QUERY_COUNT '.$queries.PHP_EOL);
+        }
+
+        $this->assertSame([
+            $recommendedResource->translated('title'),
+            $secondTopicResource->translated('title'),
+            $thirdTopicResource->translated('title'),
+        ], array_column($recommendations, 'title'));
+        $this->assertLessThanOrEqual(7, $queries, 'Topic recommendation queries should remain batched across three weak topics.');
     }
 
     public function test_lesson_completion_without_scored_evidence_does_not_create_mastery(): void
@@ -179,13 +234,34 @@ class LearnerProgressTest extends TestCase
         ]);
         $lesson->approveEditorialReview(User::factory()->create(['role' => 'admin']));
         $lesson->update(['status' => 'published']);
+        for ($index = 2; $index <= 10; $index++) {
+            $additionalLesson = LearningLesson::query()->create([
+                'learning_unit_id' => $unit->id, 'title' => 'Lesson '.$index, 'slug' => 'lesson-'.$index,
+                'status' => 'draft', 'published_at' => now(), 'sort_order' => $index,
+            ]);
+            LessonActivity::query()->create([
+                'learning_lesson_id' => $additionalLesson->id, 'type' => 'resource', 'resource_id' => $resource->id,
+                'title' => 'Read', 'sort_order' => 1, 'is_required' => true,
+            ]);
+            $additionalLesson->approveEditorialReview(User::factory()->create(['role' => 'admin']));
+            $additionalLesson->update(['status' => 'published']);
+        }
         $path->update(['status' => 'published', 'published_at' => now()]);
         LearningPathEnrollment::query()->create([
             'learning_path_id' => $path->id, 'user_id' => $user->id, 'status' => 'active', 'activated_at' => now(),
         ]);
 
+        $connection = DB::connection();
+        $connection->enableQueryLog();
         $profile = app(LearnerProgressService::class)->summary($user);
+        $queries = count($connection->getQueryLog());
+        $connection->flushQueryLog();
+        if (getenv('PERFORMANCE_PROFILE_OUTPUT') === '1') {
+            fwrite(STDOUT, 'LEARNING_PATH_QUERY_COUNT '.$queries.PHP_EOL);
+        }
+        $this->assertLessThanOrEqual(40, $queries, 'Learning-path availability checks should eager load question and activity relations for all lessons.');
         $this->assertCount(1, $profile['learning_paths']);
+        $this->assertSame(10, $profile['learning_paths'][0]['available_lessons']);
         $this->assertSame(0, $profile['learning_paths'][0]['completed_lessons']);
         $this->assertSame('First lesson', $profile['learning_paths'][0]['next_lesson']['title']);
         $this->assertSame(['Use greetings'], $profile['learning_paths'][0]['next_lesson']['objectives']);
