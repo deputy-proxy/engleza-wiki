@@ -1,4 +1,4 @@
-<x-layout :title="$category->translated('name').' – engleza.wiki'">
+<x-layout :robots-index="$robotsIndex" :title="$category->translated('name').' – engleza.wiki'" :description="$category->translated('description') ?: 'Explorează resurse de învățare a limbii engleze din această categorie.'">
 <section class="mx-auto max-w-7xl px-6 py-12">
   <h1 class="text-4xl font-extrabold text-navy-900" data-testid="category-title">{{ $category->translated('name') }}</h1>
   <p class="mt-2 text-navy-600">{{ $category->translated('description') }}</p>

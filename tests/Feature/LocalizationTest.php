@@ -2,7 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\Category;
 use App\Models\ContentTranslation;
+use App\Models\LearningLesson;
 use App\Models\Resource;
 use App\Models\Test as EnglishTest;
 use App\Models\User;
@@ -185,17 +187,143 @@ class LocalizationTest extends TestCase
             ->assertDontSee(route('resources.show', $resource), false);
     }
 
-    public function test_sitemap_lists_public_content_without_admin_routes(): void
+    public function test_sitemap_lists_only_approved_public_content_and_non_empty_categories(): void
     {
+        $reviewer = User::query()->where('role', 'admin')->firstOrFail();
         $resource = Resource::query()->where('status', 'published')->firstOrFail();
         $test = EnglishTest::query()->where('status', 'published')->where('is_public', true)->firstOrFail();
+        $category = Category::query()->create(['name' => 'Indexable test category', 'slug' => 'indexable-test-category', 'is_active' => true]);
+        $emptyCategory = Category::query()->create(['name' => 'Empty test category', 'slug' => 'empty-test-category', 'is_active' => true]);
+
+        $resource->categories()->attach($category);
+        $resource->approveEditorialReview($reviewer);
+        $test->approveEditorialReview($reviewer);
 
         $this->get(route('sitemap'))
             ->assertOk()
             ->assertHeader('Content-Type', 'application/xml; charset=UTF-8')
             ->assertSee(route('resources.show', $resource), false)
             ->assertSee(route('tests.show', $test), false)
+            ->assertSee(route('categories.show', $category), false)
+            ->assertDontSee(route('categories.show', $emptyCategory), false)
             ->assertDontSee('/admin');
+    }
+
+    public function test_grandfathered_demo_resources_are_noindex_and_excluded_from_the_sitemap(): void
+    {
+        $resource = Resource::query()->where('status', 'published')->firstOrFail();
+        $resource->forceFill(['editorial_status' => 'grandfathered'])->saveQuietly();
+
+        $this->get(route('resources.show', $resource))
+            ->assertOk()
+            ->assertSee('name="robots" content="noindex,nofollow"', false);
+
+        $this->get(route('sitemap'))
+            ->assertOk()
+            ->assertDontSee(route('resources.show', $resource), false);
+    }
+
+    public function test_canonical_urls_use_app_url_and_drop_tracking_parameters(): void
+    {
+        config(['app.url' => 'https://engleza.wiki']);
+
+        $this->get('https://engleza.wiki/resources?utm_source=campaign')
+            ->assertOk()
+            ->assertSee('<link rel="canonical" href="https://engleza.wiki/resources">', false)
+            ->assertSee('hreflang="ro-RO"', false)
+            ->assertDontSee('x-default', false);
+    }
+
+    public function test_non_canonical_host_redirects_to_app_url_and_preserves_query_string(): void
+    {
+        config(['app.url' => 'https://engleza.wiki']);
+
+        $this->get('https://www.engleza.wiki/resources?utm_source=campaign')
+            ->assertRedirect('https://engleza.wiki/resources?utm_source=campaign');
+    }
+
+    public function test_filtered_resource_listings_are_noindex_and_canonicalize_to_the_clean_path(): void
+    {
+        $this->get(route('resources.index', ['type' => 'article']))
+            ->assertOk()
+            ->assertSee('name="robots" content="noindex,nofollow"', false)
+            ->assertSee('<link rel="canonical" href="'.route('resources.index').'">', false);
+    }
+
+    public function test_approved_resource_emits_learning_resource_and_visible_breadcrumb_schema(): void
+    {
+        $reviewer = User::query()->where('role', 'admin')->firstOrFail();
+        $resource = Resource::query()->where('status', 'published')->firstOrFail();
+        $resource->approveEditorialReview($reviewer);
+
+        $response = $this->get(route('resources.show', $resource))
+            ->assertOk()
+            ->assertSee('application/ld+json', false)
+            ->assertSee('"@type":"LearningResource"', false)
+            ->assertSee('"@type":"BreadcrumbList"', false)
+            ->assertSee('"inLanguage":"ro-RO"', false);
+
+        preg_match_all('/<script type="application\\/ld\\+json">(.*?)<\\/script>/s', $response->getContent(), $matches);
+        $this->assertCount(1, $matches[1]);
+
+        $schemas = json_decode($matches[1][0], true, 512, JSON_THROW_ON_ERROR);
+        $this->assertSame(['WebSite', 'LearningResource', 'BreadcrumbList'], array_column($schemas, '@type'));
+        $this->assertArrayNotHasKey('aggregateRating', $schemas[1]);
+        $this->assertArrayNotHasKey('review', $schemas[1]);
+        $this->assertArrayNotHasKey('FAQPage', $schemas[1]);
+    }
+
+    public function test_external_resource_canonical_is_noindex_and_not_in_the_sitemap(): void
+    {
+        $reviewer = User::query()->where('role', 'admin')->firstOrFail();
+        $resource = Resource::query()->where('status', 'published')->firstOrFail();
+        $resource->update(['canonical_url' => 'https://example.org/english-resource']);
+        $resource->approveEditorialReview($reviewer);
+
+        $this->get(route('resources.show', $resource))
+            ->assertOk()
+            ->assertSee('name="robots" content="noindex,nofollow"', false)
+            ->assertSee('<link rel="canonical" href="https://example.org/english-resource">', false)
+            ->assertDontSee('hreflang=', false)
+            ->assertDontSee('"@type":"LearningResource"', false);
+
+        $this->get(route('sitemap'))
+            ->assertOk()
+            ->assertDontSee('https://example.org/english-resource', false);
+    }
+
+    public function test_public_listing_pages_with_unapproved_demo_content_are_noindex(): void
+    {
+        Resource::query()->where('status', 'published')->update(['editorial_status' => 'grandfathered']);
+        EnglishTest::query()->where('status', 'published')->where('is_public', true)->update(['editorial_status' => 'grandfathered']);
+        LearningLesson::query()->where('status', 'published')->update(['editorial_status' => 'grandfathered']);
+
+        foreach (['resources.index', 'tests.index', 'learning.paths.index'] as $routeName) {
+            $this->get(route($routeName))
+                ->assertOk()
+                ->assertSee('name="robots" content="noindex,nofollow"', false);
+        }
+    }
+
+    public function test_robots_and_rewrite_rules_protect_private_paths_without_blocking_assets(): void
+    {
+        $robots = file_get_contents(public_path('robots.txt'));
+        $rootHtaccess = file_get_contents(base_path('.htaccess'));
+
+        $this->assertIsString($robots);
+        $this->assertStringContainsString('Disallow: /admin', $robots);
+        $this->assertStringContainsString('Disallow: /dashboard', $robots);
+        $this->assertStringContainsString('Sitemap: https://engleza.wiki/sitemap.xml', $robots);
+        $this->assertStringNotContainsString('Disallow: /build', $robots);
+        $this->assertStringNotContainsString('Disallow: /storage', $robots);
+
+        $this->assertIsString($rootHtaccess);
+        $this->assertStringContainsString('RewriteCond %{HTTP_HOST} ^www\\.engleza\\.wiki', $rootHtaccess);
+        $this->assertStringContainsString('RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} !-d', $rootHtaccess);
+        $this->assertLessThan(
+            strpos($rootHtaccess, 'RewriteRule ^(.*)$ public/$1 [L]'),
+            strpos($rootHtaccess, 'RewriteRule ^(.+)/$ /$1 [R=301,L]'),
+        );
     }
 
     public function test_validation_messages_are_in_romanian(): void

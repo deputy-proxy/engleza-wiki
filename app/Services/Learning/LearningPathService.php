@@ -179,6 +179,25 @@ class LearningPathService
         return true;
     }
 
+    public function isLessonIndexable(LearningLesson $lesson): bool
+    {
+        if ($lesson->editorial_status !== 'approved' || ! $this->isLessonAvailable($lesson)) {
+            return false;
+        }
+
+        foreach ($lesson->activities as $activity) {
+            if ($activity->type === 'resource' && $activity->resource?->editorial_status !== 'approved') {
+                return false;
+            }
+
+            if ($activity->type === 'test' && $activity->test?->editorial_status !== 'approved') {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     private function hasValidQuestionsForActivity(LessonActivity $activity): bool
     {
         if ($activity->type === 'resource') {

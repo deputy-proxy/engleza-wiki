@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\HasTranslations;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Category extends Model
 {
@@ -23,7 +24,8 @@ class Category extends Model
         return $this->hasMany(Category::class, 'parent_id');
     }
 
-    public function resources()
+    /** @return BelongsToMany<\App\Models\Resource, $this> */
+    public function resources(): BelongsToMany
     {
         return $this->belongsToMany(Resource::class);
     }

@@ -1,4 +1,4 @@
-<x-layout :title="__('Create a class').' — engleza.wiki'">
+<x-layout :robots-index="false" :title="__('Create a class').' — engleza.wiki'">
 <section class="mx-auto max-w-2xl px-6 py-12">
   <a href="{{ route('teaching.index') }}" class="text-sm text-brand-700 underline">{{ __('Teaching dashboard') }}</a>
   <h1 class="mt-4 text-3xl font-extrabold text-navy-900">{{ __('Create a class') }}</h1>

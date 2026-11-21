@@ -5,11 +5,70 @@
     $metaDescription = $resource?->translated('seo_description') ?: $description;
     $ogTitle = $resource?->translated('og_title') ?: $metaTitle;
     $ogDescription = $resource?->translated('og_description') ?: $metaDescription;
-    $canonicalUrl = $resource?->canonical_url ?: url()->current();
+    $canonicalBase = rtrim((string) config('app.url'), '/');
+    $canonicalPath = request()->getPathInfo();
+    $canonicalPath = $canonicalPath === '/' ? '' : '/'.trim($canonicalPath, '/');
+    $resourceCanonicalHost = $resource?->canonical_url ? parse_url($resource->canonical_url, PHP_URL_HOST) : null;
+    $canonicalHost = parse_url($canonicalBase, PHP_URL_HOST);
+    $resourceCanonicalIsLocal = $resource === null || blank($resource->canonical_url) || ($resourceCanonicalHost && is_string($canonicalHost)
+        && (strcasecmp($resourceCanonicalHost, $canonicalHost) === 0 || strcasecmp($resourceCanonicalHost, 'www.'.$canonicalHost) === 0));
+    if ($resource?->canonical_url && $resourceCanonicalIsLocal) {
+        $resourceCanonicalPath = parse_url($resource->canonical_url, PHP_URL_PATH) ?: '/';
+        $canonicalUrl = $canonicalBase.($resourceCanonicalPath === '/' ? '' : '/'.trim($resourceCanonicalPath, '/'));
+    } else {
+        $canonicalUrl = $resource?->canonical_url ?: $canonicalBase.$canonicalPath;
+    }
     $locale = app()->getLocale();
-    $hreflang = $locale === 'ro' ? 'ro-RO' : $locale;
+    $hreflang = $locale === 'ro' && $resourceCanonicalIsLocal ? 'ro-RO' : null;
     $ogLocale = $locale === 'ro' ? 'ro_RO' : 'en_US';
-    $shouldIndex = $robotsIndex ?? ($resource?->robots_index ?? true);
+    $resourceIsIndexable = $resource === null || ($resource->robots_index && $resource->editorial_status === 'approved' && $resourceCanonicalIsLocal);
+    $shouldIndex = $robotsIndex ?? $resourceIsIndexable;
+    $structuredData = null;
+    if ($shouldIndex) {
+        $websiteSchema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'WebSite',
+            'name' => 'engleza.wiki',
+            'url' => $canonicalBase,
+            'inLanguage' => 'ro-RO',
+        ];
+        $structuredData = [$websiteSchema];
+
+        if ($resource && $resourceIsIndexable) {
+            $learningResourceSchema = [
+                '@context' => 'https://schema.org',
+                '@type' => 'LearningResource',
+                'name' => $resource->translated('title'),
+                'description' => $metaDescription,
+                'url' => $canonicalUrl,
+                'inLanguage' => 'ro-RO',
+                'learningResourceType' => $resource->type,
+            ];
+            if ($resource->level) {
+                $learningResourceSchema['educationalLevel'] = $resource->level->translated('name');
+            }
+            if ($resource->skills->isNotEmpty()) {
+                $learningResourceSchema['teaches'] = $resource->skills->map(fn ($skill) => $skill->translated('name'))->values()->all();
+            }
+            if ($resource->published_at) {
+                $learningResourceSchema['datePublished'] = $resource->published_at->toAtomString();
+            }
+            if ($resource->updated_at) {
+                $learningResourceSchema['dateModified'] = $resource->updated_at->toAtomString();
+            }
+
+            $structuredData[] = $learningResourceSchema;
+            $structuredData[] = [
+                '@context' => 'https://schema.org',
+                '@type' => 'BreadcrumbList',
+                'itemListElement' => [
+                    ['@type' => 'ListItem', 'position' => 1, 'name' => __('Home'), 'item' => $canonicalBase],
+                    ['@type' => 'ListItem', 'position' => 2, 'name' => __('Resources'), 'item' => $canonicalBase.route('resources.index', [], false)],
+                    ['@type' => 'ListItem', 'position' => 3, 'name' => $resource->translated('title'), 'item' => $canonicalUrl],
+                ],
+            ];
+        }
+    }
     $rawCookiePreferences = request()->cookie('engleza_cookie_preferences');
     $cookiePreferences = is_string($rawCookiePreferences) ? json_decode($rawCookiePreferences, true) : null;
     $hasCookiePreferences = is_array($cookiePreferences)
@@ -26,14 +85,16 @@
 <meta name="description" content="{{ $metaDescription }}">
 <meta name="robots" content="{{ $shouldIndex ? 'index,follow' : 'noindex,nofollow' }}">
 <link rel="canonical" href="{{ $canonicalUrl }}">
-<link rel="alternate" hreflang="{{ $hreflang }}" href="{{ $canonicalUrl }}">
-<link rel="alternate" hreflang="x-default" href="{{ $canonicalUrl }}">
+@if($hreflang)<link rel="alternate" hreflang="{{ $hreflang }}" href="{{ $canonicalUrl }}">@endif
 <meta property="og:site_name" content="engleza.wiki">
 <meta property="og:locale" content="{{ $ogLocale }}">
 <meta property="og:title" content="{{ $ogTitle }}">
 <meta property="og:description" content="{{ $ogDescription }}">
 <meta property="og:type" content="website">
 <meta property="og:url" content="{{ $canonicalUrl }}">
+@if($structuredData)
+<script type="application/ld+json">{!! json_encode($structuredData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}</script>
+@endif
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="{{ $ogTitle }}">
 <meta name="twitter:description" content="{{ $ogDescription }}">
