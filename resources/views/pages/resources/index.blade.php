@@ -1,4 +1,4 @@
-<x-layout :title="__('Resources – engleza.wiki')">
+<x-layout :robots-index="$robotsIndex" :title="__('Resources – engleza.wiki')" description="Explorează resurse gratuite de gramatică, vocabular, ascultare, citire, scriere și vorbire în limba engleză.">
 <section class="mx-auto max-w-7xl px-6 py-12">
   <h1 class="text-4xl font-extrabold text-navy-900">{{ __('All resources') }}</h1>
   <p class="mt-2 text-navy-600">{{ __('Articles, cards, listening, reading, writing, speaking, worksheets and lesson plans.') }}</p>

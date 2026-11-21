@@ -26,12 +26,32 @@ class ResourceController extends Controller
         if ($r->filled('audience')) {
             $q->whereHas('audiences', fn ($x) => $x->where('slug', $r->audience));
         }
+        $indexablePage = (clone $q)->latest('published_at')->limit(12)->get();
+        $robotsIndex = $r->query() === [] && $indexablePage->isNotEmpty()
+            && $indexablePage->every(fn (Resource $resource): bool => $this->isIndexableResource($resource));
         $resources = $q->latest('published_at')->paginate(12)->withQueryString();
         $levels = Level::with('translations')->orderBy('sort_order')->get();
         $skills = Skill::with('translations')->orderBy('name')->get();
         $types = ['article' => 'Articles', 'grammar' => 'Grammar', 'vocabulary' => 'Vocabulary', 'worksheet' => 'Worksheets', 'lesson_plan' => 'Lesson Plans', 'activity' => 'Activities', 'guide' => 'Guides', 'exercise' => 'Exercises', 'card' => 'Cards', 'listening' => 'Listening', 'reading' => 'Reading', 'writing' => 'Writing', 'speaking' => 'Speaking'];
 
-        return view('pages.resources.index', compact('resources', 'levels', 'skills', 'types'));
+        return view('pages.resources.index', compact('resources', 'levels', 'skills', 'types', 'robotsIndex'));
+    }
+
+    private function isIndexableResource(Resource $resource): bool
+    {
+        if ($resource->editorial_status !== 'approved' || ! $resource->robots_index) {
+            return false;
+        }
+
+        if (blank($resource->canonical_url)) {
+            return true;
+        }
+
+        $canonicalHost = parse_url((string) config('app.url'), PHP_URL_HOST);
+        $resourceHost = parse_url($resource->canonical_url, PHP_URL_HOST);
+
+        return is_string($canonicalHost) && is_string($resourceHost)
+            && (strcasecmp($resourceHost, $canonicalHost) === 0 || strcasecmp($resourceHost, 'www.'.$canonicalHost) === 0);
     }
 
     public function show(Resource $resource, LearningPathService $learning, VocabularyReviewService $reviews)

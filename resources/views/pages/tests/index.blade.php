@@ -1,4 +1,4 @@
-<x-layout :title="__('Free English Tests – engleza.wiki')">
+<x-layout :robots-index="$robotsIndex" :title="__('Free English Tests – engleza.wiki')" description="Susține teste gratuite de nivel și exerciții de limba engleză aliniate la nivelurile CECR.">
 <section class="mx-auto max-w-7xl px-6 py-12">
   <h1 class="text-4xl md:text-5xl font-extrabold text-navy-900">{{ __('Free English Tests') }}</h1>
   <p class="mt-3 text-navy-600 max-w-2xl">{{ __('Take a free test to find your English level or practise a specific skill. No registration required.') }}</p>

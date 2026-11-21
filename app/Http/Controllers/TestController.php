@@ -15,8 +15,10 @@ class TestController extends Controller
     public function index()
     {
         $tests = Test::published()->where('is_public', true)->with(['translations', 'level.translations', 'skill.translations'])->latest('published_at')->get();
+        $robotsIndex = $tests->isNotEmpty()
+            && $tests->every(fn (Test $test): bool => $test->editorial_status === 'approved');
 
-        return view('pages.tests.index', compact('tests'));
+        return view('pages.tests.index', compact('tests', 'robotsIndex'));
     }
 
     public function show(Test $test)
@@ -26,7 +28,9 @@ class TestController extends Controller
         $test->loadCount('sections');
         $questionCount = $test->allQuestions()->count();
 
-        return view('pages.tests.show', compact('test', 'questionCount'));
+        $robotsIndex = $test->editorial_status === 'approved';
+
+        return view('pages.tests.show', compact('test', 'questionCount', 'robotsIndex'));
     }
 
     public function start(Test $test, Request $r, TestAttemptService $attempts)

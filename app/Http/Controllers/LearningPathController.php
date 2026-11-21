@@ -22,8 +22,11 @@ class LearningPathController extends Controller
     public function index(LearningPathService $learning): View
     {
         $paths = $learning->availablePaths();
+        $robotsIndex = $paths->isNotEmpty() && $paths->every(
+            fn (LearningPath $path): bool => $this->isPathIndexable($path, $learning),
+        );
 
-        return view('pages.learning.index', compact('paths'));
+        return view('pages.learning.index', compact('paths', 'robotsIndex'));
     }
 
     public function show(LearningPath $path, LearningPathService $learning): View
@@ -35,13 +38,26 @@ class LearningPathController extends Controller
         $availableLessonsByUnit = $path->units->mapWithKeys(fn ($unit): array => [
             $unit->id => $unit->lessons->filter(fn (LearningLesson $lesson): bool => $learning->isLessonAvailable($lesson)),
         ]);
+        $visibleLessons = $availableLessonsByUnit->flatten();
+        $robotsIndex = $visibleLessons->isNotEmpty()
+            && $visibleLessons->every(fn (LearningLesson $lesson): bool => $learning->isLessonIndexable($lesson));
         $progress = auth()->check()
             ? LessonProgress::query()->where('user_id', auth()->id())
                 ->whereIn('learning_lesson_id', $path->units->flatMap(fn ($unit) => $unit->lessons->pluck('id')))
                 ->get()->keyBy('learning_lesson_id')
             : collect();
 
-        return view('pages.learning.show', compact('path', 'enrollment', 'progress', 'availableLessonsByUnit'));
+        return view('pages.learning.show', compact('path', 'enrollment', 'progress', 'availableLessonsByUnit', 'robotsIndex'));
+    }
+
+    private function isPathIndexable(LearningPath $path, LearningPathService $learning): bool
+    {
+        $availableLessons = $path->units
+            ->where('is_published', true)
+            ->flatMap(fn ($unit) => $unit->lessons->filter(fn (LearningLesson $lesson): bool => $learning->isLessonAvailable($lesson)));
+
+        return $availableLessons->isNotEmpty()
+            && $availableLessons->every(fn (LearningLesson $lesson): bool => $learning->isLessonIndexable($lesson));
     }
 
     public function enroll(LearningPath $path, LearningPathService $learning): RedirectResponse
