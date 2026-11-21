@@ -1,6 +1,6 @@
 <x-layout :resource="$resource" :title="$resource->translated('seo_title') ?: $resource->translated('title').' – engleza.wiki'" :description="$resource->translated('seo_description') ?: $resource->translated('excerpt')">
 <article class="mx-auto max-w-3xl px-6 py-12">
-  <nav class="text-sm text-navy-500 flex items-center gap-2" data-testid="breadcrumb">
+  <nav aria-label="{{ __('Breadcrumb') }}" class="text-sm text-navy-500 flex items-center gap-2" data-testid="breadcrumb">
     <a href="{{ route('home') }}" class="hover:text-brand-600">{{ __('Home') }}</a><span>/</span>
     <a href="{{ route('resources.index') }}" class="hover:text-brand-600">{{ __('Resources') }}</a><span>/</span>
     <span class="text-navy-900">{{ $resource->translated('title') }}</span>
@@ -19,9 +19,9 @@
   <div class="mt-8 card p-6" data-testid="listening-player">
     @if($lr?->media_path)
       @if(str_starts_with((string)$lr->mime_type,'video/') || $lr->media_type==='video')
-        <video controls preload="metadata" class="w-full rounded-xl" data-testid="listening-video"><source src="{{ $lr->mediaUrl() }}" type="{{ $lr->mime_type ?? 'video/mp4' }}"></video>
+        <video controls preload="metadata" aria-label="{{ __('Listening video: :title', ['title' => $resource->translated('title')]) }}" class="w-full rounded-xl" data-testid="listening-video"><source src="{{ $lr->mediaUrl() }}" type="{{ $lr->mime_type ?? 'video/mp4' }}"></video>
       @else
-        <audio controls preload="metadata" class="w-full" data-testid="listening-audio"><source src="{{ $lr->mediaUrl() }}" type="{{ $lr->mime_type ?? 'audio/mpeg' }}"></audio>
+        <audio controls preload="metadata" aria-label="{{ __('Listening audio: :title', ['title' => $resource->translated('title')]) }}" class="w-full" data-testid="listening-audio"><source src="{{ $lr->mediaUrl() }}" type="{{ $lr->mime_type ?? 'audio/mpeg' }}"></audio>
       @endif
       <div class="mt-3 text-xs text-navy-500">{{ $lr->original_filename }} · {{ $lr->file_size ? \Illuminate\Support\Number::format($lr->file_size / 1024, 0).' KB' : '' }}</div>
     @else

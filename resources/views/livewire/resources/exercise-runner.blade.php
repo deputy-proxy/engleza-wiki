@@ -9,7 +9,7 @@
           <div class="text-sm text-brand-600 font-semibold">{{ __('Question') }} {{ $i + 1 }}</div>
           <h3 class="mt-2 text-lg font-bold text-navy-900" data-testid="ex-question-{{ $q['id'] }}">{{ $q['text'] }}</h3>
           @if(in_array($q['type'], ['single_choice', 'true_false'], true))
-            <div class="mt-4 space-y-2">
+            <div class="mt-4 space-y-2" role="group" aria-label="{{ __('Answer options') }}">
               @foreach($q['options'] as $opt)
                 @php $selected = (int) ($answers[$q['id']] ?? 0) === (int) $opt['id']; @endphp
                 <button type="button" wire:click="pick({{ $q['id'] }}, {{ $opt['id'] }})" aria-pressed="{{ $selected ? 'true' : 'false' }}"
@@ -21,7 +21,7 @@
               @endforeach
             </div>
           @elseif($q['type'] === 'multiple_choice')
-            <div class="mt-4 space-y-2">
+            <div class="mt-4 space-y-2" role="group" aria-label="{{ __('Answer options') }}">
               @foreach($q['options'] as $opt)
                 @php $selected = in_array((int) $opt['id'], array_map('intval', (array) ($answers[$q['id']] ?? [])), true); @endphp
                 <button type="button" wire:click="toggleOption({{ $q['id'] }}, {{ $opt['id'] }})" aria-pressed="{{ $selected ? 'true' : 'false' }}"
@@ -84,7 +84,7 @@
       @endforeach
     </div>
     <div class="mt-6 flex justify-end">
-      <button wire:click="submit" wire:loading.attr="disabled" class="btn-primary bg-emerald-600 hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500" data-testid="exercise-submit">{{ __('Submit answers') }}</button>
+      <button wire:click="submit" wire:loading.attr="disabled" class="btn-primary bg-emerald-700 hover:bg-emerald-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500" data-testid="exercise-submit">{{ __('Submit answers') }}</button>
     </div>
   @else
     <div class="card p-8 text-center bg-emerald-50 border-emerald-200" data-testid="exercise-result" role="status" aria-live="polite">

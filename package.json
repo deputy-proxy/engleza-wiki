@@ -12,6 +12,7 @@
         "playwright:install:ci": "playwright install --with-deps chromium"
     },
     "devDependencies": {
+        "@axe-core/playwright": "^4.14.0",
         "@playwright/test": "^1.65.1",
         "@tailwindcss/vite": "^4.0.0",
         "concurrently": "^10.0.3",

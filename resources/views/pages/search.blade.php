@@ -1,9 +1,9 @@
 <x-layout :robots-index="false" :title="__('Search – engleza.wiki')">
 <section class="mx-auto max-w-7xl px-6 py-12">
   <h1 class="text-4xl font-extrabold text-navy-900">{{ __('Search') }}</h1>
-  <form method="GET" class="mt-6 flex gap-2 max-w-2xl">
-    <input name="q" value="{{ $term }}" placeholder="{{ __('Search...') }}" class="flex-1 rounded-full border border-navy-200 px-5 py-3 text-sm" data-testid="search-input">
-    <button class="btn-primary" data-testid="search-submit">{{ __('Search') }}</button>
+  <form role="search" aria-label="{{ __('Search resources and tests') }}" method="GET" class="mt-6 flex gap-2 max-w-2xl">
+    <label for="search-query" class="sr-only">{{ __('Search resources and tests') }}</label><input id="search-query" type="search" name="q" value="{{ $term }}" placeholder="{{ __('Search...') }}" class="flex-1 rounded-full border border-navy-200 px-5 py-3 text-sm" data-testid="search-input">
+    <button type="submit" class="btn-primary" data-testid="search-submit">{{ __('Search') }}</button>
   </form>
   @if($term)
     <p class="mt-6 text-navy-600" data-testid="search-summary">{{ __('Showing results for ') }}<strong>"{{ $term }}"</strong>.</p>

@@ -10,8 +10,10 @@ use App\Models\LearningUnit;
 use App\Models\LessonActivity;
 use App\Models\Resource;
 use App\Models\Test as Assessment;
+use App\Models\TestAttempt;
 use App\Models\User;
 use App\Services\Learning\ClassGroupService;
+use App\Services\Test\TestAttemptService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
@@ -38,6 +40,24 @@ class BrowserTestSeeder extends Seeder
         $teacher = User::query()->where('email', 'teacher@engleza.wiki')->firstOrFail();
         $learner = User::query()->where('email', 'learner@engleza.wiki')->firstOrFail();
         $writingResource = Resource::query()->where('type', 'writing')->where('status', 'published')->firstOrFail();
+
+        $assessment = Assessment::query()->where('slug', 'vocabulary-test-everyday-english')->firstOrFail();
+        $completedAssessment = TestAttempt::query()
+            ->where('test_id', $assessment->id)
+            ->where('user_id', $learner->id)
+            ->where('status', 'completed')
+            ->latest('id')
+            ->first();
+        if (! $completedAssessment) {
+            $attempts = app(TestAttemptService::class);
+            $attempt = $attempts->start($assessment, [
+                'user_id' => $learner->id,
+                'session_id' => null,
+                'started_at' => now(),
+                'status' => 'started',
+            ]);
+            $attempts->complete($attempt, $learner->id, null);
+        }
         $group = ClassGroup::query()->firstOrCreate(
             ['join_code' => 'E2E26A'],
             ['name' => 'Browser E2E Writing Class', 'teacher_id' => $teacher->id, 'is_active' => true],

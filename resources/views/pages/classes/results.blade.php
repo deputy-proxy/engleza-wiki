@@ -24,7 +24,7 @@
       @foreach($levels->sortKeys() as $lvl => $count)
         <div>
           <div class="mb-1 flex justify-between text-sm"><span class="font-semibold text-navy-900">{{ $lvl ?? '—' }}</span><span class="text-navy-600">{{ $count }} {{ __('learner(s)') }}</span></div>
-          <div class="h-2 overflow-hidden rounded-full bg-navy-100"><div class="h-full bg-brand-500" style="width: {{ round(($count/$completed->count())*100) }}%"></div></div>
+          <div class="h-2 overflow-hidden rounded-full bg-navy-100" role="progressbar" aria-label="{{ __('Level distribution') }}: {{ $lvl }}" aria-valuemin="0" aria-valuemax="{{ $completed->count() }}" aria-valuenow="{{ $count }}"><div class="h-full bg-brand-500" style="width: {{ round(($count/$completed->count())*100) }}%"></div></div>
         </div>
       @endforeach
     </div>

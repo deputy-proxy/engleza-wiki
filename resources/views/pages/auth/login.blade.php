@@ -5,11 +5,11 @@
   <form method="POST" action="{{ route('login') }}" class="mt-8 space-y-4 card p-6">
     @csrf
     @if (session('status'))<p class="text-sm text-emerald-700" role="status">{{ session('status') }}</p>@endif
-    <div><label class="block text-sm font-semibold text-navy-700">{{ __('Email') }}</label><input type="email" name="email" required class="mt-1 w-full rounded-xl border border-navy-200 px-4 py-3 text-sm" data-testid="login-email"></div>
-    <div><label class="block text-sm font-semibold text-navy-700">{{ __('Password') }}</label><input type="password" name="password" required class="mt-1 w-full rounded-xl border border-navy-200 px-4 py-3 text-sm" data-testid="login-password"></div>
+    <div><label for="login-email" class="block text-sm font-semibold text-navy-700">{{ __('Email') }}</label><input id="login-email" type="email" name="email" autocomplete="username" required aria-invalid="{{ $errors->has('email') ? 'true' : 'false' }}" @if($errors->has('email'))aria-describedby="login-email-error"@endif class="mt-1 w-full rounded-xl border border-navy-200 px-4 py-3 text-sm" data-testid="login-email"></div>
+    <div><label for="login-password" class="block text-sm font-semibold text-navy-700">{{ __('Password') }}</label><input id="login-password" type="password" name="password" autocomplete="current-password" required class="mt-1 w-full rounded-xl border border-navy-200 px-4 py-3 text-sm" data-testid="login-password"></div>
     <div class="flex items-center justify-between text-sm"><label class="flex items-center gap-2"><input type="checkbox" name="remember" value="1" class="rounded border-navy-300">{{ __('Remember me') }}</label><a href="{{ route('password.request') }}" class="font-semibold text-brand-600">{{ __('Forgot password?') }}</a></div>
-    @error('email')<div class="text-sm text-rose-600" data-testid="login-error">{{ $message }}</div>@enderror
-    <button class="btn-primary w-full" data-testid="login-submit">{{ __(__('Log in')) }}</button>
+    @error('email')<div id="login-email-error" class="text-sm text-rose-700" role="alert" data-testid="login-error">{{ $message }}</div>@enderror
+    <button type="submit" class="btn-primary w-full" data-testid="login-submit">{{ __(__('Log in')) }}</button>
     <p class="text-center text-sm text-navy-600">{{ __('No account? ') }}<a href="{{ route('register') }}" class="font-semibold text-brand-600">{{ __(__('Sign up')) }}</a></p>
   </form>
 </section>
