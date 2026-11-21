@@ -6,11 +6,18 @@
     RewriteRule ^ https://engleza.wiki%{REQUEST_URI} [R=301,L,NE]
 
     # Normalize application URLs before rewriting into the public directory.
+    # Do not use the corresponding public/ path in this directory check: an
+    # application route can share its name with a directory under public/.
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} !-d
     RewriteRule ^(.+)/$ /$1 [R=301,L]
 
-    # Direct traffic to the public directory
+    # Serve existing public files directly. Application routes must go through
+    # Laravel's front controller, even if a same-named public/ directory exists.
     RewriteCond %{REQUEST_URI} !^/public/
+    RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -f
     RewriteRule ^(.*)$ public/$1 [L]
+
+    # Direct all remaining requests to Laravel without exposing /public/ URLs.
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^ public/index.php [L]
 </IfModule>
