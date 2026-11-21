@@ -1,4 +1,4 @@
-<x-layout :title="$lesson->translated('title').' · '.$lesson->unit->path->translated('title')" :description="$lesson->translated('description')">
+<x-layout :robots-index="false" :title="$lesson->translated('title').' · '.$lesson->unit->path->translated('title')" :description="$lesson->translated('description')">
 <section class="mx-auto max-w-4xl px-6 py-12">
   <a href="{{ route('learning.paths.show', $lesson->unit->path) }}" class="text-sm font-semibold text-brand-600 hover:underline">← {{ $lesson->unit->path->translated('title') }}</a>
   <div class="mt-6 flex flex-wrap gap-2">
@@ -55,7 +55,7 @@
 
   <form method="POST" action="{{ route('learning.lessons.complete', $lesson) }}" class="mt-8 flex justify-end">
     @csrf
-    <button class="btn-primary bg-emerald-600 hover:bg-emerald-700">{{ __('Complete lesson') }}</button>
+    <button class="btn-primary bg-emerald-700 hover:bg-emerald-800">{{ __('Complete lesson') }}</button>
   </form>
 </section>
 </x-layout>

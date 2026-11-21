@@ -1,4 +1,4 @@
-<x-layout :title="$test->translated('title').' – engleza.wiki'">
+<x-layout :robots-index="$robotsIndex" :title="$test->translated('title').' – engleza.wiki'" :description="$test->translated('description')">
 <section class="mx-auto max-w-3xl px-6 py-12">
   <div class="flex gap-2">
     @if($test->level)<span class="chip">{{ $test->level->translated('name') }}</span>@endif

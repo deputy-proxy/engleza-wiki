@@ -18,7 +18,7 @@ export default defineConfig({
     },
     projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
     webServer: {
-        command: `APP_ENV=local APP_URL=${baseURL} CACHE_STORE=array SESSION_DRIVER=database MAIL_MAILER=log php artisan serve --host=127.0.0.1 --port=8000`,
+        command: `APP_ENV=local APP_URL=${baseURL} ASSET_URL=${baseURL} CACHE_STORE=array SESSION_DRIVER=database MAIL_MAILER=log php artisan serve --host=127.0.0.1 --port=8000`,
         url: baseURL,
         reuseExistingServer: false,
         timeout: 120_000,

@@ -1,4 +1,4 @@
-<x-layout :title="__('Teaching dashboard').' — engleza.wiki'">
+<x-layout :robots-index="false" :title="__('Teaching dashboard').' — engleza.wiki'">
 <section class="mx-auto max-w-6xl px-6 py-12">
   <div class="flex flex-wrap items-center justify-between gap-4">
     <div><p class="text-xs font-semibold uppercase tracking-widest text-brand-600">{{ __('Teacher workspace') }}</p><h1 class="mt-2 text-3xl font-extrabold text-navy-900">{{ __('Your classes') }}</h1><p class="mt-2 text-navy-600">{{ __('Manage class access, assignments and learner progress in one place.') }}</p></div>

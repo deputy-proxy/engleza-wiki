@@ -1,4 +1,4 @@
-<x-layout :title="$path->translated('title').' · '.__('Learning path')" :description="$path->translated('description')">
+<x-layout :robots-index="$robotsIndex" :title="$path->translated('title').' · '.__('Learning path')" :description="$path->translated('description')">
 <section class="mx-auto max-w-5xl px-6 py-12">
   <a href="{{ route('learning.paths.index') }}" class="text-sm font-semibold text-brand-600 hover:underline">← {{ __('All learning paths') }}</a>
   <div class="mt-6 flex flex-wrap gap-2">

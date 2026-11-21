@@ -1,6 +1,6 @@
 <x-layout :resource="$resource" :title="$resource->translated('seo_title') ?: $resource->translated('title').' – engleza.wiki'" :description="$resource->translated('seo_description') ?: $resource->translated('excerpt')">
 <article class="mx-auto max-w-3xl px-6 py-12">
-  <nav class="text-sm text-navy-500 flex items-center gap-2" data-testid="breadcrumb">
+  <nav aria-label="{{ __('Breadcrumb') }}" class="text-sm text-navy-500 flex items-center gap-2" data-testid="breadcrumb">
     <a href="{{ route('home') }}" class="hover:text-brand-600">{{ __('Home') }}</a><span>/</span>
     <a href="{{ route('resources.index') }}" class="hover:text-brand-600">{{ __('Resources') }}</a><span>/</span>
     <span class="text-navy-900">{{ $resource->translated('title') }}</span>

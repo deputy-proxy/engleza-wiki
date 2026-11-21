@@ -1,6 +1,6 @@
 <x-layout :resource="$resource" :title="$resource->translated('seo_title') ?: $resource->translated('title').' – engleza.wiki'" :description="$resource->translated('seo_description') ?: $resource->translated('excerpt')">
 <article class="mx-auto max-w-4xl px-6 py-12">
-  <nav class="text-sm text-navy-500 flex items-center gap-2" data-testid="breadcrumb">
+  <nav aria-label="{{ __('Breadcrumb') }}" class="text-sm text-navy-500 flex items-center gap-2" data-testid="breadcrumb">
     <a href="{{ route('home') }}" class="hover:text-brand-600">{{ __('Home') }}</a><span>/</span>
     <a href="{{ route('resources.index') }}" class="hover:text-brand-600">{{ __('Resources') }}</a><span>/</span>
     <span class="text-navy-900">{{ $resource->translated('title') }}</span>
@@ -40,7 +40,7 @@
         <h3 class="font-bold text-navy-900">{{ __('Practice timer') }}</h3>
         <p class="mt-1 text-sm text-navy-600">{{ __('Use the timer as a guide. You can practise without it.') }}</p>
         <div class="mt-4 text-center">
-          <p class="text-4xl font-bold tabular-nums text-navy-900" aria-live="off" data-testid="speaking-timer" x-text="phase === 'ready' ? '—:—' : clock">—:—</p>
+          <p class="text-4xl font-bold tabular-nums text-navy-900" role="timer" aria-label="{{ __('Practice timer') }}" aria-live="off" data-testid="speaking-timer" x-text="phase === 'ready' ? '—:—' : clock">—:—</p>
           <p class="mt-1 text-sm text-navy-600" role="status" aria-live="polite" aria-atomic="true" data-testid="speaking-timer-status">
             <span x-show="phase === 'ready'">{{ __('Ready when you are') }}</span>
             <span x-show="phase === 'preparation'">{{ __('Prepare your ideas') }}</span>

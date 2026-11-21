@@ -1,4 +1,4 @@
-<x-layout title="{{ __('Learning paths · engleza.wiki') }}" description="{{ __('Structured English learning paths with lessons, exercises and assessments.') }}">
+<x-layout :robots-index="$robotsIndex" title="{{ __('Learning paths · engleza.wiki') }}" description="{{ __('Structured English learning paths with lessons, exercises and assessments.') }}">
 <section class="mx-auto max-w-6xl px-6 py-12">
   <p class="text-sm font-semibold uppercase tracking-widest text-brand-600">{{ __('Learn with a plan') }}</p>
   <h1 class="mt-3 text-4xl font-extrabold text-navy-900">{{ __('Learning paths') }}</h1>

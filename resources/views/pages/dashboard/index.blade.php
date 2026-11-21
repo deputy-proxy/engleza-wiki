@@ -133,7 +133,7 @@
               </div>
               <span class="text-sm font-semibold text-navy-700">{{ \Illuminate\Support\Number::format($path['percentage'], 0) }}%</span>
             </div>
-            <div class="mt-3 h-2 overflow-hidden rounded-full bg-navy-100"><div class="h-full rounded-full bg-brand-500" style="width: {{ $path['percentage'] }}%"></div></div>
+            <div class="mt-3 h-2 overflow-hidden rounded-full bg-navy-100" role="progressbar" aria-label="{{ __('Learning path progress') }}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ round($path['percentage']) }}"><div class="h-full rounded-full bg-brand-500" style="width: {{ $path['percentage'] }}%"></div></div>
             <p class="mt-2 text-xs text-navy-500">{{ $path['completed_lessons'] }} {{ __('of') }} {{ $path['available_lessons'] }} {{ __('lessons completed') }} · {{ __('Completion is activity, not mastery.') }}</p>
             @if($path['next_lesson'])
               <a href="{{ $path['next_lesson']['url'] }}" class="mt-4 inline-flex text-sm font-semibold text-brand-600">{{ __('Continue: ') }}{{ $path['next_lesson']['title'] }} →</a>
@@ -168,7 +168,7 @@
                 <span class="text-xs font-semibold text-navy-500">{{ __('Not enough evidence') }}</span>
               @endif
             </div>
-            <div class="mt-2 h-2 overflow-hidden rounded-full bg-navy-100">
+            <div class="mt-2 h-2 overflow-hidden rounded-full bg-navy-100" role="progressbar" aria-label="{{ __('Skill mastery progress') }}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ round($skill['mastery_percentage'] ?? 0) }}">
               <div class="h-full rounded-full bg-brand-500" style="width: {{ $skill['mastery_percentage'] ?? 0 }}%"></div>
             </div>
             <p class="mt-1 text-xs text-navy-500">{{ $skill['unique_questions'] }} {{ __('distinct questions') }} · {{ $skill['attempt_count'] }} {{ __('attempts') }} · {{ __('confidence.'.$skill['confidence']) }} {{ __('confidence') }}</p>
@@ -192,7 +192,7 @@
                 <span class="text-xs font-semibold text-navy-500">{{ __('Not enough evidence') }}</span>
               @endif
             </div>
-            <div class="mt-2 h-2 overflow-hidden rounded-full bg-navy-100">
+            <div class="mt-2 h-2 overflow-hidden rounded-full bg-navy-100" role="progressbar" aria-label="{{ __('Topic mastery progress') }}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ round($topic['mastery_percentage'] ?? 0) }}">
               <div class="h-full rounded-full bg-brand-500" style="width: {{ $topic['mastery_percentage'] ?? 0 }}%"></div>
             </div>
             <p class="mt-1 text-xs text-navy-500">{{ $topic['unique_questions'] }} {{ __('distinct questions') }} · {{ $topic['attempt_count'] }} {{ __('attempts') }} · {{ __('confidence.'.$topic['confidence']) }} {{ __('confidence') }}</p>

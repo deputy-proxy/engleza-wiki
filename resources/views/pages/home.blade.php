@@ -85,76 +85,19 @@
   </div>
 </section>
 
-<!-- Include script once per page for 3D card tilt -->
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const card = document.getElementById('interactive-3d-card');
-    if (!card) return;
-
-    function handleMove(e) {
+    if (!card || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const handleMove = (event) => {
       const rect = card.getBoundingClientRect();
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-      const x = clientX - rect.left;
-      const y = clientY - rect.top;
-
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-
-      // Max rotation angles (degrees)
-      const rotateX = ((y - centerY) / centerY) * -10;
-      const rotateY = ((x - centerX) / centerX) * 10;
-
-      card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-    }
-
-    function handleReset() {
-      card.style.transform = 'rotateX(0deg) rotateY(0deg)';
-    }
-
-    card.addEventListener('mousemove', handleMove);
-    card.addEventListener('mouseleave', handleReset);
-    card.addEventListener('touchmove', handleMove, { passive: true });
-    card.addEventListener('touchend', handleReset);
-  });
-</script>
-
-<!-- Lightweight Script for 3D Tilt Interaction -->
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const card = document.getElementById('interactive-3d-card');
-    if (!card) return;
-
-    function handleMove(e) {
-      const rect = card.getBoundingClientRect();
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-      const x = clientX - rect.left;
-      const y = clientY - rect.top;
-
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-
-      // Max rotation angles (degrees)
-      const rotateX = ((y - centerY) / centerY) * -12;
-      const rotateY = ((x - centerX) / centerX) * 12;
-
-      card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
-    }
-
-    function handleReset() {
-      card.style.transform = 'rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
-    }
-
-    // Mouse Events
-    card.addEventListener('mousemove', handleMove);
-    card.addEventListener('mouseleave', handleReset);
-
-    // Touch Events for Mobile
-    card.addEventListener('touchmove', handleMove, { passive: true });
-    card.addEventListener('touchend', handleReset);
+      const x = (event.clientX - rect.left - rect.width / 2) / (rect.width / 2);
+      const y = (event.clientY - rect.top - rect.height / 2) / (rect.height / 2);
+      card.style.transform = `rotateX(${-y * 8}deg) rotateY(${x * 8}deg)`;
+    };
+    const reset = () => { card.style.transform = ''; };
+    card.addEventListener('pointermove', handleMove);
+    card.addEventListener('pointerleave', reset);
   });
 </script>
 

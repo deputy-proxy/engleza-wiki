@@ -21,7 +21,7 @@
             <span class="font-semibold text-navy-900">{{ $topic['name'] }}</span>
             <span class="text-navy-600">{{ \Illuminate\Support\Number::format((float) $topic['percentage'], 1) }}% · {{ \Illuminate\Support\Number::format((float) $topic['earned_points'], 2) }} / {{ \Illuminate\Support\Number::format((float) $topic['total_points'], 2) }} {{ __('points') }}</span>
           </div>
-          <div class="h-2.5 w-full rounded-full bg-navy-100 overflow-hidden"><div class="h-full bg-brand-500" style="width: {{ $topic['percentage'] }}%"></div></div>
+          <div class="h-2.5 w-full rounded-full bg-navy-100 overflow-hidden" role="progressbar" aria-label="{{ __('Topic score') }}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ round($topic['percentage']) }}"><div class="h-full bg-brand-500" style="width: {{ $topic['percentage'] }}%"></div></div>
         </div>
       @endforeach
     </div>
