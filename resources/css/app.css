@@ -11,14 +11,14 @@
     --color-navy-100: #d9e4ff;
     --color-navy-200: #b6c9ff;
     --color-navy-300: #8ba7ff;
-    --color-navy-400: #5c7dff;
-    --color-navy-500: #3556f5;
+    --color-navy-400: #365fce;
+    --color-navy-500: #2949b5;
     --color-navy-600: #223cd1;
     --color-navy-700: #1a2ea3;
     --color-navy-800: #142578;
     --color-navy-900: #0f1e5c;
     --color-navy-950: #0a1440;
-    --color-brand-500: #2c7cff;
+    --color-brand-500: #1f5fbf;
     --color-brand-600: #1f6be6;
     --color-brand-700: #1a58bf;
 }
@@ -41,4 +41,31 @@
     .prose-content ol { @apply list-decimal pl-6 my-3 text-navy-700 space-y-1; }
     .prose-content code { @apply bg-navy-50 px-1.5 py-0.5 rounded text-navy-800 text-sm; }
     .prose-content strong { @apply font-semibold text-navy-900; }
+}
+
+
+@layer base {
+    :where(a, button, input, select, textarea, summary, [tabindex]:not([tabindex="-1"])):focus-visible {
+        outline: 3px solid #15489d;
+        outline-offset: 3px;
+        box-shadow: 0 0 0 2px #ffffff;
+    }
+
+    input[type="checkbox"], input[type="radio"] { width: 1.5rem; height: 1.5rem; accent-color: #15489d; }
+}
+
+@layer components {
+    .skip-link { position: absolute; z-index: 100; top: .75rem; left: .75rem; transform: translateY(-200%); border-radius: .75rem; background: #fff; padding: .75rem 1rem; color: #0f1e5c; font-weight: 700; box-shadow: 0 0 0 2px #15489d; }
+    .skip-link:focus { transform: translateY(0); }
+    .mobile-nav-link { display: flex; align-items: center; min-height: 2.75rem; border-radius: .75rem; padding: .75rem 1rem; color: #0f1e5c; }
+    .btn-primary, .btn-outline, .btn-ghost { min-height: 2.75rem; padding-block: .75rem; }
+    header nav a { display: inline-flex; align-items: center; min-height: 2.75rem; }
+    header a[data-testid="search-icon"] { display: inline-flex; align-items: center; justify-content: center; min-width: 2.75rem; min-height: 2.75rem; }
+    .mobile-nav-link:hover { background: #eef4ff; color: #15489d; }
+}
+
+[x-cloak] { display: none !important; }
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }

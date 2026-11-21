@@ -43,7 +43,8 @@
 @livewireStyles
 </head>
 <body class="min-h-screen bg-white text-navy-900" data-testid="app-body">
-<header class="border-b border-navy-100/70 bg-white/95 backdrop-blur sticky top-0 z-40">
+<a class="skip-link" href="#main-content">{{ __('Skip to main content') }}</a>
+<header x-data="{ mobileNavOpen: false }" class="border-b border-navy-100/70 bg-white/95 backdrop-blur sticky top-0 z-40">
   <div class="mx-auto max-w-7xl px-6 py-4 flex flex-wrap items-center justify-between gap-3 sm:flex-nowrap sm:gap-8">
     <a href="{{ route('home') }}" class="flex shrink-0 items-center gap-2" data-testid="brand-link">
       <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl">
@@ -204,7 +205,7 @@
       </span>
       <span class="text-xl font-bold tracking-tight text-navy-900">engleza<span class="text-brand-500">.wiki</span></span>
     </a>
-    <nav class="hidden lg:flex items-center gap-7 text-sm font-medium text-navy-700">
+    <nav class="hidden lg:flex items-center gap-7 text-sm font-medium text-navy-700" aria-label="{{ __('Primary navigation') }}">
       <a href="{{ route('home') }}" class="hover:text-brand-600" data-testid="nav-home">{{ __('Home') }}</a>
       <a href="{{ route('resources.index') }}" class="hover:text-brand-600" data-testid="nav-resources">{{ __('Resources') }}</a>
       <a href="{{ route('learning.paths.index') }}" class="hover:text-brand-600" data-testid="nav-learning">{{ __('Learning paths') }}</a>
@@ -214,23 +215,47 @@
       <a href="{{ route('about') }}" class="hover:text-brand-600" data-testid="nav-about">{{ __('About') }}</a>
     </nav>
     <div class="flex shrink-0 items-center gap-2 sm:gap-3">
+      <button type="button" class="inline-flex h-10 w-10 items-center justify-center rounded-xl text-navy-800 hover:bg-navy-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 lg:hidden" aria-controls="mobile-primary-navigation" x-bind:aria-expanded="mobileNavOpen.toString()" aria-label="{{ __('Toggle navigation') }}" x-on:click="mobileNavOpen = !mobileNavOpen">
+        <svg x-show="!mobileNavOpen" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        <svg x-show="mobileNavOpen" x-cloak xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
       <a href="{{ route('search') }}" class="p-2 text-navy-700 hover:text-brand-600" data-testid="search-icon" aria-label="{{ __('Search') }}">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
       </a>
       @auth
-        <a href="{{ route('dashboard') }}" class="btn-ghost hidden sm:inline-flex" data-testid="nav-dashboard">{{ __('Dashboard') }}</a>
-        <a href="{{ route('dashboard.learning') }}" class="btn-ghost whitespace-nowrap" data-testid="nav-my-learning">{{ __('My learning') }}</a>
-        @if(auth()->user()->isAdmin() || auth()->user()->role === 'teacher')<a href="{{ route('teaching.index') }}" class="btn-ghost hidden sm:inline-flex" data-testid="nav-teaching">{{ __('Teaching') }}</a>@endif
-        <form method="POST" action="{{ route('logout') }}" class="shrink-0">@csrf<button class="btn-outline whitespace-nowrap" data-testid="nav-logout">{{ __('Log out') }}</button></form>
+        <a href="{{ route('dashboard') }}" class="btn-ghost hidden lg:inline-flex" data-testid="nav-dashboard">{{ __('Dashboard') }}</a>
+        <a href="{{ route('dashboard.learning') }}" class="btn-ghost hidden lg:inline-flex whitespace-nowrap" data-testid="nav-my-learning">{{ __('My learning') }}</a>
+        @if(auth()->user()->isAdmin() || auth()->user()->role === 'teacher')<a href="{{ route('teaching.index') }}" class="btn-ghost hidden lg:inline-flex" data-testid="nav-teaching">{{ __('Teaching') }}</a>@endif
+        <form method="POST" action="{{ route('logout') }}" class="shrink-0">@csrf<button class="btn-outline hidden lg:inline-flex whitespace-nowrap" data-testid="nav-logout">{{ __('Log out') }}</button></form>
       @else
-        <a href="{{ route('login') }}" class="btn-ghost" data-testid="nav-login">{{ __('Log in') }}</a>
-        <a href="{{ route('tests.index') }}" class="btn-primary" data-testid="nav-cta-test">{{ __('Test your English') }}</a>
+        <a href="{{ route('login') }}" class="btn-ghost hidden lg:inline-flex" data-testid="nav-login">{{ __('Log in') }}</a>
+        <a href="{{ route('tests.index') }}" class="btn-primary hidden lg:inline-flex" data-testid="nav-cta-test">{{ __('Test your English') }}</a>
       @endauth
     </div>
   </div>
+  <nav id="mobile-primary-navigation" x-show="mobileNavOpen" x-cloak x-transition.origin.top class="border-t border-navy-100 bg-white px-6 py-4 lg:hidden" aria-label="{{ __('Mobile primary navigation') }}">
+    <div class="mx-auto flex max-w-7xl flex-col gap-1 text-sm font-medium">
+      <a href="{{ route('home') }}" class="mobile-nav-link">{{ __('Home') }}</a>
+      <a href="{{ route('resources.index') }}" class="mobile-nav-link">{{ __('Resources') }}</a>
+      <a href="{{ route('learning.paths.index') }}" class="mobile-nav-link">{{ __('Learning paths') }}</a>
+      <a href="{{ route('grammar') }}" class="mobile-nav-link">{{ __('Grammar') }}</a>
+      <a href="{{ route('vocabulary') }}" class="mobile-nav-link">{{ __('Vocabulary') }}</a>
+      <a href="{{ route('for-teachers') }}" class="mobile-nav-link">{{ __('For Teachers') }}</a>
+      <a href="{{ route('about') }}" class="mobile-nav-link">{{ __('About') }}</a>
+      @auth
+        <a href="{{ route('dashboard') }}" class="mobile-nav-link">{{ __('Dashboard') }}</a>
+        <a href="{{ route('dashboard.learning') }}" class="mobile-nav-link">{{ __('My learning') }}</a>
+        @if(auth()->user()->isAdmin() || auth()->user()->role === 'teacher')<a href="{{ route('teaching.index') }}" class="mobile-nav-link">{{ __('Teaching') }}</a>@endif
+        <form method="POST" action="{{ route('logout') }}" class="pt-2">@csrf<button type="submit" class="btn-outline w-full">{{ __('Log out') }}</button></form>
+      @else
+        <a href="{{ route('login') }}" class="mobile-nav-link">{{ __('Log in') }}</a>
+        <a href="{{ route('tests.index') }}" class="mobile-nav-link">{{ __('Test your English') }}</a>
+      @endauth
+    </div>
+  </nav>
 </header>
 
-<main data-testid="main-content">
+<main id="main-content" tabindex="-1" data-testid="main-content">
   {{ $slot }}
 </main>
 
@@ -243,7 +268,7 @@
       <span class="font-semibold text-navy-900">engleza.wiki</span>
     </div>
     <p class="text-sm text-navy-600">{{ __('Free resources for learners, teachers and curious minds.') }}</p>
-    <nav class="flex flex-wrap gap-4 text-sm text-navy-600" aria-label="Legal">
+    <nav class="flex flex-wrap gap-4 text-sm text-navy-600" aria-label="{{ __('Legal navigation') }}">
       <a class="hover:text-brand-600" href="{{ route('privacy.policy') }}">Confidențialitate</a>
       <a class="hover:text-brand-600" href="{{ route('privacy.terms') }}">Termeni</a>
       <a class="hover:text-brand-600" href="{{ route('privacy.cookies') }}">Cookie-uri</a>

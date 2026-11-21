@@ -55,7 +55,7 @@
 
   <form method="POST" action="{{ route('learning.lessons.complete', $lesson) }}" class="mt-8 flex justify-end">
     @csrf
-    <button class="btn-primary bg-emerald-600 hover:bg-emerald-700">{{ __('Complete lesson') }}</button>
+    <button class="btn-primary bg-emerald-700 hover:bg-emerald-800">{{ __('Complete lesson') }}</button>
   </form>
 </section>
 </x-layout>

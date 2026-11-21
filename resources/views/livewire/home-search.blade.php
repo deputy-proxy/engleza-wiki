@@ -7,22 +7,23 @@ $badges = [
 ];
 @endphp
 <div x-data="{ hasFocus: false }" @click.outside="hasFocus=false; $wire.close()" class="relative max-w-xl">
-  <form action="{{ route('search') }}" method="GET" class="flex gap-2 rounded-full bg-white p-2 shadow-[0_4px_30px_-8px_rgba(15,30,92,0.2)] ring-1 ring-navy-100" data-testid="live-search-form">
-    <label class="flex-1 flex items-center gap-3 px-4">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-navy-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-      <input name="q" wire:model.live.debounce.250ms="q" @focus="hasFocus=true; $wire.focus()"
+  <form role="search" aria-label="{{ __('Search resources and tests') }}" action="{{ route('search') }}" method="GET" class="flex gap-2 rounded-full bg-white p-2 shadow-[0_4px_30px_-8px_rgba(15,30,92,0.2)] ring-1 ring-navy-100" data-testid="live-search-form">
+    <label for="home-search-input" class="flex-1 flex items-center gap-3 px-4">
+      <span class="sr-only">{{ __('Search resources and tests') }}</span>
+      <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-navy-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      <input id="home-search-input" type="search" name="q" wire:model.live.debounce.250ms="q" @focus="hasFocus=true; $wire.focus()"
              placeholder="{{ __('Search lessons, grammar, vocabulary...') }}"
              autocomplete="off" spellcheck="false"
              class="w-full border-0 bg-transparent py-3 text-sm text-navy-900 focus:outline-none"
              data-testid="live-search-input">
     </label>
-    <button class="btn-primary" data-testid="live-search-submit">{{ __('Search') }}</button>
+    <button type="submit" class="btn-primary" data-testid="live-search-submit">{{ __('Search') }}</button>
   </form>
 
   <div x-show="hasFocus && $wire.open && ($wire.resources.length > 0 || $wire.tests.length > 0)" x-cloak
        x-transition
        class="absolute z-30 mt-2 w-full rounded-2xl bg-white ring-1 ring-navy-100 shadow-[0_20px_50px_-15px_rgba(15,30,92,0.25)] overflow-hidden"
-       data-testid="live-search-panel">
+       data-testid="live-search-panel" role="region" aria-label="{{ __('Search suggestions') }}" aria-live="polite">
     @if(count($tests))
       <div class="border-b border-navy-50">
         <div class="px-5 pt-4 pb-2 text-xs font-semibold uppercase tracking-widest text-brand-600">{{ __('Tests') }}</div>

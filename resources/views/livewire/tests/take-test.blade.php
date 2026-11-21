@@ -1,20 +1,21 @@
-<div x-data="{ endsAt: {{ $test->duration_minutes ? (($attempt->started_at?->timestamp ?? time()) + $test->duration_minutes * 60) * 1000 : 0 }}, now: Date.now(), get remaining(){ if(!this.endsAt) return null; let s=Math.max(0,Math.floor((this.endsAt-this.now)/1000)); return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0') } }"
-     x-init="setInterval(()=>{ now=Date.now(); if(endsAt && now>=endsAt){ $wire.submit() } },1000)">
+<div x-data="{ endsAt: {{ $test->duration_minutes ? (($attempt->started_at?->timestamp ?? time()) + $test->duration_minutes * 60) * 1000 : 0 }}, now: Date.now(), announcement: '', warned: [], get remaining(){ if(!this.endsAt) return null; let seconds=Math.max(0,Math.floor((this.endsAt-this.now)/1000)); return Math.floor(seconds/60) + ':' + String(seconds%60).padStart(2,'0') } }"
+     x-init="setInterval(()=>{ now=Date.now(); if(endsAt){ const seconds=Math.max(0,Math.floor((endsAt-now)/1000)); const warning = seconds === 0 ? 0 : (seconds <= 60 ? 60 : (seconds <= 300 ? 300 : null)); if(warning !== null && !warned.includes(warning)){ warned.push(warning); announcement = warning === 300 ? '{{ __('Five minutes remaining') }}' : (warning === 60 ? '{{ __('One minute remaining') }}' : '{{ __('Time is up. Submitting your answers.') }}'); } if(now>=endsAt){ $wire.submit() } } },1000)">
 @php $q = $questions[$currentIndex] ?? null; $total = count($questions); $answered = count($answers); @endphp
 
+<div class="sr-only" role="status" aria-live="assertive" aria-atomic="true" x-text="announcement"></div>
 <div class="flex items-center justify-between text-sm text-navy-600 mb-4" data-testid="test-header">
   <div>{{ __('Question') }} <span class="font-bold text-navy-900">{{ $currentIndex + 1 }}</span> of {{ $total }} <span class="ml-2 text-navy-500">({{ $q['section'] ?? '' }})</span></div>
-  <div x-show="endsAt" aria-live="polite" x-text="'⏱ ' + remaining" class="font-mono font-bold text-brand-600" data-testid="test-timer"></div>
+  <div x-show="endsAt" role="timer" aria-label="{{ __('Time remaining') }}" aria-live="off" x-text="remaining" class="font-mono font-bold text-brand-700" data-testid="test-timer"></div>
 </div>
-<div class="h-2 w-full rounded-full bg-navy-100 overflow-hidden">
+<div class="h-2 w-full rounded-full bg-navy-100 overflow-hidden" role="progressbar" aria-label="{{ __('Assessment progress') }}" aria-valuemin="1" aria-valuemax="{{ $total }}" aria-valuenow="{{ $currentIndex + 1 }}">
   <div class="h-full bg-brand-500 transition-all" style="width: {{ $total ? round((($currentIndex + 1) / $total) * 100) : 0 }}%"></div>
 </div>
 
 @if($q)
-<div class="mt-8 card p-8" data-testid="question-card">
-  <h2 class="text-xl md:text-2xl font-bold text-navy-900" data-testid="question-text">{{ $q['text'] }}</h2>
+<div class="mt-8 card p-8" data-testid="question-card" aria-labelledby="assessment-question-heading">
+  <h2 id="assessment-question-heading" class="text-xl md:text-2xl font-bold text-navy-900" data-testid="question-text">{{ $q['text'] }}</h2>
   @if(in_array($q['type'], ['single_choice', 'true_false'], true))
-    <div class="mt-6 space-y-3">
+    <div class="mt-6 space-y-3" role="group" aria-label="{{ __('Answer options') }}">
       @foreach($q['options'] as $opt)
         @php $selected = (int) ($answers[$q['id']] ?? 0) === (int) $opt['id']; @endphp
         <button type="button" wire:click="selectOption({{ $q['id'] }}, {{ $opt['id'] }})" aria-pressed="{{ $selected ? 'true' : 'false' }}"
@@ -26,7 +27,7 @@
       @endforeach
     </div>
   @elseif($q['type'] === 'multiple_choice')
-    <div class="mt-6 space-y-3">
+    <div class="mt-6 space-y-3" role="group" aria-label="{{ __('Answer options') }}">
       @foreach($q['options'] as $opt)
         @php $selected = in_array((int) $opt['id'], array_map('intval', (array) ($answers[$q['id']] ?? [])), true); @endphp
         <button type="button" wire:click="toggleOption({{ $q['id'] }}, {{ $opt['id'] }})" aria-pressed="{{ $selected ? 'true' : 'false' }}"
@@ -83,18 +84,18 @@
 @endif
 
 <div class="mt-6 flex items-center justify-between">
-  <button wire:click="prev" @disabled($currentIndex === 0) class="btn-outline disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500" data-testid="prev-btn">{{ __('← Previous') }}</button>
-  <div class="text-sm text-navy-500" data-testid="answered-counter">{{ $answered }} / {{ $total }} {{ __('answered') }}</div>
+  <button type="button" wire:click="prev" @disabled($currentIndex === 0) class="btn-outline disabled:bg-navy-50 disabled:text-navy-700 disabled:border-navy-200 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500" data-testid="prev-btn">{{ __('← Previous') }}</button>
+  <div class="text-sm text-navy-700" role="status" aria-live="polite" aria-atomic="true" data-testid="answered-counter">{{ $answered }} / {{ $total }} {{ __('answered') }}</div>
   @if($currentIndex < $total - 1)
-    <button wire:click="next" class="btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500" data-testid="next-btn">{{ __('Next →') }}</button>
+    <button type="button" wire:click="next" class="btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500" data-testid="next-btn">{{ __('Next →') }}</button>
   @else
-    <button wire:click="submit" wire:loading.attr="disabled" class="btn-primary bg-emerald-600 hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500" data-testid="submit-btn">{{ __('Submit test') }}</button>
+    <button type="button" wire:click="submit" wire:loading.attr="disabled" class="btn-primary bg-emerald-700 hover:bg-emerald-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500" data-testid="submit-btn">{{ __('Submit test') }}</button>
   @endif
 </div>
 
 <div class="mt-8 flex flex-wrap gap-2" data-testid="question-nav" role="group" aria-label="{{ __('Question navigation') }}">
   @foreach($questions as $i => $qq)
-    <button wire:click="jumpTo({{ $i }})" aria-current="{{ $i === $currentIndex ? 'step' : 'false' }}"
+    <button type="button" wire:click="jumpTo({{ $i }})" aria-label="{{ __('Go to question :number', ['number' => $i + 1]) }}" aria-current="{{ $i === $currentIndex ? 'step' : 'false' }}"
       class="h-9 w-9 rounded-full text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 {{ $i === $currentIndex ? 'bg-brand-500 text-white' : (isset($answers[$qq['id']]) ? 'bg-emerald-100 text-emerald-800' : 'bg-navy-100 text-navy-700') }}">{{ $i + 1 }}</button>
   @endforeach
 </div>

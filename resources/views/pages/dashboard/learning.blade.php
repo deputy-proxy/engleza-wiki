@@ -23,7 +23,7 @@
             <span>{{ __('Progress') }}</span>
             <strong>{{ $enrollment->completed_lesson_count }} / {{ $enrollment->available_lesson_count }} {{ __('lessons') }}</strong>
           </div>
-          <div class="mt-2 h-2 overflow-hidden rounded-full bg-navy-100">
+          <div class="mt-2 h-2 overflow-hidden rounded-full bg-navy-100" role="progressbar" aria-label="{{ __('Learning path progress') }}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ $enrollment->available_lesson_count ? round($enrollment->completed_lesson_count / $enrollment->available_lesson_count * 100) : 0 }}">
             <div class="h-full bg-brand-500" style="width: {{ $enrollment->available_lesson_count ? round($enrollment->completed_lesson_count / $enrollment->available_lesson_count * 100) : 0 }}%"></div>
           </div>
           @if($enrollment->path->status !== 'published')
