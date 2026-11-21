@@ -319,7 +319,9 @@ class LocalizationTest extends TestCase
 
         $this->assertIsString($rootHtaccess);
         $this->assertStringContainsString('RewriteCond %{HTTP_HOST} ^www\\.engleza\\.wiki', $rootHtaccess);
-        $this->assertStringContainsString('RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} !-d', $rootHtaccess);
+        $this->assertStringContainsString('RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -f', $rootHtaccess);
+        $this->assertStringNotContainsString('RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} !-d', $rootHtaccess);
+        $this->assertStringContainsString('RewriteRule ^ public/index.php [L]', $rootHtaccess);
         $this->assertLessThan(
             strpos($rootHtaccess, 'RewriteRule ^(.*)$ public/$1 [L]'),
             strpos($rootHtaccess, 'RewriteRule ^(.+)/$ /$1 [R=301,L]'),

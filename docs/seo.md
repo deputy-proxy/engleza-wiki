@@ -8,7 +8,7 @@
 
 - APP_URL must be the canonical HTTPS origin (https://engleza.wiki in production).
 - The www alias is permanently redirected by the root Apache rewrite rules to the canonical HTTPS host, including static files. The Laravel middleware also redirects non-canonical request hosts to the configured APP_URL host while preserving the path and query string.
-- The root .htaccess removes trailing slashes from non-directory application paths before rewriting requests into public/. This prevents /public/... from leaking into redirect destinations.
+- The root .htaccess removes trailing slashes from non-directory application paths before rewriting requests. Existing files under public/ are served directly; every other request is sent to public/index.php. Do not rewrite application routes to public/<route>, because a same-named physical directory can trigger Apache DirectorySlash and leak /public/... into redirect destinations.
 - Canonical tags are built from APP_URL and the normalized request path, not the incoming Host header.
 - Query strings are excluded from canonical tags. Tracking parameters and filtered listing variants therefore resolve to the clean path.
 - A resource's explicit canonical_url overrides the route-derived canonical. Only same-origin canonical resources are included in the XML sitemap; an external canonical target is deliberately not listed.
@@ -49,7 +49,7 @@ Production crawl performed 2026-11-21 before this remediation:
 - /resources/ redirected to /public/resources, exposing the internal public-directory rewrite in the URL.
 - Only Romanian is currently served. The old x-default link duplicated the Romanian URL without a language selector or separate default-language destination.
 
-The remediation adds canonical-host redirection, fixes trailing-slash handling before the public-directory rewrite, normalizes canonical/OG URLs, removes the misleading x-default, and restricts sitemap membership and indexability to approved content.
+The remediation adds canonical-host redirection, normalizes canonical/OG URLs, removes the misleading x-default, and restricts sitemap membership and indexability to approved content. A follow-up correction routes non-file requests through Laravel's front controller so same-named directories under public/ cannot expose /public/ in redirects.
 
 Post-remediation local crawl, 2026-11-21, against the E2E-seeded test database and local Laravel HTTP server:
 
