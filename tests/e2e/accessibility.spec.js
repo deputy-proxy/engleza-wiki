@@ -63,6 +63,29 @@ test('reduced-motion preference disables pointer-driven homepage tilt', async ({
     expect(await card.evaluate(element => element.style.transform)).toBe('');
 });
 
+test('homepage card responds to pointer and touch movement and resets on leave', async ({ page }) => {
+    await page.goto('/');
+    const card = page.locator('#interactive-3d-card');
+    const bounds = await card.boundingBox();
+
+    await page.mouse.move(bounds.x + bounds.width - 10, bounds.y + 10);
+    await expect.poll(() => card.evaluate(element => element.style.transform)).toMatch(/rotateX\(.+rotateY\(/);
+
+    await card.evaluate(element => {
+        const bounds = element.getBoundingClientRect();
+        element.dispatchEvent(new PointerEvent('pointermove', {
+            bubbles: true,
+            pointerType: 'touch',
+            clientX: bounds.left + bounds.width - 10,
+            clientY: bounds.top + 10,
+        }));
+    });
+    await expect.poll(() => card.evaluate(element => element.style.transform)).toMatch(/rotateX\(.+rotateY\(/);
+
+    await card.dispatchEvent('pointerleave');
+    await expect.poll(() => card.evaluate(element => element.style.transform)).toBe('');
+});
+
 test('search and resource filters expose accessible names', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('#home-search-input')).toBeVisible();
@@ -159,6 +182,27 @@ test('assessment timer announces meaningful thresholds without announcing every 
     await page.clock.runFor(4 * 60 * 1000);
     await expect(timer).toHaveText('1:00');
     await expect(announcements).toContainText('A mai rămas un minut');
+});
+
+test('expired assessment timer sends one Livewire submission', async ({ page }) => {
+    await page.goto('/tests');
+    await page.locator('[data-testid^="test-card-"]').first().click();
+    await page.getByTestId('start-test-btn').click();
+    await expect(page.getByTestId('test-timer')).toBeVisible();
+
+    let submissions = 0;
+    page.on('request', request => {
+        if (request.method() === 'POST') {
+            submissions++;
+        }
+    });
+    await page.evaluate(() => {
+        const timer = document.querySelector('[x-data^="assessmentTimer"]');
+        window.Alpine.$data(timer).endsAt = Date.now() - 1000;
+    });
+
+    await expect.poll(() => submissions, { timeout: 10_000 }).toBe(1);
+    await expect(page).toHaveURL(/\/result\/\d+$/);
 });
 
 test('core learner pages reflow without horizontal overflow on narrow screens', async ({ page }) => {

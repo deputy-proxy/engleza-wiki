@@ -1,5 +1,12 @@
-<div x-data="{ endsAt: {{ $test->duration_minutes ? (($attempt->started_at?->timestamp ?? time()) + $test->duration_minutes * 60) * 1000 : 0 }}, now: Date.now(), announcement: '', warned: [], get remaining(){ if(!this.endsAt) return null; let seconds=Math.max(0,Math.floor((this.endsAt-this.now)/1000)); return Math.floor(seconds/60) + ':' + String(seconds%60).padStart(2,'0') } }"
-     x-init="setInterval(()=>{ now=Date.now(); if(endsAt){ const seconds=Math.max(0,Math.floor((endsAt-now)/1000)); const warning = seconds === 0 ? 0 : (seconds <= 60 ? 60 : (seconds <= 300 ? 300 : null)); if(warning !== null && !warned.includes(warning)){ warned.push(warning); announcement = warning === 300 ? '{{ __('Five minutes remaining') }}' : (warning === 60 ? '{{ __('One minute remaining') }}' : '{{ __('Time is up. Submitting your answers.') }}'); } if(now>=endsAt){ $wire.submit() } } },1000)">
+<div x-data="assessmentTimer({
+    endsAt: {{ $test->duration_minutes ? (($attempt->started_at?->timestamp ?? time()) + $test->duration_minutes * 60) * 1000 : 0 }},
+    submit: () => $wire.submit(),
+    messages: {
+        fiveMinutes: @js(__('Five minutes remaining')),
+        oneMinute: @js(__('One minute remaining')),
+        expired: @js(__('Time is up. Submitting your answers.')),
+    },
+})">
 @php $q = $questions[$currentIndex] ?? null; $total = count($questions); $answered = count($answers); @endphp
 
 <div class="sr-only" role="status" aria-live="assertive" aria-atomic="true" x-text="announcement"></div>
