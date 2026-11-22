@@ -35,7 +35,7 @@ class HealthMonitoringTest extends TestCase
     {
         config(['session.driver' => 'array']);
 
-        DB::shouldReceive('connection')
+        DB::partialMock()->shouldReceive('connection')
             ->once()
             ->andThrow(new PDOException('sensitive database connection detail'));
 
