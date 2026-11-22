@@ -4,15 +4,22 @@ namespace Tests\Feature;
 
 use App\Models\LearningLesson;
 use App\Models\LearningPath;
+use App\Models\LearningPathEnrollment;
 use App\Models\LearningUnit;
 use App\Models\LessonActivity;
 use App\Models\Question;
+use App\Models\QuestionOption;
 use App\Models\ReadingResource;
 use App\Models\Resource;
+use App\Models\Test as Assessment;
+use App\Models\TestAttempt;
+use App\Models\TestSection;
 use App\Models\User;
 use App\Rules\ValidQuestionMetadata;
+use App\Services\Learning\LearningPathService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Tests\TestCase;
 
 class LearningPathTest extends TestCase
@@ -45,6 +52,103 @@ class LearningPathTest extends TestCase
 
         $this->get(route('learning.lessons.show', $lessons[1]))->assertOk()->assertSee($lessons[1]->title);
         $this->get(route('dashboard.learning'))->assertOk()->assertSee($path->title);
+    }
+
+    public function test_assessment_activity_requires_a_completed_attempt_owned_by_the_enrolled_learner(): void
+    {
+        $test = Assessment::factory()->create();
+        $reviewer = User::factory()->create(['role' => 'admin']);
+        $section = TestSection::query()->create(['test_id' => $test->id, 'title' => 'Assessment section']);
+        $question = Question::query()->create([
+            'test_section_id' => $section->id, 'type' => 'single_choice',
+            'question' => 'Choose the correct answer.', 'points' => 1, 'sort_order' => 1,
+        ]);
+        QuestionOption::query()->create([
+            'question_id' => $question->id, 'value' => 'Correct', 'label' => 'Correct',
+            'is_correct' => true, 'sort_order' => 1,
+        ]);
+        QuestionOption::query()->create([
+            'question_id' => $question->id, 'value' => 'Incorrect', 'label' => 'Incorrect',
+            'is_correct' => false, 'sort_order' => 2,
+        ]);
+        $test->refresh()->approveEditorialReview($reviewer);
+
+        $path = LearningPath::query()->create([
+            'title' => 'Assessment path', 'slug' => 'assessment-path', 'status' => 'draft', 'published_at' => now(),
+        ]);
+        $unit = LearningUnit::query()->create([
+            'learning_path_id' => $path->id, 'title' => 'Assessment unit', 'sort_order' => 1, 'is_published' => true,
+        ]);
+        $lesson = LearningLesson::query()->create([
+            'learning_unit_id' => $unit->id, 'title' => 'Assessment lesson', 'slug' => 'assessment-lesson',
+            'status' => 'draft', 'published_at' => now(), 'sort_order' => 1,
+        ]);
+        $activity = LessonActivity::query()->create([
+            'learning_lesson_id' => $lesson->id, 'type' => 'test', 'test_id' => $test->id,
+            'title' => 'Complete the assessment', 'sort_order' => 1, 'is_required' => true,
+        ]);
+
+        $lesson->approveEditorialReview($reviewer);
+        $lesson->update(['status' => 'published']);
+        $path->update(['status' => 'published']);
+
+        $learner = User::factory()->create(['role' => 'learner']);
+        $otherLearner = User::factory()->create(['role' => 'learner']);
+        $service = app(LearningPathService::class);
+        $service->enroll($path, $learner->id);
+
+        try {
+            $service->completeActivity($activity, $learner->id);
+            self::fail('An assessment activity must not complete without a submitted attempt.');
+        } catch (HttpException $exception) {
+            self::assertSame(403, $exception->getStatusCode());
+        }
+
+        $foreignAttempt = TestAttempt::query()->create([
+            'test_id' => $test->id, 'user_id' => $otherLearner->id,
+            'started_at' => now()->subMinutes(2), 'completed_at' => now(),
+            'status' => 'completed', 'score' => 1, 'percentage' => 100,
+        ]);
+
+        try {
+            $service->completeActivity($activity, $learner->id, $foreignAttempt->id);
+            self::fail('A learner must not complete an activity with another learner’s attempt.');
+        } catch (HttpException $exception) {
+            self::assertSame(403, $exception->getStatusCode());
+        }
+
+        $ownAttempt = TestAttempt::query()->create([
+            'test_id' => $test->id, 'user_id' => $learner->id,
+            'started_at' => now()->subMinutes(2), 'completed_at' => now(),
+            'status' => 'completed', 'score' => 1, 'percentage' => 100,
+        ]);
+
+        $progress = $service->completeActivity($activity, $learner->id, $ownAttempt->id);
+
+        self::assertSame($activity->id, $progress->lesson_activity_id);
+        self::assertSame($learner->id, $progress->user_id);
+        self::assertSame('completed', $progress->status);
+    }
+
+    public function test_completing_the_final_available_lesson_completes_the_path_enrollment(): void
+    {
+        [$path, $lessons, $activities] = $this->makePathWithLessons();
+        $learner = User::factory()->create(['role' => 'learner']);
+        $service = app(LearningPathService::class);
+
+        $service->enroll($path, $learner->id);
+        $service->completeActivity($activities[0], $learner->id);
+        $service->completeLesson($lessons[0], $learner->id);
+
+        $this->assertDatabaseHas('learning_path_enrollments', [
+            'learning_path_id' => $path->id,
+            'user_id' => $learner->id,
+            'status' => 'completed',
+        ]);
+        self::assertNotNull(LearningPathEnrollment::query()
+            ->where('learning_path_id', $path->id)
+            ->where('user_id', $learner->id)
+            ->value('completed_at'));
     }
 
     public function test_draft_and_archived_resources_hide_their_published_lessons(): void
