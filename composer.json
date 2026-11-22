@@ -89,10 +89,15 @@
             "@security:check",
             "@lint:check",
             "@types:check",
-            "@php artisan test"
+            "@test:coverage"
         ],
         "security:check": [
             "composer audit --no-interaction"
+        ],
+        "test:coverage": [
+            "@php -r \"is_dir('build/coverage') || mkdir('build/coverage', 0777, true);\"",
+            "@php vendor/bin/phpunit --coverage-text --coverage-clover=build/coverage/clover.xml",
+            "@php scripts/check-coverage.php build/coverage/clover.xml"
         ]
     },
     "extra": {

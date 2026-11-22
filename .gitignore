@@ -34,3 +34,5 @@ yarn.lock
 
 /playwright-report/
 /test-results/
+
+/build/coverage/
